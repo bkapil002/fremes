@@ -88,12 +88,12 @@ const [formData, setFormData] = useState({
 
                 </div>
               </div>
-      <button className="bg-blue-600 text-white px-4 py-2" type="submit">Sign In</button>
+      <button className="bg-blue-600 text-white px-4 py-2" type="submit">{loading ? 'Wait..' : 'Sign In' }</button>
       <Link 
           to="/signup" 
           className="block text-center text-sm text-blue-600 hover:text-blue-700 transition-colors"
               >
-                Don't have an account? <span className="font-medium">{loading ? 'Wait..' : 'Sign up' }</span>
+                Don't have an account? <span className="font-medium">Sign up</span>
               </Link>
     </form>
   );
