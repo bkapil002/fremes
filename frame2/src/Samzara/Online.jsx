@@ -28,9 +28,7 @@ const Online = () => {
     };
 
     if (navigator.share) {
-      navigator.share(shareData).catch((error) => {
-        alert('Error sharing:', error);
-      });
+      navigator.share(shareData).catch((error) => {});
     } else {
 
       const message = encodeURIComponent(`${shareData.text}\n${shareData.url}`);
