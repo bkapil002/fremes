@@ -67,7 +67,7 @@ const Basics = () => {
         const imageMap = {};
         for (const uid of uids) {
           try {
-            const response = await axios.put(`http://localhost:5000/api/users/name/${uid}`);
+            const response = await axios.put(`https://samzraa.onrender.com/api/users/name/${uid}`);
             nameMap[uid] = response.data.name; 
             imageMap[uid] = response.data.imageUrls;
           } catch (error) {
@@ -99,7 +99,7 @@ const Basics = () => {
     const fetchRoomDetails = async () => {
       try {
         const response = await axios.put(
-          `http://localhost:5000/api/agora/join-room/${linkId}`,
+          `https://samzraa.onrender.com/api/agora/join-room/${linkId}`,
           {},
           {
             headers: {
@@ -130,7 +130,7 @@ const Basics = () => {
     if (!user) return;
     const fetchPushedUids = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/agora/pushed-uids', {
+        const res = await axios.get('https://samzraa.onrender.com/api/agora/pushed-uids', {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setPushedUids(res.data.map(x => x.uid));
@@ -145,7 +145,7 @@ const Basics = () => {
   const handlePushRequest = async () => {
     setPushLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/agora/push-uid', { email: user.email }, {
+      await axios.post('https://samzraa.onrender.com/api/agora/push-uid', { email: user.email }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
     } catch (err) {
@@ -158,7 +158,7 @@ const Basics = () => {
   // const handleResetOwnRequest = async () => {
   //   setResetLoading(true);
   //   try {
-  //     await axios.delete('http://localhost:5000/api/agora/unpush-uid', {
+  //     await axios.delete('https://samzraa.onrender.com/api/agora/unpush-uid', {
   //       headers: { Authorization: `Bearer ${user.token}` }
   //     });
   //     setPushedUids((uids) => uids.filter(uid => uid !== email));
@@ -171,7 +171,7 @@ const Basics = () => {
 const handleResetOwnRequest = async (uidToRemove) => {
   setResetLoading(true);
   try {
-    await axios.delete(`http://localhost:5000/api/agora/unpush-uid/${uidToRemove || email}`, {
+    await axios.delete(`https://samzraa.onrender.com/api/agora/unpush-uid/${uidToRemove || email}`, {
       headers: { Authorization: `Bearer ${user.token}` }
     });
     setPushedUids((uids) => uids.filter(uid => uid !== (uidToRemove || email)));

@@ -66,7 +66,7 @@ export default function SignUp() {
         formData.append('images', image.file);
       });
 
-      const response = await fetch(`http://localhost:5000/api/users/signUp`, {
+      const response = await fetch(`https://samzraa.onrender.com/api/users/signUp`, {
         method: 'POST',
         body: formData,
         credentials: 'include'

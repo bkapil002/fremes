@@ -35,7 +35,7 @@ const JoinRoom = () => {
       }
 
       const response = await axios.post(
-        'http://localhost:5000/api/agora/create-room',
+        'https://samzraa.onrender.com/api/agora/create-room',
         {},
         {
           headers: {

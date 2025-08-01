@@ -52,7 +52,7 @@ const Room = () => {
     const fetchRoomDetails = async () => {
       try {
         const response = await axios.put(
-          `http://localhost:5000/api/agora/join-room/${linkId}`,
+          `https://samzraa.onrender.com/api/agora/join-room/${linkId}`,
           {},
           {
             headers: {
@@ -101,7 +101,7 @@ const Room = () => {
         const nameMap = {};
         for (const uid of uids) {
           try {
-            const response = await axios.put(`http://localhost:5000/api/users/name/${uid}`);
+            const response = await axios.put(`https://samzraa.onrender.com/api/users/name/${uid}`);
             nameMap[uid] = response.data.name; // assuming API returns { name: ... }
           } catch (error) {
             nameMap[uid] = "Unknown";
