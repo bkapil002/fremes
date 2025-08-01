@@ -10,6 +10,7 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [loading, setLoading] = useState(false)
 
   const handleImageChange = (e) => {
     if (!e.target.files) return;
@@ -56,6 +57,7 @@ export default function SignUp() {
     e.preventDefault();
 
     try {
+      setLoading(true)
       const compressedImages = await compressImages(images);
       const formData = new FormData();
       formData.append('name', name);
@@ -172,7 +174,7 @@ export default function SignUp() {
         />
       </div>
 
-      <button className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Sign Up</button>
+      <button className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">{loading ? 'Wait..':'Sign Up'}</button>
       <Link
         to="/signin"
         className="block text-center text-sm text-blue-600 hover:text-blue-700 transition-colors"

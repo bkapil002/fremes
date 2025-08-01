@@ -12,6 +12,7 @@ const [formData, setFormData] = useState({
 
  const navigate = useNavigate();
  const {login} = useAuth()
+ const [loading, setLoading] = useState(false)
  
  const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,6 +25,7 @@ const [formData, setFormData] = useState({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true)
       const response = await fetch('https://samzraa.onrender.com/api/users/login', {
         method: 'POST',
         headers: {
@@ -91,7 +93,7 @@ const [formData, setFormData] = useState({
           to="/signup" 
           className="block text-center text-sm text-blue-600 hover:text-blue-700 transition-colors"
               >
-                Don't have an account? <span className="font-medium">Sign up</span>
+                Don't have an account? <span className="font-medium">{loading ? 'Wait..' : 'Sign up' }</span>
               </Link>
     </form>
   );

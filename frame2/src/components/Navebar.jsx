@@ -22,7 +22,9 @@ export default function Navebar() {
   const {isAuthenticated, logout,user} = useAuth()
 
    const handleLogout = async () => {
+    
     try {
+   
       const response = await fetch("https://samzraa.onrender.com/api/users/logOut", {
         method: "POST",
         headers: {
