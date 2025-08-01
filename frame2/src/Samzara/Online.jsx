@@ -19,10 +19,28 @@ const Online = () => {
         <p className="text-center text-gray-700 text-sm mt-2">
           JFT - Calling a defect a defect & SPAD - Allowing our partners and ourselves to experience personal autonomy means we can grow a
         </p>
-        <div className="mt-4 flex items-center space-x-2 text-indigo-900 font-semibold text-sm cursor-pointer">
-          <FaShareAlt />
-          <span>Share</span>
-        </div>
+         <div
+  aria-label="Share"
+  className="mt-4 flex items-center space-x-2 text-indigo-900 font-semibold text-sm cursor-pointer"
+  onClick={() => {
+    const shareData = {
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch((error) => {
+        alert('Error sharing:', error);
+      });
+    } else {
+
+      const message = encodeURIComponent(`${shareData.text}\n${shareData.url}`);
+      window.open(`https://wa.me/?text=${message}`, '_blank'); 
+    }
+  }}
+>
+  <FaShareAlt />
+  <span>Share</span>
+</div>
       </div>
     </div>
       
