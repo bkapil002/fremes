@@ -1,15 +1,7 @@
-import { Menu } from "lucide-react";
+import { Mic, MicOff,Camera ,CameraOff , Menu } from "lucide-react";
 import SideBar from "./SideBar";
 import Online from "./Online";
 import Know from "./Know";
-
-import { useEffect, useState } from "react";
-import AgoraRTC, { AgoraRTCProvider } from "agora-rtc-react";
-import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { Mic, MicOff } from "lucide-react"; 
-import Audience from "./Audience";
 import {
   LocalUser,
   RemoteUser,
@@ -20,6 +12,12 @@ import {
   usePublish,
   useRemoteUsers,
 } from "agora-rtc-react";
+import { useEffect, useState } from "react";
+import AgoraRTC, { AgoraRTCProvider } from "agora-rtc-react";
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import Audience from "./Audience";
 
 
 export const Frame = () => {
@@ -54,15 +52,12 @@ const Basics = () => {
   const [pushedUids, setPushedUids] = useState([]);
   const [pushLoading, setPushLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
-  
-
+  const [promotedUid, setPromotedUid] = useState(null);
+  const [promoteLoading, setPromoteLoading] = useState(false);
   const remoteUsers = useRemoteUsers();
-
-  
 
   useEffect(() => {
     const uids = remoteUsers.map(u => u.uid);
-
     const fetchNames = async () => {
       if (uids.length) {
         const nameMap = {};
@@ -70,7 +65,7 @@ const Basics = () => {
         for (const uid of uids) {
           try {
             const response = await axios.put(`https://samzraa.onrender.com/api/users/name/${uid}`);
-            nameMap[uid] = response.data.name; 
+            nameMap[uid] = response.data.name;
             imageMap[uid] = response.data.imageUrls;
           } catch (error) {
             nameMap[uid] = "Unknown";
@@ -81,7 +76,6 @@ const Basics = () => {
         setImage(imageMap);
       }
     };
-
     fetchNames();
   }, [remoteUsers]);
 
@@ -97,7 +91,6 @@ const Basics = () => {
 
   useEffect(() => {
     if (!user || !linkId) return;
-
     const fetchRoomDetails = async () => {
       try {
         const response = await axios.put(
@@ -120,13 +113,12 @@ const Basics = () => {
         console.error('Error fetching room details:', error);
       }
     };
-
     fetchRoomDetails();
   }, [user, linkId]);
 
   usePublish([localMicrophoneTrack, localCameraTrack]);
-  const isAdmin = email === admin;
 
+  const isAdmin = email === admin;
 
   useEffect(() => {
     if (!user) return;
@@ -143,7 +135,24 @@ const Basics = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Push request handler
+
+  useEffect(() => {
+    if (!user || !linkId) return;
+    const fetchPromotedUid = async () => {
+      try {
+        const res = await axios.get(`https://samzraa.onrender.com/api/agora/promote-uid/${linkId}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        setPromotedUid(res.data.promotedUid);
+      } catch (error) {
+        console.error('Error fetching promoted UID:', error);
+      }
+    };
+    fetchPromotedUid();
+    const interval = setInterval(fetchPromotedUid, 2000);
+    return () => clearInterval(interval);
+  }, [user, linkId]);
+
   const handlePushRequest = async () => {
     setPushLoading(true);
     try {
@@ -151,45 +160,65 @@ const Basics = () => {
         headers: { Authorization: `Bearer ${user.token}` }
       });
     } catch (err) {
-      // Already requested or error
     }
     setPushLoading(false);
   };
 
-  // Reset request handler (admin)
-  // const handleResetOwnRequest = async () => {
-  //   setResetLoading(true);
-  //   try {
-  //     await axios.delete('https://samzraa.onrender.com/api/agora/unpush-uid', {
-  //       headers: { Authorization: `Bearer ${user.token}` }
-  //     });
-  //     setPushedUids((uids) => uids.filter(uid => uid !== email));
-  //   } catch (err) {
-  //     // handle error
-  //   }
-  //   setResetLoading(false);
-  // };
+  const handleResetOwnRequest = async (uidToRemove) => {
+    setResetLoading(true);
+    try {
+      await axios.delete(`https://samzraa.onrender.com/api/agora/unpush-uid/${uidToRemove || email}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      setPushedUids((uids) => uids.filter(uid => uid !== (uidToRemove || email)));
+    } catch (err) {
+    }
+    setResetLoading(false);
+  };
 
-const handleResetOwnRequest = async (uidToRemove) => {
-  setResetLoading(true);
-  try {
-    await axios.delete(`https://samzraa.onrender.com/api/agora/unpush-uid/${uidToRemove || email}`, {
-      headers: { Authorization: `Bearer ${user.token}` }
-    });
-    setPushedUids((uids) => uids.filter(uid => uid !== (uidToRemove || email)));
-  } catch (err) {
-    // handle error
+  const handlePromoteUser = async (uid) => {
+  setPromoteLoading(true);
+  try { 
+    if (promotedUid) {
+      await handleRemovePromotedUser();
+    }
+
+    await axios.post(`https://samzraa.onrender.com/api/agora/promote-uid/${linkId}`,
+      { uid },
+      {
+        headers: { Authorization: `Bearer ${user.token}` }
+      }
+    );
+    setPromotedUid(uid);
+  } catch (error) {
+    console.error('Error promoting user:', error);
   }
-  setResetLoading(false);
+  setPromoteLoading(false);
 };
+  const handleRemovePromotedUser = async () => {
+    if (!isAdmin && promotedUid !== email) return;
+
+    setPromoteLoading(true);
+    try {
+      await axios.delete(`https://samzraa.onrender.com/api/agora/promote-uid/${linkId}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      setPromotedUid(null);
+    } catch (error) {
+      console.error('Error removing promoted user:', error);
+    }
+    setPromoteLoading(false);
+  };
 
   const requestingRemoteUsers = remoteUsers.filter(
     u => pushedUids.includes(u.uid)
   );
-  const isRequesting = pushedUids.includes(email);
 
+  const isRequesting = pushedUids.includes(email);
+  const isPromoted = promotedUid === email;
   const adminRemoteUsers = remoteUsers.filter(user => user.uid === admin);
   const normalRemoteUsers = remoteUsers.filter(user => user.uid !== admin);
+  const promotedUser = promotedUid === email ? null : remoteUsers.find(user => user.uid === promotedUid);
 
   return (
     <div className="h-screen flex overflow-hidden">
@@ -205,8 +234,6 @@ const handleResetOwnRequest = async (uidToRemove) => {
           setResourcesOpen={setResourcesOpen}
         />
       </div>
-
-      {/* Main Content - Scrollable */}
       <div className="flex-1 flex flex-col overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <style>
           {`
@@ -214,13 +241,11 @@ const handleResetOwnRequest = async (uidToRemove) => {
             .overflow-y-auto { -ms-overflow-style: none; scrollbar-width: none; }
           `}
         </style>
-
         <div className="flex items-center justify-between p-4 bg-white shadow md:hidden">
           <button onClick={() => setSidebarOpen(true)}>
             <Menu size={24} />
           </button>
         </div>
-
         {!isConnected ? (
           <div className="p-10 max-w-md mx-auto flex flex-col gap-4">
             <button
@@ -236,7 +261,9 @@ const handleResetOwnRequest = async (uidToRemove) => {
               <Online />
             </div>
             <div className="flex flex-col lg:flex-row flex-1 p-4 gap-4">
+              {/* Sidebar */}
               <div className="lg:w-1/5 w-full flex flex-col gap-4">
+                {/* Admin info card (always shown) */}
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                   <div className="bg-orange-500 text-white text-center py-1 font-semibold">
                     Speaker
@@ -250,12 +277,9 @@ const handleResetOwnRequest = async (uidToRemove) => {
                     <p className="text-sm text-gray-500">{admin}</p>
                   </div>
                 </div>
-              </div>
-
-              {/* Center area: Always show admin's video */}
-              <div className="lg:w-3/5 w-full flex flex-col items-center bg-white shadow rounded-lg p-4">
-                <div className="border rounded-lg w-full max-w-[640px] aspect-video flex justify-center items-center">
-                  <div className="rounded-lg w-full h-full object-cover">
+                {/* Admin video panel (only when a normal user is promoted) */}
+                {promotedUid && promotedUid !== admin && (
+                  <div>
                     {isAdmin ? (
                       <LocalUser
                         audioTrack={localMicrophoneTrack}
@@ -263,159 +287,231 @@ const handleResetOwnRequest = async (uidToRemove) => {
                         micOn={micOn}
                         playAudio={false}
                         videoTrack={localCameraTrack}
-                        style={{ borderRadius: '2%' }}
-                      >
-                        <div className="w-full overflow-hidden">
-                          <p className="bg-gray-700/60 w-full text-white text-xl text-center truncate">
-                            {user.name}
-                          </p>
-                        </div>
-                      </LocalUser>
+                        style={{ borderRadius: '2%', width: '100%', height: '100%' }}
+                      />
                     ) : (
-                      adminRemoteUsers.length > 0 ? (
-                        <RemoteUser user={adminRemoteUsers[0]} style={{ borderRadius: '2%' }}>
+                      adminRemoteUsers[0] && (
+                        <RemoteUser
+                          user={adminRemoteUsers[0]}
+                          style={{ borderRadius: '2%', width: '100%', height: '100%' }}
+                        />
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+              {/* Main video area */}
+              <div className="lg:w-3/5 w-full flex flex-col items-center bg-white shadow rounded-lg p-4">
+                <div className="border rounded-lg w-full max-w-[640px] aspect-video flex justify-center items-center">
+                  <div className="rounded-lg w-full h-full object-cover">
+                    {/* Show promoted user (if promotedUid set and NOT admin), else show admin */}
+                    {promotedUid && promotedUid !== admin ? (
+                      promotedUid === email ? (
+                        <LocalUser
+                          audioTrack={localMicrophoneTrack}
+                          cameraOn={cameraOn}
+                          micOn={micOn}
+                          playAudio={true}
+                          videoTrack={localCameraTrack}
+                          style={{ borderRadius: '2%' }}
+                        >
                           <div className="w-full overflow-hidden">
                             <p className="bg-gray-700/60 w-full text-white text-xl text-center truncate">
-                              {names[admin] || "Loading..."}
+                              {user.name} (You)
+                            </p>
+                          </div>
+                        </LocalUser>
+                      ) : promotedUser ? (
+                        <RemoteUser
+                          user={promotedUser}
+                          style={{ borderRadius: '2%' }}
+                        >
+                          <div className="w-full overflow-hidden">
+                            <p className="bg-gray-700/60 w-full text-white text-xl text-center truncate">
+                              {names[promotedUid] || "Loading..."}
                             </p>
                           </div>
                         </RemoteUser>
                       ) : (
-                        <div className="text-center text-gray-400">Admin not connected</div>
+                        <div className="flex items-center justify-center h-full text-gray-400">
+                          Promoted user not connected
+                        </div>
+                      )
+                    ) : (
+                      isAdmin ? (
+                        <LocalUser
+                          audioTrack={localMicrophoneTrack}
+                          cameraOn={cameraOn}
+                          micOn={micOn}
+                          playAudio={false}
+                          videoTrack={localCameraTrack}
+                          style={{ borderRadius: '2%' }}
+                        >
+                          <div className="w-full overflow-hidden">
+                            <p className="bg-gray-700/60 w-full text-white text-xl text-center truncate">
+                              {user.name}
+                            </p>
+                          </div>
+                        </LocalUser>
+                      ) : (
+                        adminRemoteUsers.length > 0 ? (
+                          <RemoteUser user={adminRemoteUsers[0]} style={{ borderRadius: '2%' }}>
+                            <div className="w-full overflow-hidden">
+                              <p className="bg-gray-700/60 w-full text-white text-xl text-center truncate">
+                                {names[admin] || "Loading..."}
+                              </p>
+                            </div>
+                          </RemoteUser>
+                        ) : (
+                          <div className="text-center text-gray-400">Admin not connected</div>
+                        )
                       )
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 mt-4 flex-wrap justify-center">
-                  {isAdmin && (
-                    <button onClick={() => setCamera(a => !a)} className="bg-blue-900 cursor-pointer text-white px-3 py-1 text-sm rounded-lg">
-                      {cameraOn ? "Turn Cam Off" : "Turn Cam On"}
-                    </button>
-                  )}
-         
-             {!isAdmin && (
-               <>
-               {!cameraOn ? (
-                <button
-                 onClick={() => setCamera(true)}
-                 className="bg-blue-900 text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
-                Turn Cam On
-                </button>
-                 ) : !isRequesting ? (
-                <button
-                   onClick={handlePushRequest}
-                  className="bg-orange-400 text-white px-3 cursor-pointer py-1 text-sm rounded-lg"
-                   disabled={pushLoading}  >
-                   {pushLoading ? "Requesting..." : "Request to Share"}
-                </button>
-                 ) : (
-               <button onClick={async () => { await handleResetOwnRequest(); setCamera(false); }}className="bg-orange-400 text-white cursor-pointer px-3 py-1 text-sm rounded-lg"
-                 disabled={resetLoading}>
-                   {resetLoading ? "Cancelling..." : "Cancel Request"}
-                 </button>
-                      )}
-                 </>
-              )
 
-                }
+                {/* Controls */}
+                <div className="flex gap-2 mt-4 flex-wrap justify-center">
                   
                   {!isAdmin && (
-                    <button onClick={async () => { await handleResetOwnRequest(); setCalling(false)}} className="bg-blue-900 text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
-                    End call
-                  </button>
+                    <>
+                      {!cameraOn ? (
+                        <button
+                          onClick={() => setCamera(true)}
+                          className="bg-blue-900 text-white px-3 py-1 cursor-pointer text-sm rounded-lg"
+                        >
+                         <spam className='flex justify-center gap-2 items-center'><CameraOff/>Camera Off</spam>
+                        </button>
+                      ) : !isPromoted ? (
+                        !isRequesting ? (
+                          <button
+                            onClick={handlePushRequest}
+                            className="bg-orange-400 text-white px-3 cursor-pointer py-1 text-sm rounded-lg"
+                            disabled={pushLoading}
+                          >
+                            {pushLoading ? "Requesting..." : "Request to Share"}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={async () => { await handleResetOwnRequest(); setCamera(false); }}
+                            className="bg-orange-400 text-white cursor-pointer px-3 py-1 text-sm rounded-lg"
+                            disabled={resetLoading}
+                          >
+                            {resetLoading ? "Cancelling..." : "Cancel Request"}
+                          </button>
+                        )
+                      ) : null}
+                    </>
                   )}
-                  
-                {isAdmin && (
-                  <>
-                  <button onClick={() => setCalling(false)} className="bg-blue-900 text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
-                    End call
-                  </button>
-                  <button onClick={() => setMic(a => !a)} className="bg-blue-900 text-white px-3 py-1 text-sm cursor-pointer rounded-lg">
-                    {micOn ? "Mute Mic" : "Unmute Mic"}
-                  </button>
-                  </>
-                )}
+
+
+                  {!isAdmin && (
+                    <button onClick={async () => { await handleResetOwnRequest(); setCalling(false) }} className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
+                      End call
+                    </button>
+                  )}
+                  {!isAdmin && promotedUid === email && (
+                    <button onClick={() => setMic(a => !a)} className="bg-blue-900 text-white px-3 py-1 text-sm cursor-pointer rounded-lg">
+                      {micOn ? <spam className='flex justify-center gap-2 items-center'><Mic/>Mic On</spam> : <spam className='flex justify-center gap-2 items-center'><MicOff/>Mic off</spam>}
+                    </button>
+                  )}
+
+
+                  {isAdmin && (
+                    <>
+                    <button onClick={() => setCamera(a => !a)} className="bg-blue-900 cursor-pointer text-white px-3 py-1 text-sm rounded-lg">
+                      {cameraOn ? <spam className='flex justify-center gap-2 items-center'><Camera/>Camera On</spam> : <spam className='flex justify-center gap-2 items-center'><CameraOff/>Camera off</spam>}
+                    </button>
+                      <button onClick={() => setCalling(false)} className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
+                        End call
+                      </button>
+                      <button onClick={() => setMic(a => !a)} className="bg-blue-900 text-white px-3 py-1 text-sm cursor-pointer rounded-lg">
+                         {micOn ? <spam className='flex justify-center gap-2 items-center'><Mic/>Mic On</spam> : <spam className='flex justify-center gap-2 items-center'><MicOff/>Mic off</spam>}
+                      </button>
+                    </>
+                  )}
+
+                  {isAdmin && promotedUid && (
+                    <button
+                      onClick={handleRemovePromotedUser}
+                      disabled={promoteLoading}
+                      className="bg-red-600 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
+                    >
+                      {promoteLoading ? "Loading..." : "End Share"}
+                    </button>
+                  )}
+                  {!isAdmin && promotedUid === email && (
+                    <button
+                      onClick={handleRemovePromotedUser}
+                      disabled={promoteLoading}
+                      className="bg-red-600 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
+                    >
+                      {promoteLoading ? "Loading..." : "End Share"}
+                    </button>
+                  )}
                 </div>
               </div>
-
-             <div className="lg:w-1/5 w-full bg-white shadow rounded-lg p-1">
-              <div className="bg-orange-500 text-white text-center py-1 font-semibold rounded">
-             People Requesting to Share
-             </div>
-           <div className="grid grid-cols-4 lg:grid-cols-2 gap-2 mt-2">
-             {/* Show current user if they are requesting */}
-           {isRequesting && (
-       <div
-        className="w-20 h-20 relative mx-auto rounded-full flex items-center justify-center group cursor-pointer"
-        onClick={() => setMic((prev) => !prev)}
-      >
-        <LocalUser
-          audioTrack={localMicrophoneTrack}
-          cameraOn={cameraOn}
-          micOn={micOn}
-          playAudio={false}
-          videoTrack={localCameraTrack}
-          style={{ width: "100%", height: "100%", borderRadius: "10%" }}
-        >
-          <div className="w-full overflow-hidden">
-            <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
-              {user.name}
-              
-            </p>
-            {/* <span className="absolute top-0 left-0 bg-orange-600 text-white text-xs rounded-full px-1 py-0.8 ">
-          {pushedUids.indexOf(email) + 1}
-        </span> */}
-          </div>
-        </LocalUser>
-        {/* Show position number */}
-        
-        <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
-          {micOn ? (
-            <Mic className="text-white w-6 h-6" />
-          ) : (
-            <MicOff className="text-white w-6 h-6" />
-          )}
-        </div>
-      </div>
-    )}
-
-    {requestingRemoteUsers.map(u => (
-      u.uid !== email &&
-      <div key={u.uid} className="w-20 h-20 relative mx-auto rounded-full flex items-center justify-center group ">
-        <RemoteUser user={u} style={{ width: "100%", height: "100%", borderRadius: "10%" }}>
-          <div className="w-full overflow-hidden">
-            <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
-              {names[u.uid] || "Loading..."}
-              {/* <span className="absolute top-0 left-0 bg-orange-500 text-white text-xs rounded-full px-1 py-0.8 ">
-             {pushedUids.indexOf(u.uid) + 1}
-            </span> */}
-            {isAdmin &&(
-               <button
-              onClick={() => handleResetOwnRequest(u.uid)}
-              className="absolute top-0 right-0  text-sm   bg-gray-700/100 hover:bg-orange-500/95 truncate text-white  cursor-pointer rounded-full px-1  "
-              title="Remove request"
-            >
-              x
-            </button>
-            )}
-            </p>
-          </div>
-        </RemoteUser>
-      </div>
-    ))}
-  </div>
-</div>
+              {/* Right sidebar */}
+              <div className="lg:w-1/5 w-full bg-white shadow rounded-lg p-1">
+                <div className="bg-orange-500 text-white text-center py-1 font-semibold rounded">
+                  People Requesting to Share
+                </div>
+                <div className="grid grid-cols-4 lg:grid-cols-2 gap-2 mt-2">
+                  {isRequesting && (
+                    <div
+                      className="w-20 h-20 relative mx-auto rounded-full flex items-center justify-center group cursor-pointer"
+                      
+                    >
+                      <LocalUser
+                        audioTrack={localMicrophoneTrack}
+                        cameraOn={cameraOn}
+                        micOn={micOn}
+                        playAudio={false}
+                        videoTrack={localCameraTrack}
+                        style={{ width: "100%", height: "100%", borderRadius: "10%" }}
+                      >
+                        <div className="w-full overflow-hidden">
+                          <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
+                            {user.name}
+                          </p>
+                        </div>
+                      </LocalUser>
+                    </div>
+                  )}
+                  {requestingRemoteUsers.map(u => (
+                    u.uid !== email &&
+                    <div key={u.uid} className={`w-20 h-20 relative mx-auto rounded-full flex items-center justify-center ${isAdmin?'cursor-pointer':''} group`}
+                      onClick={() => isAdmin && handlePromoteUser(u.uid)}
+                    >
+                      <RemoteUser user={u} style={{ width: "100%", height: "100%", borderRadius: "10%" }}>
+                        <div className="w-full overflow-hidden">
+                          <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
+                            {names[u.uid] || "Loading..."}
+                            {isAdmin && (
+                              <button
+                                onClick={() => handleResetOwnRequest(u.uid)}
+                                className="absolute top-0 right-0 text-sm bg-gray-700/100 hover:bg-orange-500/95 truncate text-white cursor-pointer rounded-full px-1"
+                                title="Remove request"
+                              >
+                                x
+                              </button>
+                            )}
+                          </p>
+                        </div>
+                      </RemoteUser>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </>
         )}
-
         {isConnected && (
           <div>
             <Know />
-
             {!isAdmin && cameraOn && (
               <div
-                className="w-24 h-24 relative mx-auto rounded-full flex items-center justify-center group "
+                className="w-24 h-24 relative mx-auto rounded-full flex items-center justify-center group"
               >
                 <LocalUser
                   audioTrack={localMicrophoneTrack}
@@ -431,10 +527,9 @@ const handleResetOwnRequest = async (uidToRemove) => {
                     </p>
                   </div>
                 </LocalUser>
-
               </div>
             )}
-            <Audience  normalRemoteUsers={normalRemoteUsers} isAdmin={isAdmin} email={email} user={user} image={image} names={names} />
+            <Audience normalRemoteUsers={normalRemoteUsers} isAdmin={isAdmin} email={email} user={user} image={image} names={names} />
           </div>
         )}
       </div>

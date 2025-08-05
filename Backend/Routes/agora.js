@@ -4,7 +4,7 @@ const router = express.Router();
 const { auth } = require('../middleware/auth');
 const Agora = require('../Modal/Agora');
 const PushedUid = require('../Modal/PushedUid');
-
+const PromotedUid = require('../Modal/PromotedUid');
 
 
 function generateLinkId() {
@@ -163,4 +163,45 @@ router.delete('/unpush-uid/:uid', auth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.post('/promote-uid/:roomId', auth, async (req, res) => {
+  const { uid } = req.body;
+  const { roomId } = req.params;
+  if (!uid || !roomId) return res.status(400).json({ error: 'uid and roomId are required' });
+
+  try {
+  
+    await PromotedUid.deleteMany({ roomId });
+
+    
+    const promoted = new PromotedUid({ roomId, uid, ts: Date.now() });
+    await promoted.save();
+    res.status(201).json({ success: true, uid });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+router.delete('/promote-uid/:roomId', auth, async (req, res) => {
+  const { roomId } = req.params;
+  try {
+    await PromotedUid.deleteMany({ roomId });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+router.get('/promote-uid/:roomId', auth, async (req, res) => {
+  const { roomId } = req.params;
+  try {
+    const promoted = await PromotedUid.findOne({ roomId });
+    res.json({ promotedUid: promoted ? promoted.uid : null, ts: promoted ? promoted.ts : null });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
