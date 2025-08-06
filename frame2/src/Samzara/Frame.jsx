@@ -249,7 +249,7 @@ const Basics = () => {
         {!isConnected ? (
           <div className="p-10 max-w-md mx-auto flex flex-col gap-4">
             <button
-              onClick={async () => { await handleResetOwnRequest(); setCalling(true); }}
+              onClick={async () => { await handleRemovePromotedUser(); await handleResetOwnRequest(); setCalling(true); }}
               className="bg-orange-500 hover:bg-orange-600 text-white cursor-pointer py-2 px-3 rounded"
             >
               Ready to join
@@ -263,7 +263,7 @@ const Basics = () => {
             <div className="flex flex-col lg:flex-row flex-1 p-4 gap-4">
               {/* Sidebar */}
               <div className="lg:w-1/5 w-full flex flex-col gap-4">
-                {/* Admin info card (always shown) */}
+                
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                   <div className="bg-orange-500 text-white text-center py-1 font-semibold">
                     Speaker
@@ -406,7 +406,7 @@ const Basics = () => {
 
 
                   {!isAdmin && (
-                    <button onClick={async () => { await handleResetOwnRequest(); setCalling(false) }} className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
+                    <button onClick={async () => {await handleRemovePromotedUser();  await handleResetOwnRequest();  setCalling(false) }} className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
                       End call
                     </button>
                   )}
@@ -433,16 +433,24 @@ const Basics = () => {
 
                   {isAdmin && promotedUid && (
                     <button
-                      onClick={handleRemovePromotedUser}
+                      onClick={async () => {
+                      await handleRemovePromotedUser();
+                      await handleResetOwnRequest(promotedUid); 
+                       }}
                       disabled={promoteLoading}
                       className="bg-red-600 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
                     >
                       {promoteLoading ? "Loading..." : "End Share"}
                     </button>
                   )}
+                  
                   {!isAdmin && promotedUid === email && (
                     <button
-                      onClick={handleRemovePromotedUser}
+                      onClick={async () => {
+                     await handleRemovePromotedUser();
+                      await handleResetOwnRequest();
+                      setCamera(false);
+                      }}
                       disabled={promoteLoading}
                       className="bg-red-600 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
                     >
@@ -459,7 +467,7 @@ const Basics = () => {
                 <div className="grid grid-cols-4 lg:grid-cols-2 gap-2 mt-2">
                   {isRequesting && (
                     <div
-                      className="w-20 h-20 relative mx-auto rounded-full flex items-center justify-center group cursor-pointer"
+                      className="w-20 h-20 relative mx-auto rounded-full flex items-center justify-center group "
                       
                     >
                       <LocalUser
@@ -480,25 +488,27 @@ const Basics = () => {
                   )}
                   {requestingRemoteUsers.map(u => (
                     u.uid !== email &&
-                    <div key={u.uid} className={`w-20 h-20 relative mx-auto rounded-full flex items-center justify-center ${isAdmin?'cursor-pointer':''} group`}
-                      onClick={() => isAdmin && handlePromoteUser(u.uid)}
-                    >
+                    <div key={u.uid} className="flex flex-col items-center space-y-1">
+                      {isAdmin && (
+                              <button
+                                onClick={() => handleResetOwnRequest(u.uid)}
+                                className="text-xs bg-gray-800 hover:bg-red-600 cursor-pointer text-white rounded px-2 py-0.5 mb-1"
+                                title="Remove request"
+                              >
+                                Remove
+                              </button>
+                            )}
+                    <div className={`w-20 h-20  mx-auto rounded-full flex items-center justify-center ${isAdmin?'cursor-pointer':''} group`}
+                      onClick={() => isAdmin && handlePromoteUser(u.uid)}>
                       <RemoteUser user={u} style={{ width: "100%", height: "100%", borderRadius: "10%" }}>
                         <div className="w-full overflow-hidden">
                           <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
                             {names[u.uid] || "Loading..."}
-                            {isAdmin && (
-                              <button
-                                onClick={() => handleResetOwnRequest(u.uid)}
-                                className="absolute top-0 right-0 text-sm bg-gray-700/100 hover:bg-orange-500/95 truncate text-white cursor-pointer rounded-full px-1"
-                                title="Remove request"
-                              >
-                                x
-                              </button>
-                            )}
+                            
                           </p>
                         </div>
                       </RemoteUser>
+                      </div>
                     </div>
                   ))}
                 </div>
