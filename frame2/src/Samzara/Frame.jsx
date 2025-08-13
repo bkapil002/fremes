@@ -50,6 +50,7 @@ const Basics = () => {
   const [promotedUid, setPromotedUid] = useState(null);
   const [promoteLoading, setPromoteLoading] = useState(false);
   const [meetingTime , setMeetingTime] =useState('')
+  const [meetingtopic , setMeetingtopic] =useState('')
   const remoteUsers = useRemoteUsers();
 
   useEffect(() => {
@@ -103,6 +104,7 @@ const Basics = () => {
         setAdmin(data.agora.user.email);
         setAdminImage(data.agora.user.imageUrls);
         setMeetingTime(data.agora.meetingTime)
+        setMeetingtopic(data.agora.meetingType)
       } catch (error) {
         console.error('Error fetching room details:', error);
       }
@@ -231,7 +233,7 @@ const Basics = () => {
         ) : (
           <>
             <div className="flex-1 ">
-              <Online meetingTime={meetingTime}/>
+              <Online meetingTime={meetingTime} meetingtopic={meetingtopic}/>
             </div>
             <div className="flex flex-col lg:flex-row flex-1 p-4 gap-2">
               {/* Sidebar */}
