@@ -12,16 +12,14 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post('/signUp',upload.array('images'), async (req, res) => {
   console.log(req.body); 
     try {
-        const { email, password, name } = req.body;
+        const { email, name } = req.body;
 
 
-        if (!email || !password || !name) {
+        if (!email ||  !name) {
             return res.status(400).json({ message: 'Email, password, and name are required' });
         }
 
-        if (password.length < 5) {
-            return res.status(400).json({ message: 'Password must be at least 5 characters long' });
-        }
+       
 
 
         const existingUser = await User.findOne({ email });
@@ -30,7 +28,7 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
         }
             
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+
 
         const imageUrls = [];
         for (const file of req.files) {
@@ -39,7 +37,7 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
             imageUrls.push(result.secure_url);
         }
 
-        const user = await User.create({ email, password: hashedPassword, name , imageUrls});
+        const user = await User.create({ email, name , imageUrls});
 
         const token = generateToken(user._id);
         res.cookie('token',token,cookiConfig)
@@ -63,15 +61,10 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
 
 router.post('/login', async(req,res)=>{
     try{
-       const {email , password}= req.body;
+       const {email }= req.body;
        const user = await User.findOne({email});
 
        if(!user){
-         return res.status(400).json({message: 'Invalid credential'});
-       }
-
-       const ismatch = await bcrypt.compare(password , user.password);
-       if(!ismatch){
          return res.status(400).json({message: 'Invalid credential'});
        }
 

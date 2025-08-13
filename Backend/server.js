@@ -5,7 +5,7 @@ const connectDB = require('./config/db');
 const setupCluster = require('./config/cluster');
 const cookieParser = require('cookie-parser');
 const user = require('./Routes/user')
-const agora = require('./Routes/agora')
+const agoraa = require('./Routes/agoraa')
 const app = express();
 
 
@@ -47,7 +47,9 @@ async function initializeApp() {
    
 
     app.use('/api/users',user)
-    app.use('/api/agora',agora)
+    // app.use('/api/agora',agora)
+    app.use('/api/agora',agoraa)
+
 
     
     // Health check route

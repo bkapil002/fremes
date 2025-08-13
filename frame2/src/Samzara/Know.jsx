@@ -1,4 +1,4 @@
-import React from "react";
+import Donation from './Donate.png';
 
 const Know = () => {
   const links = [
@@ -10,27 +10,47 @@ const Know = () => {
   ];
 
   return (
-    <div className="p-4">
-      <div className="bg-white rounded-md shadow-sm">
-        {/* Header */}
-        <div className="border-b p-4 text-gray-700 text-lg font-semibold">
-          Know More
-        </div>
+    <div className="flex flex-col lg:flex-row w-full p-3 gap-2">
+  
+  {/* Donation Card */}
+  <div className="flex-shrink-0 w-full lg:w-1/5">
+    <div className="bg-white space-y-6 rounded-2xl shadow p-2 
+                    w-full flex flex-col items-center">
+      <img
+        src={Donation}
+        alt="Donate"
+        className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+      />
+      <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold 
+                         px-5 py-2 rounded-full transition text-sm">
+        Donate
+      </button>
+    </div>
+  </div>
 
-        {/* Links Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 text-green-700 text-sm font-medium">
-          {links.map((link, index) => (
-            <a
-              key={index}
-              href="#"
-              className="hover:underline whitespace-nowrap transition-all duration-150 hover:text-green-900"
-            >
-              {link}
-            </a>
-          ))}
-        </div>
+  {/* Know More Links */}
+  <div className="flex-1">
+    <div className="bg-white rounded-md shadow-sm">
+      <div className="border-b p-4 text-gray-700 text-base font-semibold">
+        Know More
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 
+                      gap-3 p-4 text-green-700 text-xs font-semibold">
+        {links.map((link, index) => (
+          <a
+            key={index}
+            href="#"
+            className="hover:underline truncate hover:text-green-900"
+          >
+            {link}
+          </a>
+        ))}
       </div>
     </div>
+  </div>
+
+</div>
+
   );
 };
 

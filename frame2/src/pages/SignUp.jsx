@@ -7,10 +7,8 @@ export default function SignUp() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [loading, setLoading] = useState(false)
 
   const handleImageChange = (e) => {
     if (!e.target.files) return;
@@ -57,12 +55,10 @@ export default function SignUp() {
     e.preventDefault();
 
     try {
-      setLoading(true)
       const compressedImages = await compressImages(images);
       const formData = new FormData();
       formData.append('name', name);
       formData.append('email', email);
-      formData.append('password', password);
 
       compressedImages.forEach((image) => {
         formData.append('images', image.file);
@@ -158,23 +154,8 @@ export default function SignUp() {
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          className="w-full px-4 py-3 rounded-lg border bg-amber-50 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
 
-      <button className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">{loading ? 'Wait..':'Sign Up'}</button>
+      <button className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Sign Up</button>
       <Link
         to="/signin"
         className="block text-center text-sm text-blue-600 hover:text-blue-700 transition-colors"

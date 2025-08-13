@@ -14,8 +14,8 @@ const Audience = ({normalRemoteUsers,isAdmin ,email,user,image,names}) => {
               </div>
 
               <div className="flex-1 bg-white rounded-2xl shadow">
-                <div className="border-b px-6 py-4 text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <span className="text-green-500 text-sm">●</span>
+                <div className="border-b px-6 py-4 text-sm font-semibold text-gray-800 flex items-center gap-2">
+                  <span className="text-green-500 text-xs">●</span>
                   Audience <span className="text-green-600">({normalRemoteUsers.length + (!isAdmin ? 1 : 0)})</span>
                 </div>
                 <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">

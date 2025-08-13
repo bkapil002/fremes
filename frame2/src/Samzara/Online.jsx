@@ -1,6 +1,6 @@
 import { FaCircle, FaShareAlt } from 'react-icons/fa';
 
-const Online = () => {
+const Online = ({meetingTime}) => {
   return (
     <div>
         <div className=" p-4 space-y-3">
@@ -14,12 +14,12 @@ const Online = () => {
       <div className="bg-white rounded-md shadow-sm p-4">
         <h3 className="text-indigo-900 text-lg font-semibold text-center">
           We Do Recover
-          <span className="text-red-600 font-normal text-sm ml-2">(11:30 PM - 12:30 AM)</span>
+          <span className="text-red-600 font-normal text-sm ml-2">({meetingTime})</span>
         </h3>
         <p className="text-center text-gray-700 text-sm mt-2">
           JFT - Calling a defect a defect & SPAD - Allowing our partners and ourselves to experience personal autonomy means we can grow a
         </p>
-         <div
+        <div
   aria-label="Share"
   className="mt-4 flex items-center space-x-2 text-indigo-900 font-semibold text-sm cursor-pointer"
   onClick={() => {
