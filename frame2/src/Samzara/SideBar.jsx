@@ -22,7 +22,7 @@ const SideBar = () => {
             <Menu size={24} />
           </button>
         </div>
-    <div className={`fixed md:static top-0 left-0 h-full shadow-lg w-64 p-4 bg-gray-200 z-50 transform transition-transform duration-300 ease-in-out
+    <div className={`fixed md:static top-0 left-0 h-full shadow-lg w-60 p-4 bg-gray-200 z-50 transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
       
       <div className="flex justify-between items-center mb-6 md:hidden">
@@ -41,7 +41,7 @@ const SideBar = () => {
           { icon: center, text: "Find a Centre" },
           { icon: doctor, text: "Search a Doctor" },
         ].map((item, idx) => (
-          <li key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500 font-normal text-base rounded cursor-pointer transition" >
+          <li key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
             <Link to={item.path} className="flex items-center gap-3">
             <img className="w-5 h-5 object-contain" src={item.icon} alt={item.text} />
             {item.text}
@@ -55,7 +55,7 @@ const SideBar = () => {
             className="flex items-center justify-between p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer"
             onClick={() => setMembersOpen(!membersOpen)}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center text-sm gap-3">
               <img className="w-5 h-5" src={member} alt="Members" /> Members
             </div>
             <ChevronDown
@@ -79,7 +79,7 @@ const SideBar = () => {
             className="flex items-center justify-between p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer"
             onClick={() => setResourcesOpen(!resourcesOpen)}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 text-sm">
               <img className="w-5 h-5" src={setting} alt="Resources" /> Resources
             </div>
             <ChevronDown

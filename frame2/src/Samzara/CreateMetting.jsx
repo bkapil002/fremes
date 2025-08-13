@@ -145,14 +145,13 @@ const CreateMeeting = () => {
       // Show success message briefly before reloading
       setTimeout(() => {
         window.location.reload();
-      }, 1500); // Reload after 1.5 seconds to show success message
+      }, 1000); 
       
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || "Failed to create meeting");
       setLoading(false); // Only set loading to false on error
     }
-    // Don't set loading to false on success since we're reloading
   };
 
   const pastMeetings = previousMeetings.filter(m => isMeetingInPast(m.meetingDate, m.meetingTime));
@@ -176,11 +175,11 @@ const CreateMeeting = () => {
     <div className="min-h-screen flex flex-col items-center px-2 py-4">
       <div className="w-full max-w-3xl">
         <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 text-center mb-6">
+          <h1 className="text-2xl sm:text-2xl font-bold text-blue-700 text-center mb-6">
             Create a New Meeting
           </h1>
           <div>
-            <label className="text-gray-700 text-sm font-semibold mb-1 block">
+            <label className="text-gray-700 text-sx font-semibold mb-1 block">
               Select Meeting Type:
             </label>
             <div className="relative">
@@ -216,7 +215,7 @@ const CreateMeeting = () => {
           {finalMeetingName && (
             <div>
               <label className="text-gray-700 text-sm font-semibold mb-1 block">
-                Choose a Date:
+                Choose a Day:
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {dates.map((date, i) => {
@@ -308,23 +307,23 @@ const CreateMeeting = () => {
         </div>
       </div>
       <div className="bg-white w-full rounded-2xl shadow-2xl sm:p-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-blue-700 mb-4 text-center">
+        <h2 className="text-xl sm:text-1xl font-bold text-blue-700 mb-4 text-center">
           Upcoming Meetings
         </h2>
         {upcomingMeetings.length === 0 && (
           <p className="text-center text-gray-500">No upcoming meetings found.</p>
         )}
-        <ul className="space-y-3 max-h-96 overflow-y-auto">
+        <ul className="space-y-3 max-h-90 overflow-y-auto">
           {upcomingMeetings.map((m) => (
             <li
               key={m.linkId}
               className="border border-indigo-300 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between"
             >
-              <div className="truncate sm:flex-1">
+              <div className="truncate text-sm sm:flex-1">
                 <p className="text-blue-700 font-semibold truncate">
                   Meeting: {m.meetingType}
                 </p>
-                <p className="text-gray-700 text-base truncate">
+                <p className="text-gray-700  text-sm truncate">
                   {(() => {
                     const date = new Date(m.meetingDate);
                     const day = date.getDate();
@@ -334,14 +333,14 @@ const CreateMeeting = () => {
                     return `${day}, ${weekday} ${month} ${year}`;
                   })()}
                 </p>
-                <p className="text-gray-700 text-base truncate">
+                <p className="text-gray-700 text-sm truncate">
                   Time: {m.meetingTime}
                 </p>
               </div>
               <div className="mt-3 sm:mt-0 sm:ml-4 flex items-center gap-3">
                 <Link
                   to={`/room/${m.linkId}`}
-                  className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  className="px-3  bg-blue-500 text-sm text-white rounded-lg hover:bg-blue-600"
                   aria-label={`Join meeting room ${m.meetingType} on ${m.meetingDate}`}
                 >
                   Join
@@ -358,7 +357,7 @@ const CreateMeeting = () => {
                       alert("Sharing is not supported on this browser.");
                     }
                   }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 cursor-pointer py-1 rounded-lg text-xs sm:text-sm"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 cursor-pointer  rounded-lg  text-sm"
                 >
                   Share
                 </button>
@@ -377,7 +376,7 @@ const CreateMeeting = () => {
                       alert("Failed to delete room");
                     }
                   }}
-                  className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="px-3  bg-red-600 text-sm text-white rounded-lg hover:bg-red-700"
                   aria-label={`Delete meeting room ${m.meetingType} on ${m.meetingDate}`}
                 >
                   Delete
@@ -387,8 +386,8 @@ const CreateMeeting = () => {
           ))}
         </ul>
       </div>
-      <div className="bg-white w-full rounded-2xl shadow-2xl sm:p-8 mt-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-blue-600 mb-4 text-center">
+      <div className="bg-white w-full rounded-2xl shadow-2xl  sm:p-8 mt-6">
+        <h2 className="text-xl sm:text-1xl font-bold text-blue-600 mb-4 text-center">
           Previous  Meetings
         </h2>
         {pastMeetings.length === 0 && (
@@ -400,11 +399,11 @@ const CreateMeeting = () => {
               key={m.linkId}
               className="border border-gray-300 bg-gray-100 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between"
             >
-              <div className="truncate sm:flex-1">
+              <div className="truncate text-sm  sm:flex-1">
                 <p className="text-indigo-900 font-semibold truncate">
                   Meeting: {m.meetingType}
                 </p>
-                <p className="text-gray-700 text-base truncate">
+                <p className="text-gray-700 text-sm truncate">
                   {(() => {
                     const date = new Date(m.meetingDate);
                     const day = date.getDate();
@@ -414,7 +413,7 @@ const CreateMeeting = () => {
                     return `${day}, ${weekday} ${month} ${year}`;
                   })()}
                 </p>
-                <p className="text-gray-700 text-base truncate">
+                <p className="text-gray-700 text-sm truncate">
                   Time: {m.meetingTime}
                 </p>
                 <p className="text-red-500 text-sm font-semibold">Previous  Meeting</p>
