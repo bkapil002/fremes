@@ -1,157 +1,7 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
-import { CalendarDays } from 'lucide-react';
-import { Link } from "react-router-dom";
-
-const MeetingList = () => {
-  const { user } = useAuth();
-  const [rooms, setRooms] = useState([]);
-
-  const getWeekDays = () => {
-    const today = new Date();
-    let week = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const dayName = date
-        .toLocaleString("en-US", { weekday: "short" })
-        .toUpperCase();
-      const dayNumber = String(date.getDate()).padStart(2, "0");
-      week.push({
-        label: `${dayName} ${dayNumber}`,
-        dateOnly: date.toISOString().split("T")[0],
-      });
-    }
-    return week;
-  };
-
-  const getStartTimeOnly = (timeStr) => {
-    if (!timeStr) return timeStr;
-    if (timeStr.includes(' - ')) {
-      return timeStr.split(' - ')[0];
-    }
-    return timeStr;
-  };
-
-  const convertTo24Hour = (timeStr) => {
-    if (!timeStr) return "";
-    
-    const [time, period] = timeStr.split(/\s+/);
-    if (!time || !period) return timeStr;
-    
-    let [hours, minutes] = time.split(':');
-    hours = parseInt(hours, 10);
-    
-    if (period.toLowerCase() === 'pm' && hours !== 12) {
-      hours += 12;
-    } else if (period.toLowerCase() === 'am' && hours === 12) {
-      hours = 0;
-    }
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes}`;
-  };
-
-  const sortTimes = (times) => {
-    return times.sort((a, b) => {
-      const timeA = convertTo24Hour(a);
-      const timeB = convertTo24Hour(b);
-      return timeA.localeCompare(timeB);
-    });
-  };
-
-
-  const isMeetingLive = (meetingTime) => {
-    const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    const meeting24Hour = convertTo24Hour(meetingTime);
-    
-  
-    const [meetingHours, meetingMinutes] = meeting24Hour.split(':').map(Number);
-    const meetingTimeInMinutes = meetingHours * 60 + meetingMinutes;
-    
-    const [currentHours, currentMinutes] = currentTime.split(':').map(Number);
-    const currentTimeInMinutes = currentHours * 60 + currentMinutes;
-   
-    return currentTimeInMinutes >= meetingTimeInMinutes && 
-           currentTimeInMinutes <= meetingTimeInMinutes + 57;
-  };
-
-  // Function to check if a meeting is upcoming (future today)
-  const isMeetingUpcoming = (meetingTime) => {
-    const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    const meeting24Hour = convertTo24Hour(meetingTime);
-    
-    return meeting24Hour > currentTime;
-  };
-
-  const fetchRooms = async () => {
-    try {
-      const res = await axios.get(
-        "https://samzraa.onrender.com/api/agora/all-rooms",
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
-      );
-      setRooms(res.data);
-    } catch (err) {
-      console.error("Error fetching rooms:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (!user) return;
-    fetchRooms(); 
-
-    const interval = setInterval(() => {
-      fetchRooms(); 
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const days = getWeekDays();
-  const todayLabel = days[0].label;
-  const todayDate = days[0].dateOnly;
-
-  const todayMeetings = rooms.filter(room => {
-    const roomDate = new Date(room.meetingDate).toISOString().split("T")[0];
-    return roomDate === todayDate;
-  });
-
-  const upcomingMeetings = todayMeetings
-    .filter(room => isMeetingUpcoming(room.meetingTime))
-    .sort((a, b) => {
-      const timeA = convertTo24Hour(a.meetingTime);
-      const timeB = convertTo24Hour(b.meetingTime);
-      return timeA.localeCompare(timeB);
-    })
-    .slice(0, 3);
-
-  const liveMeetings = todayMeetings
-    .filter(room => isMeetingLive(room.meetingTime))
-    .slice(0, 1);
-
-  const groupedData = {};
-  rooms.forEach((room) => {
-    const dateStr = new Date(room.meetingDate).toISOString().split("T")[0];
-    if (!groupedData[room.meetingType]) {
-      groupedData[room.meetingType] = {};
-    }
-    if (!groupedData[room.meetingType][dateStr]) {
-      groupedData[room.meetingType][dateStr] = [];
-    }
-    groupedData[room.meetingType][dateStr].push(room.meetingTime);
-  });
-
-  Object.keys(groupedData).forEach(meetingType => {
-    Object.keys(groupedData[meetingType]).forEach(date => {
-      groupedData[meetingType][date] = sortTimes(groupedData[meetingType][date]);
-    });
-  });
-
-  const getCurrentTimeCustom = () => {
+import { FaCircle, FaShareAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+const Online = ({meetingTime,meetingtopic}) => {
+   const getCurrentTimeCustom = () => {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -160,161 +10,83 @@ const MeetingList = () => {
   
   return `${displayHour}:${minutes} ${ampm}`;
 };
-
- 
-
+const navigate = useNavigate(); 
   return (
-    <div className=" mb-4">
-      <div className="px-4 pt-2">
-        <div className="w-full bg-gradient-to-r from-orange-500 to-orange-300 rounded-md shadow-sm py-4 text-center">
-          <h2 className="text-white text-lg font-semibold">
-            Online Meeting Schedule
-          </h2>
-          <div className=" "><p className="text-white text-sm font-medium   ">
-            {days[0].label} to {days[6].label}
-          </p></div>
-        </div>
+     <div>
+        <div className=" p-4 space-y-3">
+
+      <div className="bg-white rounded-md shadow-sm p-4 flex items-center justify-center space-x-2">
+        <FaCircle className="text-green-600 text-xs" />
+        <span className="text-lg font-medium text-[#2A2A72]">Live Online Meetings</span>
       </div>
 
-      {/* Upcoming Meetings and On Air Section */}
-      <div className="px-4 pt-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          
-          {/* Upcoming Meetings Box */}
-          <div className="bg-white rounded-lg shadow-md  ">
-            <div className=" text-black px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
-              <h3 className="text-base font-semibold">On Air</h3>
-            </div>
-            <div className="p-4">
-              {liveMeetings.length > 0 ? (
-                <div className="space-y-3">
-                  {liveMeetings.map((meeting, index) => (
-                    <div key={index} className="flex justify-between text-sm items-center p-2 bg-red-50 rounded-md border-l-4 border-red-400">
-                      <div>
-                        <p className="font-medium  text-gray-800">{meeting.meetingType}</p>
-                        <p className="text-sm text-gray-600">{meeting.meetingTime}</p>
-                        <div className="flex items-center mt-1">
-                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
-                          <span className="text-xs text-red-600 font-medium">LIVE</span>
-                        </div>
-                      </div>
-                      <Link 
-                        to={`/room/${meeting.linkId}`}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors animate-pulse"
-                      >
-                        Join Live
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No currently live</p>
-                </div>
-              )}
-            </div>
-          </div>
 
-          <div className="bg-white rounded-lg shadow-md ">
-            <div className=" text-white px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
-              <h3 className="text-base text-black font-semibold">Upcoming Meetings</h3>
-            </div>
-            <div className="p-4">
-              {upcomingMeetings.length > 0 ? (
-                <div className="space-y-3">
-                  {upcomingMeetings.map((meeting, index) => (
-                    <div key={index} className="flex justify-between text-sm items-center p-3 bg-gray-50 rounded-md border-l-4 border-blue-400">
-                      <div>
-                        <p className="font-medium text-gray-800">{meeting.meetingType}</p>
-                        <p className="text-sm text-gray-600">{meeting.meetingTime}</p>
-                      </div>
-                      <Link 
-                        to={`/room/${meeting.linkId}`}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
-                      >
-                        Join
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No upcoming meetings today</p>
-                </div>
-              )}
-            </div>
-          </div>
-          
-        </div>
+      <div className="bg-white rounded-md shadow-sm p-6">
+  <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+    
+    {/* Left Side */}
+    <div className="text-center md:text-left">
+      <div className="text-base font-semibold text-[#2A2A72]">
+        {meetingtopic}
       </div>
-
-      {/* Full Calendar View */}
-      <div className="px-4 ">
-        <div className="bg-gradient-to-r bg-white rounded-t-lg shadow-sm py-3  ">
-          <div className=" pl-2 border-b-[1px] border-b-gray-300"><h2 className="text-black text-2xl flex mb-2 items-center gap-1 font-semibold"><CalendarDays/> Full Calendar</h2></div>
-          <div className="pl-9 mt-2  flex justify-between">
-             <p className="text-black text-base  ">
-              {days[0].label} to {days[6].label}
-             </p>
-             <div className="mr-4">
-               <p className="text-black  text-base ">
-               Your Local Time: {getCurrentTimeCustom()}
-               </p>
-            </div>
-         </div>
-        </div>
-
-        <div className="overflow-x-auto bg-white shadow rounded-b-lg">
-          <table className="w-full  border border-gray-200">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border text-sm md:text-lg font-normal border-gray-200 p-2 text-left">
-                  Meeting
-                </th>
-                {days.map((day, index) => (
-                  <th
-                    key={index}
-                    className="border text-xs md:text-sm text-l  font-normal border-gray-200 p-2 text-center"
-                  >
-                    {day.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-             {Object.keys(groupedData).map((meetingType, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-gray-50">
-                  <td className="border border-gray-200 text-sm p-2 font-medium text-gray-700">
-                    {meetingType}
-                  </td>
-                  {days.map((day, colIndex) => {
-                    const times =
-                      groupedData[meetingType][day.dateOnly] || [];
-                    return (
-                      <td
-                        key={colIndex}
-                        className={`border border-gray-200 p-2 text-sm text-center ${
-                          day.label === todayLabel
-                            ? "bg-blue-500 text-white font-semibold"
-                            : "text-blue-600"
-                        }`}
-                      >
-                        {times.length > 0 ? (
-                          times.map((t, i) => <div key={i}>{getStartTimeOnly(t)}</div>)
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="text-red-600 text-sm">
+        From :({meetingTime})
       </div>
     </div>
-  );
-};
 
-export default MeetingList;
+    {/* Middle Links */}
+    <div className="text-center">
+      <div className="space-x-2 text-blue-600 text-sm flex flex-wrap justify-center">
+        <a href="#" className="hover:underline">Big Book</a>
+        <span>|</span>
+        <a href="#" className="hover:underline">12 and 12</a>
+        <span>|</span>
+        <a href="#" className="hover:underline">AA Homepage</a>
+      </div>
+      <div className="mt-1 text-sm">
+        <span className="font-semibold">Meeting Topic:</span>{" "}
+        {meetingtopic}
+      </div>
+    </div>
+
+    {/* Right Side */}
+    <div className="text-center md:text-right text-sm">
+      <span className="font-semibold">Current Time:</span>{" "}
+      <span className="text-red-600 font-semibold">{getCurrentTimeCustom()}</span>
+      <div>
+        <button className="text-gray-600 hover:underline text-xs" onClick={() => navigate("/")}>
+          Back to Home
+        </button>
+      </div>
+    </div>
+
+  </div>
+   <div
+  aria-label="Share"
+  className="mt-3 flex items-center space-x-2 text-indigo-900 font-semibold text-sm cursor-pointer -mb-3"
+  onClick={() => {
+    const shareData = {
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch((error) => {});
+    } else {
+
+      const message = encodeURIComponent(`${shareData.text}\n${shareData.url}`);
+      window.open(`https://wa.me/?text=${message}`, '_blank'); 
+    }
+  }}
+>
+  <FaShareAlt />
+  <span>Share</span>
+</div>
+</div>
+
+     </div>
+      
+    </div>
+  )
+}
+
+export default Online

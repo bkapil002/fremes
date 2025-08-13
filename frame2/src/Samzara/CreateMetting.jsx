@@ -175,11 +175,11 @@ const CreateMeeting = () => {
     <div className="min-h-screen flex flex-col items-center px-2 py-4">
       <div className="w-full max-w-3xl">
         <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 mb-6">
-          <h1 className="text-2xl sm:text-2xl font-bold text-blue-700 text-center mb-6">
+          <h1 className="text-2xl sm:text-2xl font-bold text-[#2A2A72] text-center mb-6">
             Create a New Meeting
           </h1>
           <div>
-            <label className="text-gray-700 text-sx font-semibold mb-1 block">
+            <label className="text-[#3C3C3C] text-sx font-semibold mb-1 block">
               Select Meeting Type:
             </label>
             <div className="relative">
@@ -214,7 +214,7 @@ const CreateMeeting = () => {
           </div>
           {finalMeetingName && (
             <div>
-              <label className="text-gray-700 text-sm font-semibold mb-1 block">
+              <label className="text-[#3C3C3C] text-sm font-semibold mb-1 block">
                 Choose a Day:
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -242,7 +242,7 @@ const CreateMeeting = () => {
           )}
           {selectedDate && (
             <div>
-              <label className="text-gray-700 text-sm font-semibold mb-1 block">
+              <label className="text-[#3C3C3C] text-sm font-semibold mb-1 block">
                 Choose a Time:
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -271,7 +271,7 @@ const CreateMeeting = () => {
           )}
           {selectedTime && finalMeetingName && (
             <div className="mt-6 p-4 border border-indigo-300 bg-indigo-50 rounded-xl shadow-sm">
-              <h2 className="text-indigo-800 font-semibold text-lg mb-2">
+              <h2 className="text-#2A2A72 font-semibold text-lg mb-2">
                 Meeting Details
               </h2>
               <p className="text-gray-700">
@@ -289,7 +289,7 @@ const CreateMeeting = () => {
                 className={`mt-4 w-full rounded-lg py-2 font-semibold transition-all duration-200 ${
                   loading
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-blue-500 text-white cursor-pointer hover:bg-blue-600"
+                    : "bg-[#2A2A72] text-white cursor-pointer hover:bg-[#000080]"
                 }`}
               >
                 {loading ? "Creating..." : "Create Meeting Room"}
@@ -307,7 +307,7 @@ const CreateMeeting = () => {
         </div>
       </div>
       <div className="bg-white w-full rounded-2xl shadow-2xl sm:p-8">
-        <h2 className="text-xl sm:text-1xl font-bold text-blue-700 mb-4 text-center">
+        <h2 className="text-xl sm:text-1xl font-bold text-[#2A2A72] mb-4 text-center">
           Upcoming Meetings
         </h2>
         {upcomingMeetings.length === 0 && (
@@ -320,7 +320,7 @@ const CreateMeeting = () => {
               className="border border-indigo-300 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between"
             >
               <div className="truncate text-sm sm:flex-1">
-                <p className="text-blue-700 font-semibold truncate">
+                <p className="text-[#2A2A72] font-semibold truncate">
                   Meeting: {m.meetingType}
                 </p>
                 <p className="text-gray-700  text-sm truncate">
@@ -333,14 +333,14 @@ const CreateMeeting = () => {
                     return `${day}, ${weekday} ${month} ${year}`;
                   })()}
                 </p>
-                <p className="text-gray-700 text-sm truncate">
+                <p className="text-[#3C3C3C] text-sm truncate">
                   Time: {m.meetingTime}
                 </p>
               </div>
               <div className="mt-3 sm:mt-0 sm:ml-4 flex items-center gap-3">
                 <Link
                   to={`/room/${m.linkId}`}
-                  className="px-3  bg-blue-500 text-sm text-white rounded-lg hover:bg-blue-600"
+                  className="px-3  bg-[#2A2A72] text-sm text-white rounded-lg hover:bg-[#000080]"
                   aria-label={`Join meeting room ${m.meetingType} on ${m.meetingDate}`}
                 >
                   Join
@@ -357,7 +357,7 @@ const CreateMeeting = () => {
                       alert("Sharing is not supported on this browser.");
                     }
                   }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 cursor-pointer  rounded-lg  text-sm"
+                  className="bg-[#2A2A72] hover:bg-[#000080] text-white px-3 cursor-pointer  rounded-lg  text-sm"
                 >
                   Share
                 </button>
@@ -387,7 +387,7 @@ const CreateMeeting = () => {
         </ul>
       </div>
       <div className="bg-white w-full rounded-2xl shadow-2xl  sm:p-8 mt-6">
-        <h2 className="text-xl sm:text-1xl font-bold text-blue-600 mb-4 text-center">
+        <h2 className="text-xl sm:text-1xl font-bold text-[#2A2A72] mb-4 text-center">
           Previous  Meetings
         </h2>
         {pastMeetings.length === 0 && (
@@ -400,10 +400,10 @@ const CreateMeeting = () => {
               className="border border-gray-300 bg-gray-100 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between"
             >
               <div className="truncate text-sm  sm:flex-1">
-                <p className="text-indigo-900 font-semibold truncate">
+                <p className="text-[#2A2A72] font-semibold truncate">
                   Meeting: {m.meetingType}
                 </p>
-                <p className="text-gray-700 text-sm truncate">
+                <p className="text-[#3C3C3C] text-sm truncate">
                   {(() => {
                     const date = new Date(m.meetingDate);
                     const day = date.getDate();
@@ -413,7 +413,7 @@ const CreateMeeting = () => {
                     return `${day}, ${weekday} ${month} ${year}`;
                   })()}
                 </p>
-                <p className="text-gray-700 text-sm truncate">
+                <p className="text-[#3C3C3C] text-sm truncate">
                   Time: {m.meetingTime}
                 </p>
                 <p className="text-red-500 text-sm font-semibold">Previous  Meeting</p>

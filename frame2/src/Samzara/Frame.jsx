@@ -225,7 +225,7 @@ const Basics = () => {
           <div className="p-10 max-w-md mx-auto flex flex-col gap-4">
             <button
               onClick={async () => { await handleRemovePromotedUser(); await handleResetOwnRequest(); setCalling(true); }}
-              className="bg-orange-500 hover:bg-orange-600 text-white cursor-pointer py-2 px-3 rounded"
+              className="bg-[#F86925] text-sm hover:bg-orange-600 text-white  cursor-pointer py-1 px-3 rounded"
             >
               Ready to join
             </button>
@@ -239,7 +239,7 @@ const Basics = () => {
               {/* Sidebar */}
                  <div className="lg:w-1/5 w-full flex flex-col gap-4">
                    <div className="bg-white shadow rounded-lg overflow-hidden">
-                     <div className="bg-orange-500 text-white text-center py-1 text-xs sm:text-xs  font-semibold">
+                     <div className="bg-[#F86925] text-white text-center py-1 text-xs sm:text-xs  font-semibold">
                        Speaker
                      </div>
                    {promotedUid && promotedUid !== admin ? (
@@ -259,7 +259,7 @@ const Basics = () => {
               )}
               </div>
                     ) : (
-                           <img src={adminImage && adminImage.length > 0 ? adminImage[0] : ""} alt="Chairperson" className="w-full h-50 object-cover" />
+                           <img src={adminImage && adminImage.length > 0 ? adminImage[0] : ""} alt="Chairperson" className="w-full h-60  md:h-62" />
                )}
                <div className="p-2 text-center">
                 <p className="text-xs text-gray-500">{admin}</p>
@@ -268,8 +268,8 @@ const Basics = () => {
                 </div>
               {/* Main video area */}
               <div className="lg:w-3/5 w-full flex flex-col items-center bg-white shadow rounded-lg p-4">
-                <div className="border rounded-lg w-full max-w-[640px] aspect-video flex justify-center items-center">
-                  <div className="rounded-lg w-full h-full object-cover">
+                <div className="border-[#000080] border-[1px] w-full max-w-[640px] aspect-video flex justify-center items-center">
+                  <div className=" w-full h-full object-cover">
                     {/* Show promoted user (if promotedUid set and NOT admin), else show admin */}
                                       {promotedUid && promotedUid !== admin ? (
         promotedUid === email ? (
@@ -279,7 +279,6 @@ const Basics = () => {
             micOn={micOn}
             playAudio={true}
             videoTrack={localCameraTrack}
-            style={{ borderRadius: '2%' }}
           >
             <div className="w-full overflow-hidden">
               <p className="bg-gray-700/60 w-full text-white text-sm text-center truncate">
@@ -290,7 +289,6 @@ const Basics = () => {
         ) : promotedUser ? (
           <RemoteUser
             user={promotedUser}
-            style={{ borderRadius: '2%' }}
           >
             <div className="w-full overflow-hidden">
               <p className="bg-gray-700/60 w-full text-white text-sm text-center truncate">
@@ -311,7 +309,6 @@ const Basics = () => {
             micOn={micOn}
             playAudio={false}
             videoTrack={localCameraTrack}
-            style={{ borderRadius: '2%' }}
           >
             <div className="w-full overflow-hidden">
               <p className="bg-gray-700/60 w-full text-white text-sm text-center truncate">
@@ -321,7 +318,7 @@ const Basics = () => {
           </LocalUser>
         ) : (
           adminRemoteUsers.length > 0 ? (
-            <RemoteUser user={adminRemoteUsers[0]} style={{ borderRadius: '2%' }}>
+            <RemoteUser user={adminRemoteUsers[0]} >
               <div className="w-full overflow-hidden">
                 <p className="bg-gray-700/60 w-full text-white text-sm text-center truncate">
                   {names[admin] || "Loading..."}
@@ -350,14 +347,14 @@ const Basics = () => {
                         </button>
                       ) : !isPromoted ? (
                         !isRequesting ? (
-                          <button onClick={handlePushRequest} className="bg-orange-400 text-white px-3 cursor-pointer py-1 text-sm rounded-lg" disabled={pushLoading}
+                          <button onClick={handlePushRequest} className="bg-[#F86925] text-white px-3 cursor-pointer py-1 text-sm rounded-lg" disabled={pushLoading}
                           >
                             {pushLoading ? "Requesting..." : "Request to Share"}
                           </button>
                         ) : (
                           <button
                             onClick={ () => { handleResetOwnRequest(); }}
-                            className="bg-orange-400 text-white cursor-pointer px-3 py-1 text-sm rounded-lg"
+                            className="bg-[#F86925] text-white cursor-pointer px-3 py-1 text-sm rounded-lg"
                             disabled={resetLoading}
                           >
                             {resetLoading ? "Cancelling..." : "Cancel Request"}
@@ -369,7 +366,7 @@ const Basics = () => {
 
 
                   {!isAdmin && (
-                    <button onClick={async () => {await handleRemovePromotedUser();  await handleResetOwnRequest();  setCalling(false) }} className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
+                    <button onClick={async () => {await handleRemovePromotedUser();  handleResetOwnRequest();   }} className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg">
                       End call
                     </button>
                   )}
@@ -423,7 +420,7 @@ const Basics = () => {
               </div>
               {/* Right sidebar */}
               <div className="w-full lg:w-1/5 bg-white shadow rounded-lg">
-  <div className="bg-orange-500 text-white text-center py-2 font-semibold rounded-t-lg text-sm sm:text-xs">
+  <div className="bg-[#F86925] text-white text-center py-2 font-semibold rounded-t-lg text-sm sm:text-xs">
     People Requesting to Share
   </div>
 
@@ -495,37 +492,30 @@ const Basics = () => {
                             <div className="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                   {!isAdmin && (
                     <div
-                      className="w-24 h-24 relative mx-auto rounded-full flex items-center justify-center group cursor-pointer"
-
-                    >
+                      className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer" >
                       <LocalUser
                         audioTrack={localMicrophoneTrack}
                         cameraOn={cameraOn}
                         micOn={micOn}
                         playAudio={false}
                         videoTrack={localCameraTrack}
-                        style={{ width: "100%", height: "100%", borderRadius: "10%" }}
-                      >
-                        <div className="w-full overflow-hidden">
-                          <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
-                            {user.name}
-                          </p>
-                        </div>
-                      </LocalUser>
-                      
+                        style={{ width: "100%", height: "100%", borderRadius: "10%" }}/>
+                        <p className=" w-full text-[#3C3C3C] text-sm text-center truncate">
+                              {user.name }
+                            </p>
                     </div>
                   )}
                   {/* Show remote normal users */}
                   {normalRemoteUsers.map((user) => (
                     user.uid !== email && (
                       <div key={user.uid} className="w-24 h-24 mx-auto rounded-full object-cover flex items-center justify-center">
-                        <RemoteUser user={user} style={{ width: "100%", height: "100%", borderRadius: "10%" }}>
-                          <div className="w-full overflow-hidden">
-                            <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
+                        <div key={user.uid} className="w-24 h-24 mx-auto rounded-full object-cover items-center justify-cente">
+                          <RemoteUser user={user} style={{ width: "100%", height: "100%", borderRadius: "10%" }}/>
+                        <p className=" w-full text-[#3C3C3C] text-sm text-center truncate">
                               {names[user.uid] || "Loading..."}
                             </p>
-                          </div>
-                        </RemoteUser>
+                        </div>
+                        
                       </div>
                     )
                   ))}
