@@ -5,7 +5,7 @@ const connectDB = require('./config/db');
 const setupCluster = require('./config/cluster');
 const cookieParser = require('cookie-parser');
 const user = require('./Routes/user')
-const agoraa = require('./Routes/agoraa')
+const { router: agoraa, startTokenCron } = require("./Routes/agoraa");
 const app = express();
 
 
@@ -66,6 +66,7 @@ async function initializeApp() {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT} - Worker PID: ${process.pid}`);
       console.log(`Health check available at http://localhost:${PORT}/health`);
+      startTokenCron();
     });
   } catch (error) {
     console.error('Initialization error:', error.message);
