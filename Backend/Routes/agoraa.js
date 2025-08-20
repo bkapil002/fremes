@@ -6,6 +6,7 @@ const Agora = require('../Modal/Agoraa');
 const PushedUid = require('../Modal/PushedUid');
 const PromotedUid = require('../Modal/PromotedUid');
 const cron = require("node-cron");
+const { createRecurringMeetings } = require("./recurrence");
 const appId = process.env.APP_ID;
 const appCertificate = process.env.APP_CERTIFICATE;
 
@@ -44,7 +45,7 @@ async function refreshTokens() {
       await meeting.save();
     }
 
-    console.log(`Updated tokens for ${meetings.length} meetings.`);
+    console.log(`✅Updated tokens for ${meetings.length} meetings.`);
   } catch (err) {
     console.error("Error updating tokens:", err);
   }
@@ -56,86 +57,43 @@ function startTokenCron() {
 }
 
 
-
-function generateLinkId() {
-  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  const segmentLengths = [4, 5, 4];
-  return segmentLengths
-    .map(len =>
-      Array.from({ length: len }, () =>
-        characters.charAt(Math.floor(Math.random() * characters.length))
-      ).join('')
-    ).join('-');
-}
-
-
-router.post('/create-room', auth, async (req, res) => {
+router.post("/create-room", auth, async (req, res) => {
   try {
-    if (!appId || !appCertificate) {
-      return res.status(400).json({ error: 'Missing environment variables' });
+    const { meetingType, meetingDate, meetingTime, meetingRepeat } = req.body;
+
+    if (!meetingType || !meetingDate || !meetingTime) {
+      return res.status(400).json({ error: "Meeting type, date, and time are required" });
     }
-     
-    const { meetingType, meetingDate, meetingTime } = req.body;
 
-     if (!meetingType || !meetingDate || !meetingTime) {
-      return res.status(400).json({ error: 'Meeting type, date, and time are required' });
-    }
-    const linkId = generateLinkId();
-    const channelName = linkId; 
+    const recurrence = {
+      repeatType: meetingRepeat, 
+      interval: 1,
+      batchSize: 15
+    };
 
-    const uid = 0;
-    const role = RtcRole.PUBLISHER;
-    const expirationTimeInSeconds = 86400 ; 
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+    const user = {
+      _id: req.user._id,
+      email: req.user.email,
+      name: req.user.name,
+      imageUrls: req.user.imageUrls
+    };
 
-    const token = RtcTokenBuilder.buildTokenWithUid(
-      appId,
-      appCertificate,
-      channelName,
-      uid,
-      role,
-      privilegeExpiredTs
+    const createdMeetings = await createRecurringMeetings(
+      user,
+      { meetingType, meetingDate, meetingTime, meetingRepeat },
+      recurrence
     );
 
-
-    const agora = await Agora.create({
-      token,
-      linkId,
-      appId,
-      channel: channelName,
-      user: {
-        _id: req.user._id,
-        email: req.user.email,
-        name: req.user.name,
-        imageUrls:req.user.imageUrls
-      },
-      meetingType,
-      meetingDate:new Date(meetingDate),
-      meetingTime
-    });
-
     return res.status(200).json({
-      token,
-      linkId,
-      appId,
-      channelName,
-      uid,
-      user: {
-        _id: req.user._id,
-        email: req.user.email,
-        name: req.user.name,
-        mageUrls:req.user.imageUrls
-      },
-      meetingType,
-      meetingDate,
-      meetingTime
+      message: "Meetings created successfully",
+      meetings: createdMeetings
     });
   } catch (error) {
-    console.error('Token generation failed:', error);
-    return res.status(500).json({ error: 'Could not generate token and linkId' });
+    console.error("Error creating room:", error);
+    return res.status(500).json({ error: "Server error" });
   }
-}); 
+});
+
 
 router.delete('/delete-room/:linkId', auth, async (req, res) => {
   try {
@@ -161,6 +119,67 @@ router.delete('/delete-room/:linkId', auth, async (req, res) => {
   } catch (error) {
     console.error('Error deleting room:', error);
     res.status(500).json({ error: 'Could not delete room' });
+  }
+});
+
+
+
+
+router.delete('/delete-upcoming/:linkId', auth, async (req, res) => {
+  try {
+    const { linkId } = req.params;
+
+    if (!linkId) {
+      return res.status(400).json({ error: 'Link ID is required' });
+    }
+
+    const room = await Agora.findOne({ linkId });
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+
+    if (room.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to delete these meetings' });
+    }
+
+
+    const today = new Date();
+    await Agora.deleteMany({
+      "user._id": req.user._id,
+      meetingType: room.meetingType,
+      meetingDate: { $gte: today }
+    });
+
+    await Agora.updateMany(
+      {
+        "user._id": req.user._id,
+        meetingType: room.meetingType
+      },
+      { $unset: { recurrence: "" } }
+    );
+
+    res.status(200).json({ 
+      message: 'Upcoming meetings deleted and recurrence stopped' 
+    });
+  } catch (error) {
+    console.error('Error deleting upcoming meetings:', error);
+    res.status(500).json({ error: 'Could not delete upcoming meetings' });
+  }
+});
+
+router.get('/Upcomeing-rooms', auth, async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+    const rooms = await Agora.find({
+      "user._id": req.user._id,
+      meetingDate: { $gte: today }   
+    }).sort({ meetingDate: 1 }); 
+
+    res.status(200).json(rooms);
+  } catch (error) {
+    console.error("Error fetching rooms:", error);
+    res.status(500).json({ error: "Could not fetch rooms" });
   }
 });
 

@@ -1,428 +1,705 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  X,
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import { useAuth } from '../context/AuthContext';
-import { Link } from "react-router-dom";
+import dayjs from "dayjs";
+import Upcomming from "./Upcomming";
 import meeting from "./Date-meeting"
 
-const meetingTypes = meeting.types;
-const timeSlots = meeting.slots;
-const getNext7Days = () => {
-  const days = [];
-  const today = new Date();
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-    days.push(date);
-  }
-  return days;
-};
-
-const parseTime = (timeSlot) => {
-  const [time, modifier] = timeSlot.split(' ');
-  let [hours, minutes] = time.split(':');
-
-  if (hours === '12') {
-    hours = '0';
-  }
-
-  if (modifier === 'PM') {
-    hours = parseInt(hours, 10) + 12;
-  }
-
-  return { hours: parseInt(hours, 10), minutes: parseInt(minutes, 10) };
-};
-
-// Updated function to check if meeting has ended (based on end time)
-const isMeetingInPast = (meetingDate, meetingTime) => {
-  // Check if meetingTime contains " - " (duration format)
-  let endTimeString;
-  if (meetingTime.includes(' - ')) {
-    // Extract end time from duration format like "3:00 PM - 4:00 PM"
-    endTimeString = meetingTime.split(' - ')[1];
-  } else {
-    // If no duration format, assume 1-hour meeting
-    const { hours, minutes } = parseTime(meetingTime);
-    const endHour = hours + 1;
-    const endModifier = endHour >= 12 ? 'PM' : 'AM';
-    const displayHour = endHour > 12 ? endHour - 12 : endHour === 0 ? 12 : endHour;
-    endTimeString = `${displayHour}:${minutes.toString().padStart(2, '0')} ${endModifier}`;
-  }
-  
-  const { hours: endHours, minutes: endMinutes } = parseTime(endTimeString);
-  const meetingEndDateTime = new Date(meetingDate);
-  meetingEndDateTime.setHours(endHours, endMinutes);
-  
-  return meetingEndDateTime <= new Date();
-};
-
 const CreateMeeting = () => {
+const meetingSuggestions  = meeting.types;
+const timeSlots = meeting.slots;
+
   const { user } = useAuth();
-  const [selectedMeeting, setSelectedMeeting] = useState("");
-  const [customMeetingType, setCustomMeetingType] = useState("");
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState("");
+  const [title, setTitle] = useState("");
+  const [startDate, setStartDate] = useState(new Date());
+  const [repeat, setRepeat] = useState("Does not repeat");
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(timeSlots[0]);
+  const [isTimeOpen, setIsTimeOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [createdRoom, setCreatedRoom] = useState(null);
-  const [error, setError] = useState("");
-  const [bookedTimes, setBookedTimes] = useState([]);
-  const [previousMeetings, setPreviousMeetings] = useState([]);
+  const timeRef = useRef(null);
+  const repeatRef = useRef(null);
+  const datePickerRef = useRef(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [upcomingMeetings, setUpcomingMeetings] = useState([]);
 
-  const dates = getNext7Days();
-  const finalMeetingName = selectedMeeting === "Other" ? customMeetingType : selectedMeeting;
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setTitle(value);
+
+    if (value.trim().length > 0) {
+      const filtered = meetingSuggestions.filter((s) =>
+        s.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions([]);
+    }
+  };
+
+  const handleSelect = (suggestion) => {
+    setTitle(suggestion);
+    setFilteredSuggestions([]);
+  };
+
+  const fetchUpcomingMeetings = async () => {
+    if (!user) return;
+
+    try {
+      const response = await axios.get(
+        "https://samzraa.onrender.com/api/agora/Upcomeing-rooms",
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setUpcomingMeetings(response.data);
+    } catch (error) {
+      console.error("Error fetching upcoming meetings:", error);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
-    const fetchBookedTimes = async () => {
-      if (!selectedDate) return;
-      try {
-        const formattedDate = selectedDate.toISOString().split("T")[0];
-        const res = await axios.get(
-          `https://samzraa.onrender.com/api/agora/meeting-time/${formattedDate}`,
-          { headers: { Authorization: `Bearer ${user.token}` } }
-        );
-        setBookedTimes(res.data.bookedTimes || []);
-      } catch (err) {
-        console.error("Error fetching booked times:", err);
-        setBookedTimes([]);
-      }
-    };
-    fetchBookedTimes();
-  }, [selectedDate, user]);
-
-  useEffect(() => {
-    if (!user) return;
-    const fetchPreviousMeetings = async () => {
-      try {
-        const res = await axios.get(
-          "https://samzraa.onrender.com/api/agora/rooms",
-          { headers: { Authorization: `Bearer ${user.token}` } }
-        );
-        setPreviousMeetings(res.data || []);
-      } catch (err) {
-        console.error("Error fetching previous meetings:", err);
-      }
-    };
-    fetchPreviousMeetings();
+    fetchUpcomingMeetings();
+    const interval = setInterval(() => {
+      fetchUpcomingMeetings();
+    }, 1000);
+    return () => clearInterval(interval);
   }, [user]);
 
+  const getMeetingForSlot = (day, timeSlot) => {
+    return upcomingMeetings.find((meeting) => {
+      const meetingDate = dayjs(meeting.meetingDate);
+      return meetingDate.isSame(day, "day") && meeting.meetingTime === timeSlot;
+    });
+  };
+
+  const parseTime = (timeStr) => {
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+    if (modifier === "PM" && hours !== 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+    return { hours, minutes };
+  };
   useEffect(() => {
-    if (!selectedDate) {
+    if (!startDate) {
       setAvailableTimeSlots([]);
       return;
     }
-    const now = new Date();
-    const selected = new Date(selectedDate);
-    if (selected.toDateString() === now.toDateString()) {
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      const filteredTimeSlots = timeSlots.filter(slot => {
-        const { hours, minutes } = parseTime(slot.split(' - ')[0]);
-        return hours > currentHour || (hours === currentHour && minutes > currentMinute);
-      });
-      setAvailableTimeSlots(filteredTimeSlots);
-    } else {
-      setAvailableTimeSlots(timeSlots);
-    }
-  }, [selectedDate]);
 
-  const handleCreateRoom = async () => {
-    if (!finalMeetingName || !selectedDate || !selectedTime) return;
+    setAvailableTimeSlots(timeSlots);
+
+    if (!timeSlots.includes(selectedSlot) && timeSlots.length > 0) {
+      setSelectedSlot(timeSlots[0]);
+    }
+  }, [startDate]);
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (timeRef.current && !timeRef.current.contains(event.target))
+        setIsTimeOpen(false);
+      if (repeatRef.current && !repeatRef.current.contains(event.target))
+        setIsOpen(false);
+      if (
+        datePickerRef.current &&
+        !datePickerRef.current.contains(event.target)
+      ) {
+        setShowDatePicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const getWeekday = (date) => dayjs(date).format("dddd");
+  const getWeekOfMonth = (date) => {
+    const d = dayjs(date);
+    const dayOfWeek = d.day();
+    const dayOfMonth = d.date();
+    const firstDayOfMonth = d.startOf("month");
+    const firstOccurrence = 1 + ((7 + dayOfWeek - firstDayOfMonth.day()) % 7);
+    const weekIndex = Math.ceil((dayOfMonth - firstOccurrence + 1) / 7);
+    const ordinals = ["first", "second", "third", "fourth", "fifth"];
+    return ordinals[weekIndex - 1] || "";
+  };
+  const getRepeatLabel = (option, date) => {
+    if (option === "Weekly") return `Weekly on ${getWeekday(date)}`;
+    if (option === "Monthly")
+      return `Monthly on the ${getWeekOfMonth(date)} ${getWeekday(date)}`;
+    return option;
+  };
+
+  const handleSave = async () => {
+    if (!title) {
+      alert("Please enter a meeting title");
+      return;
+    }
     setLoading(true);
-    setError("");
     try {
       const res = await axios.post(
         "https://samzraa.onrender.com/api/agora/create-room",
         {
-          meetingType: finalMeetingName,
-          meetingDate: selectedDate.toISOString().split("T")[0],
-          meetingTime: selectedTime,
+          meetingType: title,
+          meetingDate: startDate,
+          meetingTime: selectedSlot,
+          meetingRepeat: repeat,
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      setCreatedRoom(res.data);
-      
-      // Show success message briefly before reloading
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000); 
-      
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || "Failed to create meeting");
-      setLoading(false); // Only set loading to false on error
+
+      console.log("Meeting Created:", res.data);
+      alert("Meeting Created Successfully ");
+      setTitle("");
+      setStartDate(new Date());
+      setSelectedSlot(timeSlots[0]);
+      setRepeat("Does not repeat");
+    } catch (error) {
+      console.error("Error creating meeting:", error.response?.data || error);
+      alert("Failed to create meeting ");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const pastMeetings = previousMeetings.filter(m => isMeetingInPast(m.meetingDate, m.meetingTime));
+  const SimpleDatePicker = ({ selectedDate, onDateChange, minDate }) => {
+    const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate));
 
-  const upcomingMeetings = previousMeetings
-    .filter(m => !isMeetingInPast(m.meetingDate, m.meetingTime))
-    .sort((a, b) => {
-      const { hours: hoursA, minutes: minutesA } = parseTime(a.meetingTime.split(' - ')[0]);
-      const { hours: hoursB, minutes: minutesB } = parseTime(b.meetingTime.split(' - ')[0]);
+    const getDaysInMonth = (date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startingDayOfWeek = firstDay.getDay();
+      const days = [];
+      for (let i = 0; i < startingDayOfWeek; i++) {
+        days.push(null);
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        days.push(new Date(year, month, day));
+      }
 
-      const dateTimeA = new Date(a.meetingDate);
-      dateTimeA.setHours(hoursA, minutesA);
+      return days;
+    };
 
-      const dateTimeB = new Date(b.meetingDate);
-      dateTimeB.setHours(hoursB, minutesB);
+    const formatDate = (date) => {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
 
-      return dateTimeA - dateTimeB;
+    const isToday = (date) => {
+      const today = new Date();
+      return date && date.toDateString() === today.toDateString();
+    };
+
+    const isSelected = (date) => {
+      return (
+        date &&
+        selectedDate &&
+        date.toDateString() === selectedDate.toDateString()
+      );
+    };
+
+    const isDisabled = (date) => {
+      if (!date || !minDate) return false;
+
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const min = new Date(
+        minDate.getFullYear(),
+        minDate.getMonth(),
+        minDate.getDate()
+      );
+
+      return d < min;
+    };
+
+    const days = getDaysInMonth(currentMonth);
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    return (
+      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 min-w-[280px]">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() =>
+              setCurrentMonth(
+                new Date(
+                  currentMonth.getFullYear(),
+                  currentMonth.getMonth() - 1
+                )
+              )
+            }
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <span className="font-medium">
+            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentMonth(
+                new Date(
+                  currentMonth.getFullYear(),
+                  currentMonth.getMonth() + 1
+                )
+              )
+            }
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+            <div
+              key={day}
+              className="text-center text-xs font-medium text-gray-500 p-2"
+            >
+              {day}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                if (day && !isDisabled(day)) {
+                  onDateChange(day);
+                  setShowDatePicker(false);
+                }
+              }}
+              disabled={!day || isDisabled(day)}
+              className={`
+                p-2 text-sm rounded hover:bg-blue-50 transition-colors
+                ${!day ? "invisible" : ""}
+                ${
+                  isSelected(day)
+                    ? "bg-[#2A2A72] text-white hover:bg-[#2A2A72]"
+                    : ""
+                }
+                ${
+                  isToday(day) && !isSelected(day)
+                    ? "bg-blue-100 text-[#2A2A72]"
+                    : ""
+                }
+                ${
+                  isDisabled(day)
+                    ? "text-gray-300 cursor-not-allowed hover:bg-transparent"
+                    : ""
+                }
+              `}
+            >
+              {day ? day.getDate() : ""}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+  const [startTime, endTime] = selectedSlot.split(" - ");
+  const [currentDate, setCurrentDate] = useState(dayjs(startDate));
+  const [view, setView] = useState("week");
+  const [dragging, setDragging] = useState(null);
+
+  const [selectedHour, setSelectedHour] = useState(
+    parseTime(selectedSlot).hours
+  );
+
+  // Update calendar date when DatePicker changes
+  useEffect(() => {
+    setCurrentDate(dayjs(startDate));
+  }, [startDate]);
+
+  // Update selected hour when time changes
+  useEffect(() => {
+    const { hours } = parseTime(selectedSlot);
+    setSelectedHour(hours);
+  }, [selectedSlot]);
+
+  const getDays = () => {
+    if (view === "day") return [currentDate];
+    if (view === "3days")
+      return [
+        currentDate,
+        currentDate.add(1, "day"),
+        currentDate.add(2, "day"),
+      ];
+    return Array.from({ length: 7 }, (_, i) =>
+      currentDate.startOf("week").add(i, "day")
+    );
+  };
+
+  const days = getDays();
+
+  // Navigation
+  const goToday = () => setCurrentDate(dayjs());
+  const goPrev = () =>
+    setCurrentDate(
+      view === "day"
+        ? currentDate.subtract(1, "day")
+        : view === "3days"
+        ? currentDate.subtract(3, "day")
+        : currentDate.subtract(1, "week")
+    );
+  const goNext = () =>
+    setCurrentDate(
+      view === "day"
+        ? currentDate.add(1, "day")
+        : view === "3days"
+        ? currentDate.add(3, "day")
+        : currentDate.add(1, "week")
+    );
+
+  const handleMouseDown = (day, hour) =>
+    setDragging({ day, startHour: hour, endHour: hour });
+  const handleMouseEnter = (day, hour) => {
+    if (dragging && dragging.day.isSame(day, "day"))
+      setDragging({ ...dragging, endHour: hour });
+  };
+  const handleMouseUp = () => {
+    if (dragging) setDragging(null);
+  };
+
+  const formatHour = (timeStr) => {
+    const { hours } = parseTime(timeStr);
+    const date = new Date();
+    date.setHours(hours, 0, 0, 0);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      hour12: true,
     });
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-2 py-4">
-      <div className="w-full max-w-3xl">
-        <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 mb-6">
-          <h1 className="text-2xl sm:text-2xl font-bold text-[#2A2A72] text-center mb-6">
-            Create a New Meeting
-          </h1>
-          <div>
-            <label className="text-[#3C3C3C] text-sx font-semibold mb-1 block">
-              Select Meeting Type:
-            </label>
-            <div className="relative">
-              <select
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 max-h-40 overflow-y-auto sm:text-base text-sm"
-                value={selectedMeeting}
-                onChange={(e) => {
-                  setSelectedMeeting(e.target.value);
-                  setSelectedDate(null);
-                  setSelectedTime("");
-                  setCustomMeetingType("");
-                }}
-                size={1}
-              >
-                <option value="">-- Choose --</option>
-                {meetingTypes.map((type, i) => (
-                  <option key={i} value={type} className="truncate">
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {selectedMeeting === "Other" && (
+    <div className="w-full min-h-screen p-4 sm:p-6 md:p-6 md:rounded-2xl">
+      {/* Create Meeting Section */}
+      <div className="bg-white w-full rounded-2xl shadow-sm p-4 sm:p-6 mb-6">
+        <div className="flex w-full sm:flex-row gap-4 items-start sm:items-center">
+          <button
+            onClick={() => setTitle("")}
+            className="text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <X size={24} />
+          </button>
+
+          <div className="flex gap-3 sm:gap-3 items-start sm:items-center">
+            <div className="relative w-full sm:w-72 lg:w-96">
               <input
                 type="text"
-                placeholder="Enter custom meeting type"
-                className="mt-3 w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={customMeetingType}
-                onChange={(e) => setCustomMeetingType(e.target.value)}
+                value={title}
+                onChange={handleChange}
+                className="border-b-2 border-gray-300 w-full text-gray-800 
+                   text-base sm:text-lg lg:text-xl 
+                   outline-none focus:border-[#2A2A72] transition-colors pb-2"
+                placeholder="Meeting title"
+              />
+
+              {filteredSuggestions.length > 0 && (
+                <ul
+                  className="absolute left-0 top-full mt-1 w-full max-h-48 overflow-y-auto 
+                       bg-white border border-gray-300 rounded-md shadow-md z-50"
+                >
+                  {filteredSuggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      onClick={() => handleSelect(suggestion)}
+                      className="px-3 py-2 cursor-pointer hover:bg-blue-100 text-gray-800 text-sm sm:text-base"
+                    >
+                      {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="bg-[#2A2A72] cursor-pointer hover:bg-[#000080] text-white text-sm sm:text-base px-5 sm:px-6 py-2 rounded-full transition-colors sm:w-auto"
+            >
+              {loading ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row flex-wrap gap-3 sm:gap-4 mt-6 items-start md:items-center">
+          <div className="relative w-full md:w-36" ref={datePickerRef}>
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 text-sm sm:text-sm transition-all outline-none"
+            >
+              {startDate.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </button>
+
+            {showDatePicker && (
+              <SimpleDatePicker
+                selectedDate={startDate}
+                onDateChange={setStartDate}
+                minDate={new Date()}
               />
             )}
           </div>
-          {finalMeetingName && (
-            <div>
-              <label className="text-[#3C3C3C] text-sm font-semibold mb-1 block">
-                Choose a Day:
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {dates.map((date, i) => {
-                  const formatted = date.toDateString();
+
+          {/* Start Time */}
+          <div className="relative w-full sm:w-40" ref={timeRef}>
+            <button
+              onClick={() => setIsTimeOpen(!isTimeOpen)}
+              className="flex items-center justify-between w-full md:w-36 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-sm sm:text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            >
+              {startTime}
+              {isTimeOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {isTimeOpen && (
+              <div className="absolute mt-1 w-full max-h-40 overflow-y-auto bg-gray-100 border border-gray-200 rounded-lg shadow-lg z-20">
+                {availableTimeSlots.map((slot) => {
+                  const [s] = slot.split(" - ");
                   return (
                     <button
-                      key={i}
+                      key={slot}
                       onClick={() => {
-                        setSelectedDate(date);
-                        setSelectedTime("");
+                        setSelectedSlot(slot);
+                        setIsTimeOpen(false);
                       }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition border ${
-                        selectedDate?.toDateString() === formatted
-                          ? "bg-blue-500 text-white border-blue-600"
-                          : "bg-white text-gray-800 hover:bg-indigo-100 border-gray-300"
-                      }`}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      {formatted}
+                      {s}
                     </button>
                   );
                 })}
               </div>
-            </div>
-          )}
-          {selectedDate && (
-            <div>
-              <label className="text-[#3C3C3C] text-sm font-semibold mb-1 block">
-                Choose a Time:
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {availableTimeSlots.map((slot, i) => {
-                  const isBooked = bookedTimes.includes(slot);
-                  return (
+            )}
+          </div>
+
+          <span className="hidden sm:block text-gray-500 text-sm">to</span>
+          <div className="w-full sm:w-40 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-sm md:w-36 sm:text-sm text-gray-700">
+            {endTime}
+          </div>
+        </div>
+
+        {/* Repeat Dropdown */}
+        <div className="mt-4 relative sm:w-60" ref={repeatRef}>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center justify-between w-full md:min-w-[259px] rounded-lg bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors py-2 px-3 text-sm sm:text-sm"
+          >
+            {getRepeatLabel(repeat, startDate)}
+            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+
+          {isOpen && (
+            <div className="absolute w-full mt-1 rounded-lg shadow-lg bg-gray-100 border border-gray-200 focus:outline-none z-20">
+              <div className="py-1">
+                {["Does not repeat", "Daily", "Weekly", "Monthly"].map(
+                  (option) => (
                     <button
-                      key={i}
-                      onClick={() => !isBooked && setSelectedTime(slot)}
-                      disabled={isBooked}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition border ${
-                        isBooked
-                          ? "bg-red-200 text-red-700 border-red-300 cursor-not-allowed"
-                          : selectedTime === slot
-                            ? "bg-blue-500 text-white border-blue-600"
-                            : "bg-white text-gray-800 hover:bg-indigo-100 border-gray-300"
-                      }`}
+                      key={option}
+                      onClick={() => {
+                        setRepeat(option);
+                        setIsOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors text-sm text-gray-700"
                     >
-                      {slot}
-                      {isBooked && <span className="block text-xs">Booked</span>}
+                      {getRepeatLabel(option, startDate)}
                     </button>
-                  );
-                })}
+                  )
+                )}
               </div>
-            </div>
-          )}
-          {selectedTime && finalMeetingName && (
-            <div className="mt-6 p-4 border border-indigo-300 bg-indigo-50 rounded-xl shadow-sm">
-              <h2 className="text-#2A2A72 font-semibold text-lg mb-2">
-                Meeting Details
-              </h2>
-              <p className="text-gray-700">
-                <span className="font-semibold">Type:</span> {finalMeetingName}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-semibold">Date:</span> {selectedDate.toDateString()}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-semibold">Time:</span> {selectedTime}
-              </p>
-              <button
-                onClick={handleCreateRoom}
-                disabled={loading}
-                className={`mt-4 w-full rounded-lg py-2 font-semibold transition-all duration-200 ${
-                  loading
-                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-[#2A2A72] text-white cursor-pointer hover:bg-[#000080]"
-                }`}
-              >
-                {loading ? "Creating..." : "Create Meeting Room"}
-              </button>
-              {error && <p className="text-red-500 mt-2">{error}</p>}
-            </div>
-          )}
-          {createdRoom && (
-            <div className="mt-6 p-4 border border-green-300 bg-green-50 rounded-xl shadow-sm">
-              <h2 className="text-green-800 font-semibold text-lg mb-2">
-                Room Created Successfully! Refreshing...
-              </h2>
             </div>
           )}
         </div>
       </div>
-      <div className="bg-white w-full rounded-2xl shadow-2xl sm:p-8">
-        <h2 className="text-xl sm:text-1xl font-bold text-[#2A2A72] mb-4 text-center">
-          Upcoming Meetings
-        </h2>
-        {upcomingMeetings.length === 0 && (
-          <p className="text-center text-gray-500">No upcoming meetings found.</p>
-        )}
-        <ul className="space-y-3 max-h-90 overflow-y-auto">
-          {upcomingMeetings.map((m) => (
-            <li
-              key={m.linkId}
-              className="border border-indigo-300 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between"
-            >
-              <div className="truncate text-sm sm:flex-1">
-                <p className="text-[#2A2A72] font-semibold truncate">
-                  Meeting: {m.meetingType}
-                </p>
-                <p className="text-gray-700  text-sm truncate">
-                  {(() => {
-                    const date = new Date(m.meetingDate);
-                    const day = date.getDate();
-                    const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
-                    const month = date.toLocaleDateString('en-US', { month: 'short' });
-                    const year = date.getFullYear();
-                    return `${day}, ${weekday} ${month} ${year}`;
-                  })()}
-                </p>
-                <p className="text-[#3C3C3C] text-sm truncate">
-                  Time: {m.meetingTime}
-                </p>
-              </div>
-              <div className="mt-3 sm:mt-0 sm:ml-4 flex items-center gap-3">
-                <Link
-                  to={`/room/${m.linkId}`}
-                  className="px-3  bg-[#2A2A72] text-sm text-white rounded-lg hover:bg-[#000080]"
-                  aria-label={`Join meeting room ${m.meetingType} on ${m.meetingDate}`}
-                >
-                  Join
-                </Link>
+
+      {/* Calendar Section */}
+      <div className="w-full bg-white rounded-xl flex  flex-col lg:flex-row">
+        <div className="w-full lg:w-2/3 mb-4 lg:mb-0">
+          <div className="bg-white shadow-xl p-4 md:p-6 lg:p-9 rounded-2xl">
+            {/* Calendar Header */}
+            <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+              <div className="flex gap-2 items-center">
                 <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: "Join My Meeting",
-                        text: `Join this meeting: ${m.meetingType} on ${new Date(m.meetingDate).toLocaleDateString()}`,
-                        url: `${window.location.origin}/room/${m.linkId}`,
-                      }).catch((err) => console.log("Share cancelled", err));
-                    } else {
-                      alert("Sharing is not supported on this browser.");
-                    }
-                  }}
-                  className="bg-[#2A2A72] hover:bg-[#000080] text-white px-3 cursor-pointer  rounded-lg  text-sm"
+                  onClick={goToday}
+                  className="px-3 py-1 md:px-4 md:py-2 text-sm cursor-pointer bg-gray-200 rounded-full hover:bg-gray-100"
                 >
-                  Share
+                  Today
                 </button>
                 <button
-                  onClick={async () => {
-                    try {
-                      await axios.delete(
-                        `https://samzraa.onrender.com/api/agora/delete-room/${m.linkId}`,
-                        { headers: { Authorization: `Bearer ${user.token}` } }
-                      );
-                      setPreviousMeetings((prev) =>
-                        prev.filter((room) => room.linkId !== m.linkId)
-                      );
-                    } catch (err) {
-                      console.error("Failed to delete room", err);
-                      alert("Failed to delete room");
-                    }
-                  }}
-                  className="px-3  bg-red-600 text-sm text-white rounded-lg hover:bg-red-700"
-                  aria-label={`Delete meeting room ${m.meetingType} on ${m.meetingDate}`}
+                  onClick={goPrev}
+                  className="text-[#3C3C3C] cursor-pointer"
                 >
-                  Delete
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={goNext}
+                  className="text-[#3C3C3C] cursor-pointer"
+                >
+                  <ChevronRight size={20} />
+                </button>
+                <span className="font-medium text-sm text-[#3C3C3C]">
+                  {days[0].format("MMM D")} –{" "}
+                  {days[days.length - 1].format("MMM D, YYYY")}
+                </span>
+              </div>
+
+              {/* View Switch */}
+              <div className="flex text-sm">
+                <button
+                  onClick={() => setView("day")}
+                  className={`px-3 md:px-6 py-2 rounded-l-[30px] ${
+                    view === "day"
+                      ? "bg-[#2A2A72] text-white"
+                      : "bg-gray-100 text-[#3C3C3C]"
+                  }`}
+                >
+                  Day
+                </button>
+                <button
+                  onClick={() => setView("3days")}
+                  className={`px-3 md:px-4 py-2 ${
+                    view === "3days"
+                      ? "bg-[#2A2A72] text-white"
+                      : "bg-gray-100 text-[#3C3C3C]"
+                  }`}
+                >
+                  3 Days
+                </button>
+                <button
+                  onClick={() => setView("week")}
+                  className={`px-3 md:px-6 py-2 rounded-r-[30px] ${
+                    view === "week"
+                      ? "bg-[#2A2A72] text-white"
+                      : "bg-gray-100 text-[#3C3C3C]"
+                  }`}
+                >
+                  Week
                 </button>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="bg-white w-full rounded-2xl shadow-2xl  sm:p-8 mt-6">
-        <h2 className="text-xl sm:text-1xl font-bold text-[#2A2A72] mb-4 text-center">
-          Previous  Meetings
-        </h2>
-        {pastMeetings.length === 0 && (
-          <p className="text-center text-gray-500">No Previous  Meetings Found.</p>
-        )}
-        <ul className="space-y-3 max-h-96 overflow-y-auto">
-          {pastMeetings.map((m) => (
-            <li
-              key={m.linkId}
-              className="border border-gray-300 bg-gray-100 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between"
+            </div>
+
+            {/* Calendar Grid */}
+            <div
+              className="grid w-full h-[60vh] sm:h-[70vh] md:h-[600px] overflow-auto"
+              style={{
+                gridTemplateColumns: `60px repeat(${days.length}, minmax(120px, 1fr))`,
+              }}
+              onMouseUp={handleMouseUp}
             >
-              <div className="truncate text-sm  sm:flex-1">
-                <p className="text-[#2A2A72] font-semibold truncate">
-                  Meeting: {m.meetingType}
-                </p>
-                <p className="text-[#3C3C3C] text-sm truncate">
-                  {(() => {
-                    const date = new Date(m.meetingDate);
-                    const day = date.getDate();
-                    const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
-                    const month = date.toLocaleDateString('en-US', { month: 'short' });
-                    const year = date.getFullYear();
-                    return `${day}, ${weekday} ${month} ${year}`;
-                  })()}
-                </p>
-                <p className="text-[#3C3C3C] text-sm truncate">
-                  Time: {m.meetingTime}
-                </p>
-                <p className="text-red-500 text-sm font-semibold">Previous  Meeting</p>
-              </div>
-              <div className="mt-3 sm:mt-0 sm:ml-4 flex items-center gap-3">
-              </div>
-            </li>
-          ))}
-        </ul>
+              <div></div>
+              {days.map((day, idx) => (
+                <div
+                  key={idx}
+                  className="flex border-r-[#e3e3e3] border-b-[#cacaca] text-gray-500 flex-col items-center justify-center mb-2 font-medium text-[12px] sm:text-xs min-w-[90px] bg-white sticky top-0 z-10"
+                >
+                  {day.format("ddd")}
+                  <span className="text-[20px] sm:text-[20px] text-gray-700 ">
+                    {day.format("D")}
+                  </span>
+                </div>
+              ))}
+
+              {availableTimeSlots.map((slot, i) => {
+                const [slotStart] = slot.split(" - ");
+                const { hours } = parseTime(slotStart);
+
+                return (
+                  <React.Fragment key={i}>
+                    <div className="sticky left-0 z-10 md:mr-1 bg-white h-10 text-[10px] sm:text-xs text-gray-500 flex items-start justify-end pr-2 sm:pr-4 border-gray-300">
+                      {formatHour(slotStart)}
+                    </div>
+                    {days.map((day, j) => {
+                      const isDragging =
+                        dragging &&
+                        dragging.day.isSame(day, "day") &&
+                        i >= Math.min(dragging.startHour, dragging.endHour) &&
+                        i <= Math.max(dragging.startHour, dragging.endHour);
+
+                      const isSelectedTime =
+                        day.isSame(dayjs(startDate), "day") &&
+                        hours === selectedHour;
+                      const meeting = getMeetingForSlot(day, slot);
+
+                      return (
+                        <div
+                          key={`${i}-${j}`}
+                          className={`relative border-b border-r   border-r-gray-300 border-b-gray-400 h-10 cursor-pointer min-w-[100px] sm:min-w-[110px] ${
+                            isDragging
+                              ? "bg-blue-200"
+                              : isSelectedTime
+                              ? "bg-gray-300 animate-pulse rounded-[6px]"
+                              : meeting
+                              ? "bg-green-100 border-green-300"
+                              : "hover:bg-blue-50"
+                          }`}
+                          onMouseDown={() => handleMouseDown(day, i)}
+                          onMouseEnter={() => handleMouseEnter(day, i)}
+                          onClick={() => {
+                            setStartDate(day.toDate());
+                            setSelectedSlot(slot);
+                          }}
+                          title={
+                            meeting ? `Meeting: ${meeting.meetingType}` : ""
+                          }
+                        >
+                          {meeting && (
+                            <div className="absolute inset-0 overflow-hidden">
+                              <div className="bg-[#2A2A72] flex flex-col   text-white  w-full h-full rounded p-1 truncate">
+                                <span className="truncate text-[11px] ">
+                                  {meeting.meetingType.length > 16
+                                    ? meeting.meetingType.substring(0, 15) +
+                                      "..."
+                                    : meeting.meetingType}
+                                </span>
+                                <span className="truncate text-[11px]">
+                                  {meeting.meetingTime.length > 16
+                                    ? meeting.meetingTime.substring(0, 17) + ""
+                                    : meeting.meetingTime}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="w-full mt-9 lg:w-80 pl-2 pr-2 space-y-4">
+          <Upcomming />
+        </div>
       </div>
     </div>
   );

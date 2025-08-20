@@ -166,11 +166,11 @@ const MeetingList = () => {
   return (
     <div className=" mb-4">
       <div className="px-4 pt-2">
-        <div className="w-full bg-gradient-to-r from-[#F86925] to-orange-300 rounded-md shadow-sm py-4 text-center">
-          <h2 className="text-white text-lg font-semibold">
+        <div className="w-full bg-gradient-to-r from-orange-500 to-orange-300 rounded-md shadow-sm py-5 text-center">
+          <h2 className="text-white text-xl font-semibold">
             Online Meeting Schedule
           </h2>
-          <div className=" "><p className="text-white text-sm font-medium   ">
+          <div className=" "><p className="text-white text-base font-medium   ">
             {days[0].label} to {days[6].label}
           </p></div>
         </div>
@@ -178,21 +178,21 @@ const MeetingList = () => {
 
       {/* Upcoming Meetings and On Air Section */}
       <div className="px-4 pt-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           
           {/* Upcoming Meetings Box */}
           <div className="bg-white rounded-lg shadow-md  ">
-            <div className=" text-[#3C3C3C] px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
-              <h3 className="text-base font-semibold">On Air</h3>
+            <div className=" text-black px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
+              <h3 className="text-lg font-semibold">On Air</h3>
             </div>
             <div className="p-4">
               {liveMeetings.length > 0 ? (
                 <div className="space-y-3">
                   {liveMeetings.map((meeting, index) => (
-                    <div key={index} className="flex justify-between text-sm items-center p-2 bg-red-50 rounded-md border-l-4 border-red-400">
+                    <div key={index} className="flex justify-between items-center p-3 bg-red-50 rounded-md border-l-4 border-red-400">
                       <div>
-                        <p className="font-medium  text-[#3C3C3C">{meeting.meetingType}</p>
-                        <p className="text-sm text-[#3C3C3C]">{meeting.meetingTime}</p>
+                        <p className="font-medium text-gray-800">{meeting.meetingType}</p>
+                        <p className="text-base text-gray-600">{meeting.meetingTime}</p>
                         <div className="flex items-center mt-1">
                           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
                           <span className="text-xs text-red-600 font-medium">LIVE</span>
@@ -216,21 +216,21 @@ const MeetingList = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-md ">
-            <div className=" text-[#3C3C3C] px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
-              <h3 className="text-base  font-semibold">Upcoming Meetings</h3>
+            <div className=" text-white px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
+              <h3 className="text-lg text-black font-semibold">Upcoming Meetings</h3>
             </div>
             <div className="p-4">
               {upcomingMeetings.length > 0 ? (
                 <div className="space-y-3">
                   {upcomingMeetings.map((meeting, index) => (
-                    <div key={index} className="flex justify-between text-sm items-center p-3 bg-gray-50 rounded-md border-l-4 border-[#2A2A72]">
+                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-md border-l-4 border-blue-400">
                       <div>
-                        <p className="font-medium text-[#3C3C3C]">{meeting.meetingType}</p>
-                        <p className="text-sm text-[#3C3C3C]">{meeting.meetingTime}</p>
+                        <p className="font-medium text-gray-800">{meeting.meetingType}</p>
+                        <p className="text-base text-gray-600">{meeting.meetingTime}</p>
                       </div>
                       <Link 
                         to={`/room/${meeting.linkId}`}
-                        className="bg-[#2A2A72] hover:bg-[#000080] text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
                       >
                         Join
                       </Link>
@@ -251,13 +251,13 @@ const MeetingList = () => {
       {/* Full Calendar View */}
       <div className="px-4 ">
         <div className="bg-gradient-to-r bg-white rounded-t-lg shadow-sm py-3  ">
-          <div className=" pl-2 border-b-[1px] border-b-gray-300"><h2 className="text-[#3C3C3C] text-2xl flex mb-2 items-center gap-1 font-semibold"><CalendarDays/> Full Calendar</h2></div>
-          <div className="pl-9 mt-2  flex justify-between">
-             <p className="text-[#3C3C3C] text-base  ">
+          <div className=" pl-2"><h2 className="text-black text-3xl flex items-center gap-1 font-semibold"><CalendarDays/> Meeting Calendar</h2></div>
+          <div className="pl-9 -mt-2  flex justify-between">
+             <p className="text-black text-base font-medium pt-3">
               {days[0].label} to {days[6].label}
              </p>
              <div className="mr-4">
-               <p className="text-[#3C3C3C]  text-base ">
+               <p className="text-black text-base font-medium">
                Your Local Time: {getCurrentTimeCustom()}
                </p>
             </div>
@@ -267,14 +267,14 @@ const MeetingList = () => {
         <div className="overflow-x-auto bg-white shadow rounded-b-lg">
           <table className="w-full  border border-gray-200">
             <thead>
-              <tr className="bg-gray-100 text-[#3C3C3C]">
-                <th className="border text-sm md:text-lg font-normal border-gray-200 p-2 text-left">
+              <tr className="bg-gray-100">
+                <th className="border text-base md:text-lg font-normal border-gray-200 p-2 text-left">
                   Meeting
                 </th>
                 {days.map((day, index) => (
                   <th
                     key={index}
-                    className="border text-xs md:text-sm text-l  font-normal border-gray-200 p-2 text-center"
+                    className="border md:text-lg text-base  font-normal border-gray-200 p-2 text-center"
                   >
                     {day.label}
                   </th>
@@ -284,7 +284,7 @@ const MeetingList = () => {
             <tbody>
              {Object.keys(groupedData).map((meetingType, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50">
-                  <td className="border border-gray-200 text-sm p-2 font-medium text-gray-700">
+                  <td className="border border-gray-200 p-2 font-medium text-gray-700">
                     {meetingType}
                   </td>
                   {days.map((day, colIndex) => {
@@ -293,10 +293,10 @@ const MeetingList = () => {
                     return (
                       <td
                         key={colIndex}
-                        className={`border border-gray-200 p-2 text-sm text-center ${
+                        className={`border border-gray-200 p-2 text-center ${
                           day.label === todayLabel
-                            ? "bg-[#2A2A72] text-white font-semibold"
-                            : "text-[#3C3C3C]"
+                            ? "bg-blue-500 text-white font-semibold"
+                            : "text-blue-600"
                         }`}
                       >
                         {times.length > 0 ? (

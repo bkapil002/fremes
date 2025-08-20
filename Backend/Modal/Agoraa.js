@@ -35,8 +35,6 @@ const userSchema = new mongoose.Schema({
         type:String,
         require:true
     },
-
-
      meetingType: {
         type: String,
         required: true 
@@ -49,6 +47,16 @@ const userSchema = new mongoose.Schema({
         type: String, 
         required: true
     },
+    meetingRepeat: {
+      type: String, 
+      required: true
+      
+    },
+      recurrence: {
+    repeatType: { type: String }, 
+    interval: { type: Number, default: 1 },
+    batchSize: { type: Number, default: 15 }
+  }
 })
 
 const Agoraa =  mongoose.model("agoraa" , userSchema)

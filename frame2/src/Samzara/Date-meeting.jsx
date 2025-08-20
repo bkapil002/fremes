@@ -1,5 +1,5 @@
 
-const meetingTypes = [
+const meetingSuggestions  = [
   "A 12-Step Meeting",
   "11th Step Meditation",
   "ACA [Adult Children]",
@@ -37,7 +37,6 @@ const meetingTypes = [
   "Women in Recovery",
   "Women Warriors",
   "Yoga Recovery",
-  "Other"
 ];
 
 const timeSlots = [
@@ -58,7 +57,7 @@ const timeSlots = [
   "8:00 PM - 9:00 PM",
 ];
 
-const uniqueMeetingTypes = [...new Set(meetingTypes)];
+const uniqueMeetingTypes = [...new Set(meetingSuggestions )];
 
 const meeting = {
   types: uniqueMeetingTypes,
