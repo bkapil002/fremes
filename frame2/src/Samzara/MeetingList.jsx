@@ -192,7 +192,7 @@ const MeetingList = () => {
                     <div key={index} className="flex justify-between items-center p-3 bg-red-50 rounded-md border-l-4 border-red-400">
                       <div>
                         <p className="font-medium text-gray-800">{meeting.meetingType}</p>
-                        <p className="text-base text-gray-600">{meeting.meetingTime}</p>
+                        <p className="text-xs md:text-sm text-gray-600">{meeting.meetingTime}</p>
                         <div className="flex items-center mt-1">
                           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
                           <span className="text-xs text-red-600 font-medium">LIVE</span>
@@ -226,7 +226,7 @@ const MeetingList = () => {
                     <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-md border-l-4 border-blue-400">
                       <div>
                         <p className="font-medium text-gray-800">{meeting.meetingType}</p>
-                        <p className="text-base text-gray-600">{meeting.meetingTime}</p>
+                        <p className="text-xs md:text-sm text-gray-600">{meeting.meetingTime}</p>
                       </div>
                       <Link 
                         to={`/room/${meeting.linkId}`}
@@ -251,13 +251,13 @@ const MeetingList = () => {
       {/* Full Calendar View */}
       <div className="px-4 ">
         <div className="bg-gradient-to-r bg-white rounded-t-lg shadow-sm py-3  ">
-          <div className=" pl-2"><h2 className="text-black text-3xl flex items-center gap-1 font-semibold"><CalendarDays/> Meeting Calendar</h2></div>
-          <div className="pl-9 -mt-2  flex justify-between">
-             <p className="text-black text-base font-medium pt-3">
+          <div className=" pl-2"><h2 className="text-black  md:text-3xl text-xl flex items-center gap-1 font-semibold"><CalendarDays size={22}/> Full Calendar</h2></div>
+          <div className="pl-9 -mt-1  flex justify-between">
+             <p className="text-black md:text-base text-xs font-medium pt-3">
               {days[0].label} to {days[6].label}
              </p>
-             <div className="mr-4">
-               <p className="text-black text-base font-medium">
+             <div className="mr-4 mt-2.5">
+               <p className="text-black text-xs md:text-base font-medium">
                Your Local Time: {getCurrentTimeCustom()}
                </p>
             </div>
@@ -268,13 +268,13 @@ const MeetingList = () => {
           <table className="w-full  border border-gray-200">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border text-base md:text-lg font-normal border-gray-200 p-2 text-left">
+                <th className="border text-sm md:text-lg font-normal border-gray-200 p-2 text-left">
                   Meeting
                 </th>
                 {days.map((day, index) => (
                   <th
                     key={index}
-                    className="border md:text-lg text-base  font-normal border-gray-200 p-2 text-center"
+                    className="border md:text-lg  text-xs  font-normal border-gray-200 p-2 text-center"
                   >
                     {day.label}
                   </th>
@@ -284,7 +284,7 @@ const MeetingList = () => {
             <tbody>
              {Object.keys(groupedData).map((meetingType, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50">
-                  <td className="border border-gray-200 p-2 font-medium text-gray-700">
+                  <td className="border md:text-base text-sm border-gray-200 p-2 font-medium text-gray-700">
                     {meetingType}
                   </td>
                   {days.map((day, colIndex) => {
@@ -300,7 +300,7 @@ const MeetingList = () => {
                         }`}
                       >
                         {times.length > 0 ? (
-                          times.map((t, i) => <div key={i}>{getStartTimeOnly(t)}</div>)
+                          times.map((t, i) => <div key={i} className="text-xs md:text-base" >{getStartTimeOnly(t)}</div>)
                         ) : (
                           "-"
                         )}
