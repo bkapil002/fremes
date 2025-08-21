@@ -447,11 +447,11 @@ const timeSlots = meeting.slots;
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row flex-wrap gap-3 sm:gap-4 mt-6 items-start md:items-center">
-          <div className="relative w-full md:w-36" ref={datePickerRef}>
+        <div className="flex flex-col md:flex-row flex-wrap gap-3 sm:gap-2 mt-6 items-start md:items-center">
+          <div className="relative w-full md:w-34" ref={datePickerRef}>
             <button
               onClick={() => setShowDatePicker(!showDatePicker)}
-              className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 text-sm sm:text-sm transition-all outline-none"
+              className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 md:text-sm text-xs transition-all outline-none"
             >
               {startDate.toLocaleDateString("en-US", {
                 month: "short",
@@ -470,19 +470,19 @@ const timeSlots = meeting.slots;
           </div>
 
           {/* Start Time */}
-          <div className="relative w-full sm:w-40" ref={timeRef}>
+          <div className="relative flex w-full sm:w-70 justify-center items-center gap-2 " ref={timeRef}>
             <button
               onClick={() => setIsTimeOpen(!isTimeOpen)}
-              className="flex items-center justify-between w-full md:w-36 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-sm sm:text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex items-center justify-between w-full md:w-36 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               {startTime}
               {isTimeOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
             {isTimeOpen && (
-              <div className="absolute mt-1 w-full max-h-40 overflow-y-auto bg-gray-100 border border-gray-200 rounded-lg shadow-lg z-20">
+              <div className="absolute mt-52  w-full max-h-40 overflow-y-auto bg-gray-100 border border-gray-200 rounded-lg shadow-lg z-20">
                 {availableTimeSlots.map((slot) => {
-                  const [s] = slot.split(" - ");
+                  const [s,e] = slot.split(" - ");
                   return (
                     <button
                       key={slot}
@@ -492,25 +492,27 @@ const timeSlots = meeting.slots;
                       }}
                       className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      {s}
+                      <span className="pr-1">{s}</span> {" to "}
+                     <span className="text-gray-500  pl-1">  {e}</span>
                     </button>
                   );
                 })}
               </div>
             )}
-          </div>
-
-          <span className="hidden sm:block text-gray-500 text-sm">to</span>
-          <div className="w-full sm:w-40 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-sm md:w-36 sm:text-sm text-gray-700">
+            <span className="hidden sm:block text-gray-500 text-sm">to</span>
+          <div className="w-full sm:w-40 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-xs md:w-36 sm:text-sm text-gray-700">
             {endTime}
           </div>
+          </div>
+
+          
         </div>
 
         {/* Repeat Dropdown */}
         <div className="mt-4 relative sm:w-60" ref={repeatRef}>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center justify-between w-full md:min-w-[259px] rounded-lg bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors py-2 px-3 text-sm sm:text-sm"
+            className="flex items-center md:text-sm text-xs justify-between w-full md:min-w-[259px] rounded-lg bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors py-2 px-3  sm:text-sm"
           >
             {getRepeatLabel(repeat, startDate)}
             {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -527,7 +529,7 @@ const timeSlots = meeting.slots;
                         setRepeat(option);
                         setIsOpen(false);
                       }}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors text-sm text-gray-700"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors md:text-sm text-xs text-gray-700"
                     >
                       {getRepeatLabel(option, startDate)}
                     </button>
@@ -542,13 +544,13 @@ const timeSlots = meeting.slots;
       {/* Calendar Section */}
       <div className="w-full bg-white rounded-xl flex  flex-col lg:flex-row">
         <div className="w-full lg:w-2/3 mb-4 lg:mb-0">
-          <div className="bg-white shadow-xl p-4 md:p-6 lg:p-9 rounded-2xl">
+          <div className="bg-white shadow-xl p-4 md:p-6 lg:p-6  rounded-2xl">
             {/* Calendar Header */}
             <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
               <div className="flex gap-2 items-center">
                 <button
                   onClick={goToday}
-                  className="px-3 py-1 md:px-4 md:py-2 text-sm cursor-pointer bg-gray-200 rounded-full hover:bg-gray-100"
+                  className="px-3 py-1 md:px-4 md:py-2 md:text-sm text-xs cursor-pointer bg-gray-200 rounded-full hover:bg-gray-100"
                 >
                   Today
                 </button>
@@ -564,17 +566,17 @@ const timeSlots = meeting.slots;
                 >
                   <ChevronRight size={20} />
                 </button>
-                <span className="font-medium text-sm text-[#3C3C3C]">
+                <span className="font-medium md:text-sm text-xs text-[#3C3C3C]">
                   {days[0].format("MMM D")} –{" "}
                   {days[days.length - 1].format("MMM D, YYYY")}
                 </span>
               </div>
 
               {/* View Switch */}
-              <div className="flex text-sm">
+              <div className="flex text-sm md:pr-4">
                 <button
                   onClick={() => setView("day")}
-                  className={`px-3 md:px-6 py-2 rounded-l-[30px] ${
+                  className={`px-3 text-xs md:text-sm md:px-6 py-1.5  md:py-2 rounded-l-[30px] ${
                     view === "day"
                       ? "bg-[#2A2A72] text-white"
                       : "bg-gray-100 text-[#3C3C3C]"
@@ -584,7 +586,7 @@ const timeSlots = meeting.slots;
                 </button>
                 <button
                   onClick={() => setView("3days")}
-                  className={`px-3 md:px-4 py-2 ${
+                  className={`px-3 text-xs md:text-sm  md:px-4 py-1.5 md:py-2 ${
                     view === "3days"
                       ? "bg-[#2A2A72] text-white"
                       : "bg-gray-100 text-[#3C3C3C]"
@@ -594,7 +596,7 @@ const timeSlots = meeting.slots;
                 </button>
                 <button
                   onClick={() => setView("week")}
-                  className={`px-3 md:px-6 py-2 rounded-r-[30px] ${
+                  className={`px-3 text-xs md:text-sm  md:px-6 py-1.5 rounded-r-[30px] md:py-2 ${
                     view === "week"
                       ? "bg-[#2A2A72] text-white"
                       : "bg-gray-100 text-[#3C3C3C]"
@@ -607,7 +609,7 @@ const timeSlots = meeting.slots;
 
             {/* Calendar Grid */}
             <div
-              className="grid w-full h-[60vh] sm:h-[70vh] md:h-[600px] overflow-auto"
+              className="grid -ml-[16px] w-full h-[60vh] sm:h-[70vh] md:h-[600px] overflow-auto"
               style={{
                 gridTemplateColumns: `60px repeat(${days.length}, minmax(120px, 1fr))`,
               }}
