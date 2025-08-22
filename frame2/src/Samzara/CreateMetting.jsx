@@ -168,7 +168,7 @@ const timeSlots = meeting.slots;
     }
   };
 
-  const SimpleDatePicker = ({ selectedDate, onDateChange, minDate }) => {
+const SimpleDatePicker = ({ selectedDate, onDateChange, minDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate));
 
   // ✅ Utility to normalize selected day to IST midnight
@@ -288,6 +288,7 @@ const timeSlots = meeting.slots;
     </div>
   );
 };
+
 
   const [startTime, endTime] = selectedSlot.split(" - ");
   const [currentDate, setCurrentDate] = useState(dayjs(startDate));

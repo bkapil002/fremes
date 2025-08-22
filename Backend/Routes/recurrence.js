@@ -16,6 +16,7 @@ function generateLinkId() {
 
 function normalizeDate(dateInput) {
   const date = new Date(dateInput);
+
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
 }
 
@@ -44,7 +45,7 @@ function getNthWeekdayOfMonth(baseDate, monthsToAdd = 1) {
   return new Date(targetYear, normalizedMonth, targetDate);
 }
 
-// ✅ Create recurring meetings in batch
+
 async function createRecurringMeetings(user, meetingData, recurrence) {
   const { meetingType, meetingDate, meetingTime, meetingRepeat } = meetingData;
   const appId = process.env.APP_ID;
@@ -122,7 +123,7 @@ async function extendRecurringMeetings(userId, meetingType) {
       lastMeeting.recurrence.repeatType.toLowerCase()
     ).toDate();
   }
-  const normalizedNextDate = normalizeDate(nextDate);
+const normalizedNextDate = normalizeDate(nextDate);
   return await createRecurringMeetings(
     lastMeeting.user,
     {

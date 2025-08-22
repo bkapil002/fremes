@@ -68,9 +68,7 @@ router.post("/create-room", auth, async (req, res) => {
     if (!meetingType || !meetingDate || !meetingTime) {
       return res.status(400).json({ error: "Meeting type, date, and time are required" });
     }
-     const normalizedMeetingDate = normalizeDate(meetingDate);
-
-
+   const normalizedMeetingDate = normalizeDate(meetingDate);
     const recurrence = {
       repeatType: meetingRepeat, 
       interval: 1,
@@ -86,7 +84,7 @@ router.post("/create-room", auth, async (req, res) => {
 
     const createdMeetings = await createRecurringMeetings(
       user,
-       { 
+      { 
         meetingType, 
         meetingDate: normalizedMeetingDate, 
         meetingTime, 
