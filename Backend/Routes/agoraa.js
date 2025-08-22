@@ -10,6 +10,10 @@ const { createRecurringMeetings } = require("./recurrence");
 const appId = process.env.APP_ID;
 const appCertificate = process.env.APP_CERTIFICATE;
 
+function normalizeDate(dateInput) {
+  const date = new Date(dateInput);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
+}
 
 async function refreshTokens() {
   try {
@@ -64,6 +68,8 @@ router.post("/create-room", auth, async (req, res) => {
     if (!meetingType || !meetingDate || !meetingTime) {
       return res.status(400).json({ error: "Meeting type, date, and time are required" });
     }
+     const normalizedMeetingDate = normalizeDate(meetingDate);
+
 
     const recurrence = {
       repeatType: meetingRepeat, 
@@ -80,7 +86,12 @@ router.post("/create-room", auth, async (req, res) => {
 
     const createdMeetings = await createRecurringMeetings(
       user,
-      { meetingType, meetingDate, meetingTime, meetingRepeat },
+       { 
+        meetingType, 
+        meetingDate: normalizedMeetingDate, 
+        meetingTime, 
+        meetingRepeat 
+      },
       recurrence
     );
 
