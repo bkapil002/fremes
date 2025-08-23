@@ -168,128 +168,160 @@ const timeSlots = meeting.slots;
     }
   };
 
-const SimpleDatePicker = ({ selectedDate, onDateChange, minDate }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate));
+  const SimpleDatePicker = ({ selectedDate, onDateChange, minDate }) => {
+    const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate));
 
-  // ✅ Utility to normalize selected day to IST midnight
-  const toISTMidnight = (date) => {
-    const utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-    return new Date(utc + 5.5 * 60 * 60 * 1000);
-  };
+    const getDaysInMonth = (date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startingDayOfWeek = firstDay.getDay();
+      const days = [];
+      for (let i = 0; i < startingDayOfWeek; i++) {
+        days.push(null);
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        days.push(new Date(year, month, day));
+      }
 
-  const getDaysInMonth = (date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-    const days = [];
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day));
-    }
-    return days;
-  };
+      return days;
+    };
 
-  const isToday = (date) => {
-    const today = toISTMidnight(new Date());
-    return date && toISTMidnight(date).toDateString() === today.toDateString();
-  };
+    const formatDate = (date) => {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
 
-  const isSelected = (date) => {
+    const isToday = (date) => {
+      const today = new Date();
+      return date && date.toDateString() === today.toDateString();
+    };
+
+    const isSelected = (date) => {
+      return (
+        date &&
+        selectedDate &&
+        date.toDateString() === selectedDate.toDateString()
+      );
+    };
+
+    const isDisabled = (date) => {
+      if (!date || !minDate) return false;
+
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const min = new Date(
+        minDate.getFullYear(),
+        minDate.getMonth(),
+        minDate.getDate()
+      );
+
+      return d < min;
+    };
+
+    const days = getDaysInMonth(currentMonth);
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
     return (
-      date &&
-      selectedDate &&
-      toISTMidnight(date).toDateString() ===
-        toISTMidnight(selectedDate).toDateString()
+      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 min-w-[280px]">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() =>
+              setCurrentMonth(
+                new Date(
+                  currentMonth.getFullYear(),
+                  currentMonth.getMonth() - 1
+                )
+              )
+            }
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <span className="font-medium">
+            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentMonth(
+                new Date(
+                  currentMonth.getFullYear(),
+                  currentMonth.getMonth() + 1
+                )
+              )
+            }
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+            <div
+              key={day}
+              className="text-center text-xs font-medium text-gray-500 p-2"
+            >
+              {day}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                if (day && !isDisabled(day)) {
+                  onDateChange(day);
+                  setShowDatePicker(false);
+                }
+              }}
+              disabled={!day || isDisabled(day)}
+              className={`
+                p-2 text-sm rounded hover:bg-blue-50 transition-colors
+                ${!day ? "invisible" : ""}
+                ${
+                  isSelected(day)
+                    ? "bg-[#2A2A72] text-white hover:bg-[#2A2A72]"
+                    : ""
+                }
+                ${
+                  isToday(day) && !isSelected(day)
+                    ? "bg-blue-100 text-[#2A2A72]"
+                    : ""
+                }
+                ${
+                  isDisabled(day)
+                    ? "text-gray-300 cursor-not-allowed hover:bg-transparent"
+                    : ""
+                }
+              `}
+            >
+              {day ? day.getDate() : ""}
+            </button>
+          ))}
+        </div>
+      </div>
     );
   };
-
-  const isDisabled = (date) => {
-    if (!date || !minDate) return false;
-    return toISTMidnight(date) < toISTMidnight(minDate);
-  };
-
-  const days = getDaysInMonth(currentMonth);
-  const monthNames = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
-  ];
-
-  return (
-    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 min-w-[280px]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() =>
-            setCurrentMonth(
-              new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
-            )
-          }
-          className="p-1 hover:bg-gray-100 rounded"
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <span className="font-medium">
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-        </span>
-        <button
-          onClick={() =>
-            setCurrentMonth(
-              new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
-            )
-          }
-          className="p-1 hover:bg-gray-100 rounded"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
-
-      {/* Weekdays */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-          <div
-            key={day}
-            className="text-center text-xs font-medium text-gray-500 p-2"
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-
-      {/* Dates */}
-      <div className="grid grid-cols-7 gap-1">
-        {days.map((day, index) => (
-          <button
-            key={index}
-            onClick={() => {
-              if (day && !isDisabled(day)) {
-                const normalized = toISTMidnight(day); // ✅ Always IST
-                onDateChange(normalized);
-                setShowDatePicker(false);
-              }
-            }}
-            disabled={!day || isDisabled(day)}
-            className={`
-              p-2 text-sm rounded hover:bg-blue-50 transition-colors
-              ${!day ? "invisible" : ""}
-              ${isSelected(day) ? "bg-[#2A2A72] text-white hover:bg-[#2A2A72]" : ""}
-              ${isToday(day) && !isSelected(day) ? "bg-blue-100 text-[#2A2A72]" : ""}
-              ${isDisabled(day) ? "text-gray-300 cursor-not-allowed hover:bg-transparent" : ""}
-            `}
-          >
-            {day ? day.getDate() : ""}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-
   const [startTime, endTime] = selectedSlot.split(" - ");
   const [currentDate, setCurrentDate] = useState(dayjs(startDate));
   const [view, setView] = useState("week");

@@ -14,12 +14,6 @@ function generateLinkId() {
     ).join('-');
 }
 
-function normalizeDate(dateInput) {
-  const date = new Date(dateInput);
-
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
-}
-
 
 function getNthWeekdayOfMonth(baseDate, monthsToAdd = 1) {
   const date = new Date(baseDate);
@@ -45,13 +39,13 @@ function getNthWeekdayOfMonth(baseDate, monthsToAdd = 1) {
   return new Date(targetYear, normalizedMonth, targetDate);
 }
 
-
+// ✅ Create recurring meetings in batch
 async function createRecurringMeetings(user, meetingData, recurrence) {
   const { meetingType, meetingDate, meetingTime, meetingRepeat } = meetingData;
   const appId = process.env.APP_ID;
   const appCertificate = process.env.APP_CERTIFICATE;
 
-  const startDate = dayjs(normalizeDate(meetingDate));
+  const startDate = dayjs(meetingDate);
   const meetingsToCreate = [];
 
   const loopCount = meetingRepeat === "Does not repeat" ? 1 : recurrence.batchSize;
@@ -68,7 +62,6 @@ for (let i = 0; i < loopCount; i++) {
       getNthWeekdayOfMonth(startDate.toDate(), i * recurrence.interval)
     );
   }
-  const finalDate = normalizeDate(dateToUse.toDate());
     const linkId = generateLinkId();
     const channelName = linkId;
     const uid = 0;
@@ -92,7 +85,7 @@ for (let i = 0; i < loopCount; i++) {
       channel: channelName,
       user,
       meetingType,
-      meetingDate: finalDate,
+      meetingDate: dateToUse.toDate(),
       meetingTime,
       meetingRepeat,
       recurrence
@@ -123,12 +116,12 @@ async function extendRecurringMeetings(userId, meetingType) {
       lastMeeting.recurrence.repeatType.toLowerCase()
     ).toDate();
   }
-const normalizedNextDate = normalizeDate(nextDate);
+
   return await createRecurringMeetings(
     lastMeeting.user,
     {
       meetingType: lastMeeting.meetingType,
-      meetingDate: normalizedNextDate,
+      meetingDate: nextDate,
       meetingTime: lastMeeting.meetingTime,
       meetingRepeat: lastMeeting.meetingRepeat
     },

@@ -3,11 +3,6 @@ const Agora = require("../Modal/Agoraa");
 const { extendRecurringMeetings } = require("./recurrence")
 
 console.log("📅 Meeting Cron Job Initialized");
-function normalizeDate(dateInput) {
-  const date = new Date(dateInput);
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
-}
-
 cron.schedule("0 0 * * *", async () => {
   console.log("⏰ Checking for recurring meetings to extend...");
 
@@ -17,10 +12,6 @@ cron.schedule("0 0 * * *", async () => {
       { $match: { "recurrence.repeatType": { $ne: "Does not repeat" } } },
       { $group: { _id: { user: "$user._id", type: "$meetingType" } } }
     ]);
-    
-    const today = normalizeDate(new Date());
-    today.setHours(0, 0, 0, 0)
-    console.log("📍 Today (normalized):", today);
 
     for (const entry of usersWithRecurring) {
       const upcomingMeetings = await Agora.find({
