@@ -167,6 +167,7 @@ const timeSlots = meeting.slots;
 
       console.log("Meeting Created:", res.data);
       alert("Meeting Created Successfully ");
+      console.log(istDate)
       setTitle("");
       setStartDate(new Date());
       setSelectedSlot(timeSlots[0]);
