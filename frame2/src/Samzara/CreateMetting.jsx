@@ -11,6 +11,11 @@ import axios from "axios";
 import dayjs from "dayjs";
 import Upcomming from "./Upcomming";
 import meeting from "./Date-meeting"
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const CreateMeeting = () => {
 const meetingSuggestions  = meeting.types;
@@ -141,13 +146,19 @@ const timeSlots = meeting.slots;
       alert("Please enter a meeting title");
       return;
     }
+
+    const localDate = dayjs(startDate)
+    .hour(parseTime(selectedSlot).hours)
+    .minute(parseTime(selectedSlot).minutes)
+    .second(0);
+    const istDate = localDate.tz("Asia/Kolkata").format(); 
     setLoading(true);
     try {
       const res = await axios.post(
         "https://samzraa.onrender.com/api/agora/create-room",
         {
           meetingType: title,
-          meetingDate: startDate,
+          meetingDate: istDate,
           meetingTime: selectedSlot,
           meetingRepeat: repeat,
         },
