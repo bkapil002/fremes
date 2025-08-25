@@ -24,7 +24,7 @@ function App() {
       <Navebar/>
       <div className="h-screen flex overflow-hidden">
 
-       <div className="">
+       <div className="mt-1">
         <SideBar/>
        </div>
       <div className="flex-1 flex flex-col overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>

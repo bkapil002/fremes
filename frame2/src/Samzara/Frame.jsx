@@ -52,6 +52,53 @@ const Basics = () => {
   const [meetingtopic, setMeetingtopic] = useState("");
   const remoteUsers = useRemoteUsers();
 
+   useEffect(() => {
+  if (isConnected && user && linkId) {
+    const logJoin = async () => {
+      try {
+        await axios.post(
+          `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${user.token}` },
+          }
+        );
+        console.log("Join time recorded");
+      } catch (error) {
+        console.error("Error logging join time:", error);
+      }
+    };
+
+    logJoin();
+  }
+}, [isConnected, user, linkId]);
+
+useEffect(() => {
+  const handleLeave = async () => {
+    if (!user || !linkId) return;
+    try {
+      await axios.post(
+        `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+        {},
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      console.log("Leave time recorded");
+    } catch (error) {
+      console.error("Error logging leave time:", error);
+    }
+  };
+
+  if (!isConnected && calling === false) {
+    handleLeave();
+  }
+
+  return () => {
+    if (isConnected) {
+      handleLeave();
+    }
+  };
+}, [isConnected, calling, user, linkId]);
+
   useEffect(() => {
     const uids = remoteUsers.map((u) => u.uid);
     const fetchNames = async () => {

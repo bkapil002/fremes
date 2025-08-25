@@ -334,6 +334,7 @@ const timeSlots = meeting.slots;
       </div>
     );
   };
+  console.log(startDate)
   const [startTime, endTime] = selectedSlot.split(" - ");
   const [currentDate, setCurrentDate] = useState(dayjs(startDate));
   const [view, setView] = useState("week");
@@ -463,8 +464,7 @@ const timeSlots = meeting.slots;
           <div className="relative w-full md:w-34" ref={datePickerRef}>
             <button
               onClick={() => setShowDatePicker(!showDatePicker)}
-              className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 md:text-sm text-xs transition-all outline-none"
-            >
+              className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 md:text-sm text-xs transition-all outline-none">
               {startDate.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
