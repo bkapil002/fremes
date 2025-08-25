@@ -12,6 +12,7 @@ import SideBar from "./Samzara/SideBar";
 import { useState } from "react";
 import MeetingList from "./Samzara/MeetingList";
 import CreateMeeting from "./Samzara/CreateMetting";
+import AttendanceRequests from "./pages/AttendanceRequests";
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
         <Route path= '/mleetingList' element={<MeetingList/>}/>
         <Route path='/signin' element={<SignIn/>}/>
         <Route path= '/signup' element={<SignUp/>}/>
+        <Route path="/attendanc" element={<AttendanceRequests />} />
       </Routes>
       </div>
       
