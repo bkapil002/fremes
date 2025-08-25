@@ -4,6 +4,7 @@ import {
   Bell,
   Menu,
   X,
+  Search
 } from "lucide-react";
 import { TbLogout, TbLogin2 } from "react-icons/tb";
 import Z from "./LOGO.png";
