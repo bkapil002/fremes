@@ -77,8 +77,8 @@ useEffect(() => {
   const handleLeave = async () => {
     if (!user || !linkId) return;
     try {
-      await axios.post(
-        `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+      await axios.put(
+        `ttps://samzraa.onrender.com/attendance/meeting/leave/${linkId}`,
         {},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -98,6 +98,7 @@ useEffect(() => {
     }
   };
 }, [isConnected, calling, user, linkId]);
+
 
   useEffect(() => {
     const uids = remoteUsers.map((u) => u.uid);
