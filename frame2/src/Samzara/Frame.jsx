@@ -60,15 +60,14 @@ const Basics = () => {
   if (isConnected && user && linkId) {
     const logJoin = async () => {
       try {
-        const joinTime = dayjs().tz("Asia/Kolkata").format(); 
-
         await axios.post(
           `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
-          { joinTime },
-          { headers: { Authorization: `Bearer ${user.token}` } }
+          {},
+          {
+            headers: { Authorization: `Bearer ${user.token}` },
+          }
         );
-
-        console.log("Join time recorded at (IST):", joinTime);
+        console.log("Join time recorded");
       } catch (error) {
         console.error("Error logging join time:", error);
       }
@@ -78,20 +77,16 @@ const Basics = () => {
   }
 }, [isConnected, user, linkId]);
 
-
 useEffect(() => {
   const handleLeave = async () => {
     if (!user || !linkId) return;
     try {
-      const leaveTime = dayjs().tz("Asia/Kolkata").format();
-
-      await axios.post(
+      await axios.put(
         `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
-        { leaveTime }, 
+        {},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-
-      console.log("Leave time recorded at (IST):", leaveTime);
+      console.log("Leave time recorded");
     } catch (error) {
       console.error("Error logging leave time:", error);
     }
@@ -107,6 +102,7 @@ useEffect(() => {
     }
   };
 }, [isConnected, calling, user, linkId]);
+
 
 
 
