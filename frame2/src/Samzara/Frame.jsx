@@ -78,7 +78,7 @@ useEffect(() => {
     if (!user || !linkId) return;
     try {
       await axios.put(
-        `ttps://samzraa.onrender.com/attendance/meeting/leave/${linkId}`,
+        `https://samzraa.onrender.com/attendance/meeting/leave/${linkId}`,
         {},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
