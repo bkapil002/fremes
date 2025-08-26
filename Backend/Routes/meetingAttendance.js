@@ -16,21 +16,9 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
     if (!meeting) {
       return res.status(404).json({ message: 'Meeting not found' });
     }
-    if (meeting.user._id.toString() === user._id.toString()) { return res.status(200).json({ message: 'Creator join ignored' }); }
-
-    const meetingDate = dayjs(meeting.meetingDate).format('YYYY-MM-DD'); 
-    const joinDate = joinTime.format('YYYY-MM-DD');
-
-    if (joinDate !== meetingDate) {
-      return res.status(400).json({ message: 'You can join only on the meeting date' });
-    }
-
-    const [startStr, endStr] = meeting.meetingTime.split(' - '); 
-    const startTime = dayjs(`${meetingDate} ${startStr}`, 'YYYY-MM-DD h:mm A');
-    const endTime = dayjs(`${meetingDate} ${endStr}`, 'YYYY-MM-DD h:mm A');
-
-    if (joinTime.isBefore(startTime) || joinTime.isAfter(endTime)) {
-      return res.status(400).json({ message: 'Attendance allowed only during meeting time' });
+    
+       if (meeting.user._id.toString() === user._id.toString()) {
+      return res.status(200).json({ message: 'Creator join ignored' });
     }
 
     const attendance = new MeetingAttendance({
@@ -41,7 +29,7 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
       meetingType: meeting.meetingType,
       meetingTime: meeting.meetingTime,
       meetingDate: meeting.meetingDate,
-      joinTime: joinTime.toISOString()
+      joinTime: new Date()
     });
 
     await attendance.save();
@@ -54,41 +42,40 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
   }
 });
 
-router.post('/meeting/leave/:linkId', auth, async (req, res) => {
+router.put('/meeting/leave/:linkId', auth, async (req, res) => {
   try {
     const { linkId } = req.params;
     const user = req.user;
-    const leaveTime = dayjs();
-   
-    // Find meeting by linkId
+
     const meeting = await Agora.findOne({ linkId });
     if (!meeting) {
-      return res.status(404).json({ message: 'Meeting not found' });
+      return res.status(404).json({ error: 'Meeting not found' });
     }
-     if (meeting.user._id.toString() === user._id.toString()) { return res.status(200).json({ message: 'Creator leave ignored' }); }
-    let attendance = await MeetingAttendance.findOne({
+
+    if (meeting.user._id.toString() === user._id.toString()) {
+      return res.status(200).json({ message: 'Creator leave ignored' });
+    }
+
+    const log = await MeetingAttendance.findOne({
       meetingId: meeting._id,
       userId: user._id,
-      leaveTime: { $exists: false } 
-    }).sort({ joinTime: -1 });
+      leaveTime: { $exists: false }
+    }).sort({ joinTime: -1 }); 
 
-    if (!attendance) {
-      return res.status(400).json({ message: 'No active attendance found. Join first.' });
+    if (!log) {
+      return res.status(400).json({ error: 'No active join session found' });
     }
 
-    attendance.leaveTime = leaveTime.toISOString();
-    await attendance.save();
+    log.leaveTime = new Date();
+    await log.save();
 
-    res.status(200).json({
-      message: 'Leave time recorded successfully',
-      attendance
-    });
-
+    res.status(200).json({ message: 'Leave time recorded', log });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error logging leave time:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 router.get('/attendance/my', auth, async (req, res) => {
   try {
