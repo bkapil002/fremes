@@ -25,12 +25,8 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
       return res.status(200).json({ message: 'Creator join ignored' });
     }
 
-    const meetingDate = dayjs(meeting.meetingDate).format('YYYY-MM-DD'); 
-    const joinDate = dayjs(joinTime).format('YYYY-MM-DD'); 
-
-    if (joinDate !== meetingDate) {
-      return res.status(400).json({ message: 'You can join only on the meeting date' });
-    }
+    const meetingDate = dayjs(meeting.meetingDate).tz("Asia/Kolkata").format("YYYY-MM-DD");
+const joinDate = dayjs(joinTime).tz("Asia/Kolkata").format("YYYY-MM-DD");
 
     const [startStr, endStr] = meeting.meetingTime.split(' - '); 
     const startTime = dayjs(`${meetingDate} ${startStr}`, 'YYYY-MM-DD h:mm A');
