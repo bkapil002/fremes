@@ -77,7 +77,7 @@ useEffect(() => {
   const handleLeave = async () => {
     if (!user || !linkId) return;
     try {
-      await axios.put(
+      await axios.post(
         `https://samzraa.onrender.com/attendance/meeting/leave/${linkId}`,
         {},
         { headers: { Authorization: `Bearer ${user.token}` } }
