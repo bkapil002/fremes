@@ -56,16 +56,21 @@ const Basics = () => {
   if (isConnected && user && linkId) {
     const logJoin = async () => {
       try {
-        await axios.post(
+        const response = await axios.post(
           `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
           {},
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
         );
-        console.log("Join time recorded");
+        console.log("Join time recorded:", response.data);
       } catch (error) {
-        console.error("Error logging join time:", error);
+        console.error("Error logging join time:", error.response?.data || error.message);
+        // Add more detailed error logging
+        if (error.response) {
+          console.error("Response status:", error.response.status);
+          console.error("Response data:", error.response.data);
+        }
       }
     };
 
@@ -77,17 +82,16 @@ useEffect(() => {
   const handleLeave = async () => {
     if (!user || !linkId) return;
     try {
-      await axios.post(
-        `https://samzraa.onrender.com/attendance/meeting/leave/${linkId}`,
+      const response = await axios.post(
+        `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
         {},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      console.log("Leave time recorded");
+      console.log("Leave time recorded:", response.data);
     } catch (error) {
-      console.error("Error logging leave time:", error);
+      console.error("Error logging leave time:", error.response?.data || error.message);
     }
   };
-
   if (!isConnected && calling === false) {
     handleLeave();
   }
@@ -98,6 +102,7 @@ useEffect(() => {
     }
   };
 }, [isConnected, calling, user, linkId]);
+
 
 
   useEffect(() => {
