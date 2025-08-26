@@ -16,8 +16,12 @@ import AgoraRTC, { AgoraRTCProvider } from "agora-rtc-react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import Donation from "./Donate.png";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 export const Frame = () => {
   const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
   return (
@@ -52,25 +56,21 @@ const Basics = () => {
   const [meetingtopic, setMeetingtopic] = useState("");
   const remoteUsers = useRemoteUsers();
 
-   useEffect(() => {
+  useEffect(() => {
   if (isConnected && user && linkId) {
     const logJoin = async () => {
       try {
-        const response = await axios.post(
+        const joinTime = dayjs().tz("Asia/Kolkata").format(); 
+
+        await axios.post(
           `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${user.token}` },
-          }
+          { joinTime },
+          { headers: { Authorization: `Bearer ${user.token}` } }
         );
-        console.log("Join time recorded:", response.data);
+
+        console.log("Join time recorded at (IST):", joinTime);
       } catch (error) {
-        console.error("Error logging join time:", error.response?.data || error.message);
-        // Add more detailed error logging
-        if (error.response) {
-          console.error("Response status:", error.response.status);
-          console.error("Response data:", error.response.data);
-        }
+        console.error("Error logging join time:", error);
       }
     };
 
@@ -78,20 +78,25 @@ const Basics = () => {
   }
 }, [isConnected, user, linkId]);
 
+
 useEffect(() => {
   const handleLeave = async () => {
     if (!user || !linkId) return;
     try {
-      const response = await axios.post(
+      const leaveTime = dayjs().tz("Asia/Kolkata").format();
+
+      await axios.post(
         `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
-        {},
+        { leaveTime }, 
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      console.log("Leave time recorded:", response.data);
+
+      console.log("Leave time recorded at (IST):", leaveTime);
     } catch (error) {
-      console.error("Error logging leave time:", error.response?.data || error.message);
+      console.error("Error logging leave time:", error);
     }
   };
+
   if (!isConnected && calling === false) {
     handleLeave();
   }
