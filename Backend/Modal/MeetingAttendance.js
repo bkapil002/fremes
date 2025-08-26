@@ -8,10 +8,7 @@ const meetingAttendanceSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true
-  },
-  name:{
-   type: String,
+    ref: 'users',
     required: true
   },
   email: {
@@ -22,20 +19,12 @@ const meetingAttendanceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  meetingTime:{
-    type: String,
-    required: true
-  },
-   meetingDate:{
-    type: String,
-    required: true
-  },
   joinTime: {
     type: Date,
     required: true
   },
   leaveTime: {
-    type: Date,
+    type: Date
   }
 });
 

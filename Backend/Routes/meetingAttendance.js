@@ -5,99 +5,69 @@ const { auth } = require('../middleware/auth');
 const Agora = require('../Modal/Agoraa');
 const MeetingAttendance = require('../Modal/MeetingAttendance');
 
-const utc = require("dayjs/plugin/utc");
-const timezone = require("dayjs/plugin/timezone");
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 router.post('/meeting/join/:linkId', auth, async (req, res) => {
   try {
     const { linkId } = req.params;
     const user = req.user;
-    const { joinTime } = req.body; 
 
     const meeting = await Agora.findOne({ linkId });
     if (!meeting) {
-      return res.status(404).json({ message: 'Meeting not found' });
+      return res.status(404).json({ error: 'Meeting not found' });
     }
 
     if (meeting.user._id.toString() === user._id.toString()) {
       return res.status(200).json({ message: 'Creator join ignored' });
     }
 
-    const meetingDate = dayjs(meeting.meetingDate).tz("Asia/Kolkata").format("YYYY-MM-DD");
-const joinDate = dayjs(joinTime).tz("Asia/Kolkata").format("YYYY-MM-DD");
-
-    const [startStr, endStr] = meeting.meetingTime.split(' - '); 
-    const startTime = dayjs(`${meetingDate} ${startStr}`, 'YYYY-MM-DD h:mm A');
-    const endTime = dayjs(`${meetingDate} ${endStr}`, 'YYYY-MM-DD h:mm A');
-
-    if (dayjs(joinTime).isBefore(startTime) || dayjs(joinTime).isAfter(endTime)) {
-      return res.status(400).json({ message: 'Attendance allowed only during meeting time' });
-    }
-
-    const attendance = new MeetingAttendance({
+    const log = new MeetingAttendance({
       meetingId: meeting._id,
       userId: user._id,
-      name: user.name,
       email: user.email,
       meetingType: meeting.meetingType,
-      meetingTime: meeting.meetingTime,
-      meetingDate: meeting.meetingDate,
-      joinTime: dayjs(joinTime).tz("Asia/Kolkata").format() 
+      joinTime: new Date()
     });
 
-    await attendance.save();
+    await log.save();
 
-    res.status(200).json({ message: 'Attendance marked successfully', attendance });
+    res.status(200).json({ message: 'Join time recorded', log });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error logging join time:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.post('/meeting/leave/:linkId', auth, async (req, res) => {
+router.put('/meeting/leave/:linkId', auth, async (req, res) => {
   try {
     const { linkId } = req.params;
     const user = req.user;
-    const { leaveTime } = req.body; 
 
-
-    const finalLeaveTime = leaveTime
-      ? dayjs(leaveTime).tz("Asia/Kolkata").format()
-      : dayjs().tz("Asia/Kolkata").format();
-
-  
     const meeting = await Agora.findOne({ linkId });
     if (!meeting) {
-      return res.status(404).json({ message: 'Meeting not found' });
+      return res.status(404).json({ error: 'Meeting not found' });
     }
 
     if (meeting.user._id.toString() === user._id.toString()) {
       return res.status(200).json({ message: 'Creator leave ignored' });
     }
 
-    let attendance = await MeetingAttendance.findOne({
+    const log = await MeetingAttendance.findOne({
       meetingId: meeting._id,
       userId: user._id,
       leaveTime: { $exists: false }
-    }).sort({ joinTime: -1 });
+    }).sort({ joinTime: -1 }); 
 
-    if (!attendance) {
-      return res.status(400).json({ message: 'No active attendance found. Join first.' });
+    if (!log) {
+      return res.status(400).json({ error: 'No active join session found' });
     }
 
-    attendance.leaveTime = finalLeaveTime;
-    await attendance.save();
+    log.leaveTime = new Date();
+    await log.save();
 
-    res.status(200).json({
-      message: 'Leave time recorded successfully',
-      attendance
-    });
-
+    res.status(200).json({ message: 'Leave time recorded', log });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error logging leave time:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
