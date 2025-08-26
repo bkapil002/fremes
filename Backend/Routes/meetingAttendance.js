@@ -21,10 +21,13 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
     }
 
     const log = new MeetingAttendance({
-      meetingId: meeting._id,
+       meetingId: meeting._id,
       userId: user._id,
+      name: user.name,
       email: user.email,
       meetingType: meeting.meetingType,
+      meetingTime: meeting.meetingTime,
+      meetingDate: meeting.meetingDate,
       joinTime: new Date()
     });
 
