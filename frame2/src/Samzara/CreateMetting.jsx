@@ -8,9 +8,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import dayjs from "dayjs";
 import Upcomming from "./Upcomming";
 import meeting from "./Date-meeting"
+import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 
@@ -146,12 +146,11 @@ const timeSlots = meeting.slots;
       alert("Please enter a meeting title");
       return;
     }
-
     const localDate = dayjs(startDate)
     .hour(parseTime(selectedSlot).hours)
     .minute(parseTime(selectedSlot).minutes)
     .second(0);
-    const istDate = localDate.tz("Asia/Kolkata").format(); 
+  const istDate = localDate.tz("Asia/Kolkata").format(); 
     setLoading(true);
     try {
       const res = await axios.post(
@@ -166,8 +165,8 @@ const timeSlots = meeting.slots;
       );
 
       console.log("Meeting Created:", res.data);
+       console.log(istDate)
       alert("Meeting Created Successfully ");
-      console.log(istDate)
       setTitle("");
       setStartDate(new Date());
       setSelectedSlot(timeSlots[0]);
@@ -334,6 +333,7 @@ const timeSlots = meeting.slots;
       </div>
     );
   };
+
   console.log(startDate)
   const [startTime, endTime] = selectedSlot.split(" - ");
   const [currentDate, setCurrentDate] = useState(dayjs(startDate));
@@ -343,13 +343,11 @@ const timeSlots = meeting.slots;
   const [selectedHour, setSelectedHour] = useState(
     parseTime(selectedSlot).hours
   );
-
-  // Update calendar date when DatePicker changes
+  
   useEffect(() => {
     setCurrentDate(dayjs(startDate));
   }, [startDate]);
 
-  // Update selected hour when time changes
   useEffect(() => {
     const { hours } = parseTime(selectedSlot);
     setSelectedHour(hours);
@@ -453,7 +451,7 @@ const timeSlots = meeting.slots;
             <button
               onClick={handleSave}
               disabled={loading}
-              className="bg-[#2A2A72] cursor-pointer hover:bg-[#000080] text-white text-sm sm:text-base px-5 sm:px-6 py-2 rounded-full transition-colors sm:w-auto"
+              className="bg-[#178a43] cursor-pointer hover:bg-[#000080] text-white text-sm sm:text-base px-5 sm:px-6 py-2 rounded-[8px] transition-colors sm:w-auto"
             >
               {loading ? "Saving..." : "Save"}
             </button>
@@ -464,7 +462,8 @@ const timeSlots = meeting.slots;
           <div className="relative w-full md:w-34" ref={datePickerRef}>
             <button
               onClick={() => setShowDatePicker(!showDatePicker)}
-              className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 md:text-sm text-xs transition-all outline-none">
+              className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 md:text-sm text-xs transition-all outline-none"
+            >
               {startDate.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -562,7 +561,7 @@ const timeSlots = meeting.slots;
               <div className="flex gap-2 items-center">
                 <button
                   onClick={goToday}
-                  className="px-3 py-1 md:px-4 md:py-2 md:text-sm text-xs cursor-pointer bg-gray-200 rounded-full hover:bg-gray-100"
+                  className="px-3 py-1 md:px-4 md:py-2 md:text-sm text-xs cursor-pointer bg-gray-200 rounded-[4px] hover:text-white hover:bg-[#178a43]"
                 >
                   Today
                 </button>
@@ -590,7 +589,7 @@ const timeSlots = meeting.slots;
                   onClick={() => setView("day")}
                   className={`px-3 text-xs md:text-sm md:px-6 py-1.5  md:py-2 rounded-l-[30px] ${
                     view === "day"
-                      ? "bg-[#2A2A72] text-white"
+                      ? "bg-[#178a43] text-white"
                       : "bg-gray-100 text-[#3C3C3C]"
                   }`}
                 >
@@ -600,7 +599,7 @@ const timeSlots = meeting.slots;
                   onClick={() => setView("3days")}
                   className={`px-3 text-xs md:text-sm  md:px-4 py-1.5 md:py-2 ${
                     view === "3days"
-                      ? "bg-[#2A2A72] text-white"
+                      ? "bg-[#178a43] text-white"
                       : "bg-gray-100 text-[#3C3C3C]"
                   }`}
                 >
@@ -610,7 +609,7 @@ const timeSlots = meeting.slots;
                   onClick={() => setView("week")}
                   className={`px-3 text-xs md:text-sm  md:px-6 py-1.5 rounded-r-[30px] md:py-2 ${
                     view === "week"
-                      ? "bg-[#2A2A72] text-white"
+                      ? "bg-[#178a43] text-white"
                       : "bg-gray-100 text-[#3C3C3C]"
                   }`}
                 >
@@ -685,7 +684,7 @@ const timeSlots = meeting.slots;
                         >
                           {meeting && (
                             <div className="absolute inset-0 overflow-hidden">
-                              <div className="bg-[#2A2A72] flex flex-col   text-white  w-full h-full rounded p-1 truncate">
+                              <div className="bg-[#178a43] hover:bg-[#000080] hover: flex flex-col   text-white  w-full h-full rounded p-1 truncate">
                                 <span className="truncate text-[11px] ">
                                   {meeting.meetingType.length > 16
                                     ? meeting.meetingType.substring(0, 15) +

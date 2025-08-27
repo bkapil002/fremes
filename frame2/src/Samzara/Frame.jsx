@@ -294,22 +294,27 @@ useEffect(() => {
       : remoteUsers.find((user) => user.uid === promotedUid);
 
   return (
-    <div className="h-screen flex overflow-hidden">
+   <div className="h-screen flex overflow-hidden">
       <div
         className="flex-1 flex flex-col overflow-y-auto"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {!isConnected ? (
-          <div className="p-10 max-w-md mx-auto flex flex-col gap-4">
+          <div className="p-10 w-full mx-auto flex justify-center items-center h-screen flex-col gap-4">
+            <p className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#f89939] flex items-center">
+              Ready to join
+              <span className="loading-dots ml-2"></span>
+            </p>
+
             <button
               onClick={async () => {
                 await handleRemovePromotedUser();
                 await handleResetOwnRequest();
                 setCalling(true);
               }}
-              className="bg-[#F86925] text-sm hover:bg-orange-600 text-white  cursor-pointer py-1 px-3 rounded"
+              className="bg-[#178a43] cursor-pointer hover:bg-[#000080] text-white mt-5 py-2 px-4 rounded"
             >
-              Ready to join
+              Click Here
             </button>
           </div>
         ) : (
@@ -319,13 +324,16 @@ useEffect(() => {
             </div>
             <div className="flex flex-col lg:flex-row flex-1 p-4 gap-2">
               {/* Sidebar */}
-              <div className="lg:w-1/5 w-full flex flex-col gap-4">
+              <div className="w-full lg:w-1/5 flex flex-col gap-4">
                 <div className="bg-white shadow rounded-lg overflow-hidden">
-                  <div className="bg-[#F86925] text-white text-center py-1 text-xs sm:text-xs  font-semibold">
+                  {/* Header */}
+                  <div className="bg-[#F86925] text-white text-center py-1 text-xs font-semibold">
                     Speaker
                   </div>
+
+                  {/* Video / Image */}
                   {promotedUid && promotedUid !== admin ? (
-                    <div className="w-full h-48 relative">
+                    <div className="w-full h-40 sm:h-48 md:h-56 lg:h-60 relative">
                       {isAdmin ? (
                         <LocalUser
                           audioTrack={localMicrophoneTrack}
@@ -345,22 +353,28 @@ useEffect(() => {
                       )}
                     </div>
                   ) : (
-                    <img
-                      src={
-                        adminImage && adminImage.length > 0 ? adminImage[0] : ""
-                      }
-                      alt="Chairperson"
-                      className="w-full h-60  md:h-62"
-                    />
+                    <div className="flex justify-center items-center w-full h-40 sm:h-48 md:h-56 lg:h-60">
+                      <img
+                        src={
+                          adminImage && adminImage.length > 0
+                            ? adminImage[0]
+                            : ""
+                        }
+                        alt="Chairperson"
+                        className="w-28 h-38 rounded-[4px] object-cover lg:w-full lg:h-full lg:rounded-none"
+                      />
+                    </div>
                   )}
+
+                  {/* Footer (Name) */}
                   <div className="p-2 text-center">
-                    <p className="text-xs text-gray-500">{admin}</p>
+                    <p className="text-xs sm:text-sm text-gray-500">{admin}</p>
                   </div>
                 </div>
               </div>
               {/* Main video area */}
               <div className="lg:w-3/5 w-full flex flex-col items-center bg-white shadow rounded-lg p-4">
-                <div className="border-[#000080] border-[1px] w-full max-w-[640px] aspect-video flex justify-center items-center">
+                <div className="border-[#000080] border-[1px] w-full max-w-ful aspect-video flex justify-center items-center">
                   <div className=" w-full h-full object-cover">
                     {/* Show promoted user (if promotedUid set and NOT admin), else show admin */}
                     {promotedUid && promotedUid !== admin ? (
@@ -464,7 +478,7 @@ useEffect(() => {
                       onClick={async () => {
                         await handleRemovePromotedUser();
                         await handleResetOwnRequest();
-                        setCalling(false)
+                        setCalling(false);
                       }}
                       className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg"
                     >
@@ -638,8 +652,9 @@ useEffect(() => {
         )}
         {isConnected && (
           <div>
-            <div className="flex flex-col p-3 lg:flex-row gap-4 min-h-screen">
+            <div className="flex flex-col p-3 lg:flex-row gap-4">
               <div className="flex-1 bg-white rounded-2xl shadow">
+                {/* Header */}
                 <div className="border-b px-6 py-4 text-lg font-semibold text-gray-800 flex items-center gap-2">
                   <span className="text-green-500 text-sm">●</span>
                   Audience{" "}
@@ -647,50 +662,53 @@ useEffect(() => {
                     ({normalRemoteUsers.length + (!isAdmin ? 1 : 0)})
                   </span>
                 </div>
+
+                {/* Audience Grid */}
                 <div className="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {/* Show local user if not admin */}
                   {!isAdmin && (
-                    <div className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer">
-                      <LocalUser
-                        audioTrack={localMicrophoneTrack}
-                        cameraOn={cameraOn}
-                        micOn={micOn}
-                        playAudio={false}
-                        videoTrack={localCameraTrack}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "10%",
-                        }}
-                      />
-                      <p className=" w-full text-[#3C3C3C] text-sm text-center truncate">
+                    <div className="flex flex-col items-center justify-center cursor-pointer group">
+                      <div className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer">
+                        <LocalUser
+                          audioTrack={localMicrophoneTrack}
+                          cameraOn={cameraOn}
+                          micOn={micOn}
+                          playAudio={false}
+                          videoTrack={localCameraTrack}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "12%",
+                          }}
+                        />
+                      </div>
+                      <p className="mt-1 w-full text-[#3C3C3C] text-xs sm:text-sm text-center truncate">
                         {user.name}
                       </p>
                     </div>
                   )}
-                  {/* Show remote normal users */}
+
+                  {/* Remote normal users */}
                   {normalRemoteUsers.map(
                     (user) =>
                       user.uid !== email && (
                         <div
                           key={user.uid}
-                          className="w-24 h-24 mx-auto rounded-full object-cover flex items-center justify-center"
+                          className="flex flex-col items-center justify-center"
                         >
-                          <div
-                            key={user.uid}
-                            className="w-24 h-24 mx-auto rounded-full object-cover items-center justify-cente"
-                          >
+                          <div className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer">
                             <RemoteUser
                               user={user}
                               style={{
                                 width: "100%",
                                 height: "100%",
-                                borderRadius: "10%",
+                                borderRadius: "12%",
                               }}
                             />
-                            <p className=" w-full text-[#3C3C3C] text-sm text-center truncate">
-                              {names[user.uid] || "Loading..."}
-                            </p>
                           </div>
+                          <p className="mt-1 w-full text-[#3C3C3C] text-xs sm:text-sm text-center truncate">
+                            {names[user.uid] || "Loading..."}
+                          </p>
                         </div>
                       )
                   )}

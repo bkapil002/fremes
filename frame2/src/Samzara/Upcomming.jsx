@@ -61,16 +61,16 @@ const Upcomming = () => {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-4">
+    <div className="flex p-2 flex-col items-center space-y-4">
    
-      <h2 className="text-lg font-semibold text-center text-[#2A2A72]">Upcoming Meetings</h2>
+      <h2 className="text-xl md:text-2xl -mt-3  font-bold text-center text-[#2A2A72]">Upcoming Meetings</h2>
 
       {/* Meeting Cards */}
       {rooms.length > 0 ? (
         rooms.slice(0, 5).map((room) => (
           <div
             key={room._id}
-            className="bg-white overflow-hidden shadow-lg rounded-xl p-2 w-full max-w-md"
+            className="bg-gray-100 overflow-hidden shadow-lg rounded-xl p-2 w-full max-w-md"
           >
             <h2 className="text-lg font-medium md:text-xl text-[#2A2A72]">
               {room.meetingType}
@@ -89,7 +89,7 @@ const Upcomming = () => {
             <div className="flex pr-2 justify-between text-center gap-1 mt-3">
               <Link
                 to={`/room/${room.linkId}`}
-                className="py-1 px-4 rounded-full bg-[#2A2A72] cursor-pointer hover:bg-blue-700 text-white text-xs md:text-sm transition-colors"
+                className="py-1 px-4 rounded-[5px] bg-[#178a43] hover:bg-[#2A2A72] cursor-pointer  text-white text-xs md:text-sm transition-colors"
               >
                 Join
               </Link>
@@ -169,7 +169,7 @@ const Upcomming = () => {
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                className="bg-[#2A2A72] text-sm text-white px-4 py-1 rounded"
+                className="bg-[#178a43] hover:bg-[#2A2A72] text-sm text-white px-4 py-1 rounded"
               >
                 OK
               </button>
