@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 const Upcomming = () => {
   const { user } = useAuth();
   const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ Loading state
   const [showModal, setShowModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [deleteType, setDeleteType] = useState("this");
@@ -16,8 +17,9 @@ const Upcomming = () => {
 
     const fetchRooms = async () => {
       try {
+        setLoading(true);
         const res = await axios.get(
-          "https://samzraa.onrender.com/api/agora/Upcomeing-rooms",
+          "https://samzraa.onrender.com/api/agora/upcoming-rooms",
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
@@ -25,6 +27,8 @@ const Upcomming = () => {
         setRooms(res.data);
       } catch (err) {
         console.error("Error fetching rooms:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -33,7 +37,6 @@ const Upcomming = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // ✅ handle confirm delete
   const handleDeleteConfirm = async () => {
     if (!selectedRoom) return;
     try {
@@ -48,8 +51,6 @@ const Upcomming = () => {
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       }
-
-      // remove from UI
       setRooms((prev) =>
         prev.filter((room) => room.linkId !== selectedRoom.linkId)
       );
@@ -60,13 +61,33 @@ const Upcomming = () => {
     }
   };
 
+  // ✅ Skeleton Loader Component
+  const SkeletonCard = () => (
+    <div className="bg-gray-100 animate-pulse rounded-xl p-2 w-full max-w-md shadow-lg">
+      <div className="h-5 bg-gray-300 rounded w-1/3 mb-2"></div>
+      <div className="h-3 bg-gray-300 rounded w-1/4 mb-4"></div>
+      <div className="flex justify-between">
+        <div className="h-6 w-16 bg-gray-300 rounded"></div>
+        <div className="flex gap-3">
+          <div className="h-6 w-6 bg-gray-300 rounded-full"></div>
+          <div className="h-6 w-6 bg-gray-300 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex p-2 flex-col items-center space-y-4">
-   
-      <h2 className="text-xl md:text-2xl -mt-3  font-bold text-center text-[#2A2A72]">Upcoming Meetings</h2>
+      <h2 className="text-xl md:text-2xl -mt-3 font-bold text-center text-[#2A2A72]">
+        Upcoming Meetings
+      </h2>
 
-      {/* Meeting Cards */}
-      {rooms.length > 0 ? (
+      {/* ✅ Loading Skeletons */}
+      {loading ? (
+        Array(3)
+          .fill(0)
+          .map((_, i) => <SkeletonCard key={i} />)
+      ) : rooms.length > 0 ? (
         rooms.slice(0, 5).map((room) => (
           <div
             key={room._id}
@@ -89,7 +110,7 @@ const Upcomming = () => {
             <div className="flex pr-2 justify-between text-center gap-1 mt-3">
               <Link
                 to={`/room/${room.linkId}`}
-                className="py-1 px-4 rounded-[5px] bg-[#178a43] hover:bg-[#2A2A72] cursor-pointer  text-white text-xs md:text-sm transition-colors"
+                className="py-1 px-4 rounded-[5px] bg-[#178a43] hover:bg-[#2A2A72] cursor-pointer text-white text-xs md:text-sm transition-colors"
               >
                 Join
               </Link>
