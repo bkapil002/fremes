@@ -129,9 +129,9 @@ const MeetingList = () => {
     })
     .slice(0, 3);
 
-  const liveMeetings = todayMeetings
-    .filter(room => isMeetingLive(room.meetingTime))
-    .slice(0, 1);
+ const liveMeetings = todayMeetings.filter((room) =>
+    isMeetingLive(room.meetingTime)
+  );
 
   const groupedData = {};
   rooms.forEach((room) => {
@@ -181,24 +181,37 @@ const MeetingList = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           
           {/* Upcoming Meetings Box */}
-          <div className="bg-white rounded-lg shadow-md  ">
-            <div className=" text-black px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
+         <div className="bg-white rounded-lg shadow-md">
+            <div className="text-black px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
               <h3 className="text-lg font-semibold">On Air</h3>
             </div>
             <div className="p-4">
               {liveMeetings.length > 0 ? (
-                <div className="space-y-3">
+                <div
+                  className={`space-y-3 ${
+                    liveMeetings.length > 2 ? "max-h-60 overflow-y-auto" : ""
+                  }`}
+                >
                   {liveMeetings.map((meeting, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-red-50 rounded-md border-l-4 border-red-400">
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-3 bg-red-50 rounded-md border-l-4 border-red-400"
+                    >
                       <div>
-                        <p className="font-medium text-gray-800">{meeting.meetingType}</p>
-                        <p className="text-xs md:text-sm text-gray-600">{meeting.meetingTime}</p>
+                        <p className="font-medium text-gray-800">
+                          {meeting.meetingType}
+                        </p>
+                        <p className="text-xs md:text-sm text-gray-600">
+                          {meeting.meetingTime}
+                        </p>
                         <div className="flex items-center mt-1">
                           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
-                          <span className="text-xs text-red-600 font-medium">LIVE</span>
+                          <span className="text-xs text-red-600 font-medium">
+                            LIVE
+                          </span>
                         </div>
                       </div>
-                      <Link 
+                      <Link
                         to={`/room/${meeting.linkId}`}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors animate-pulse"
                       >

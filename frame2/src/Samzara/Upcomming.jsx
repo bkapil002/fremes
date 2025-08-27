@@ -65,7 +65,7 @@ const Upcomming = () => {
 
   return (
     <div className="flex p-2 flex-col items-center space-y-4">
-      <h2 className="text-xl md:text-2xl -mt-3  font-bold text-center text-[#2A2A72]">
+      <h2 className="text-xl md:text-2xl -mt-5 font-bold text-center text-[#2A2A72]">
         Upcoming Meetings
       </h2>
 

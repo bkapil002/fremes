@@ -165,12 +165,13 @@ const timeSlots = meeting.slots;
       );
 
       console.log("Meeting Created:", res.data);
-       console.log(istDate)
+      console.log(istDate)
       alert("Meeting Created Successfully ");
       setTitle("");
       setStartDate(new Date());
       setSelectedSlot(timeSlots[0]);
       setRepeat("Does not repeat");
+       window.location.reload();
     } catch (error) {
       console.error("Error creating meeting:", error.response?.data || error);
       alert("Failed to create meeting ");
