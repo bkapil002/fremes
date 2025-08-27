@@ -10,7 +10,15 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
   try {
     const { linkId } = req.params;
     const user = req.user;
-
+    const { joinTime } = req.body;
+    
+     let parsedJoinTime;
+    if (joinTime && !isNaN(Date.parse(joinTime))) {
+      parsedJoinTime = new Date(joinTime);
+    } else {
+      parsedJoinTime = new Date(); 
+    }
+    
     const meeting = await Agora.findOne({ linkId });
     if (!meeting) {
       return res.status(404).json({ error: 'Meeting not found' });
@@ -28,7 +36,7 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
       meetingType: meeting.meetingType,
       meetingTime: meeting.meetingTime,
       meetingDate: meeting.meetingDate,
-      joinTime: new Date()
+      joinTime: parsedJoinTime
     });
 
     await log.save();
@@ -44,30 +52,44 @@ router.put('/meeting/leave/:linkId', auth, async (req, res) => {
   try {
     const { linkId } = req.params;
     const user = req.user;
+    const { leaveTime } = req.body;
 
+
+    let parsedLeaveTime;
+    if (leaveTime && !isNaN(Date.parse(leaveTime))) {
+      parsedLeaveTime = new Date(leaveTime);
+    } else {
+      parsedLeaveTime = new Date(); 
+    }
     const meeting = await Agora.findOne({ linkId });
     if (!meeting) {
       return res.status(404).json({ error: 'Meeting not found' });
     }
-
     if (meeting.user._id.toString() === user._id.toString()) {
       return res.status(200).json({ message: 'Creator leave ignored' });
     }
-
     const log = await MeetingAttendance.findOne({
       meetingId: meeting._id,
       userId: user._id,
       leaveTime: { $exists: false }
-    }).sort({ joinTime: -1 }); 
+    }).sort({ joinTime: -1 });
 
     if (!log) {
       return res.status(400).json({ error: 'No active join session found' });
     }
 
-    log.leaveTime = new Date();
+    log.leaveTime = parsedLeaveTime;
+
+    const durationMs = log.leaveTime - log.joinTime;
+    const durationMinutes = Math.floor(durationMs / 60000);
+
     await log.save();
 
-    res.status(200).json({ message: 'Leave time recorded', log });
+    res.status(200).json({
+      message: 'Leave time recorded',
+      log,
+      duration: `${durationMinutes} minutes`
+    });
   } catch (error) {
     console.error('Error logging leave time:', error);
     res.status(500).json({ error: 'Internal server error' });
