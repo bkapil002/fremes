@@ -1,35 +1,33 @@
 import { useState } from "react";
 import {
+
   MessageSquare,
   Bell,
   Menu,
   X,
-  Search
 } from "lucide-react";
 import { TbLogout, TbLogin2 } from "react-icons/tb";
 import Z from "./LOGO.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Search } from "lucide-react";
 
 export default function Navebar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
+
   const { isAuthenticated, logout, user } = useAuth();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(
-        "https://samzraa.onrender.com/api/users/logOut",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user?.token}`,
-          },
-          credentials: "include",
-        }
-      );
+      const response = await fetch("https://samzraa.onrender.com/api/users/logOut", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        credentials: "include",
+      });
 
       if (response.ok) {
         logout();
@@ -44,6 +42,8 @@ export default function Navebar() {
       alert("Failed to log out. Please try again.");
     }
   };
+
+  const [query, setQuery] = useState("");
 
   return (
     <nav className="bg-gray-200 shadow-sm px-6 py-3">
@@ -67,7 +67,7 @@ export default function Navebar() {
         </div>
 
         {/* Right - Action Icons (Desktop) */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex pr-[239px] items-center gap-4">
           {!isAuthenticated ? (
             <Link to="/signin">
               <TbLogin2 className="text-gray-800 cursor-pointer text-2xl" />
@@ -75,25 +75,21 @@ export default function Navebar() {
           ) : (
             <>
               <TbLogout
-                onClick={handleLogout}
-                size={20}
+                onClick={handleLogout} size={20}
                 className="text-gray-800 text-xl cursor-pointer"
               />
               <div className="relative">
-                <MessageSquare
-                  size={20}
-                  className="text-gray-600  cursor-pointer"
-                />
+                <MessageSquare  size={20} className="text-gray-600  cursor-pointer" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
               </div>
               <div className="relative">
-                <Bell className="text-gray-600 cursor-pointer" size={20} />
+                <Bell className="text-gray-600 cursor-pointer"  size={20}/>
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
               </div>
               <img
                 src={user?.imageUrls[0]}
                 alt="User"
-                className="w-9 h-9 rounded-full object-cover"
+                className="w-8 h-8 rounded-full object-cover"
               />
             </>
           )}
