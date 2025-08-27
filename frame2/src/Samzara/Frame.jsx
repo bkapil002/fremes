@@ -56,13 +56,14 @@ const Basics = () => {
   const [meetingtopic, setMeetingtopic] = useState("");
   const remoteUsers = useRemoteUsers();
 
-  useEffect(() => {
+ useEffect(() => {
   if (isConnected && user && linkId) {
+    const joinTime = dayjs().tz("Asia/Kolkata").format(); 
     const logJoin = async () => {
       try {
         await axios.post(
           `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
-          {},
+          { joinTime},
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
@@ -81,9 +82,10 @@ useEffect(() => {
   const handleLeave = async () => {
     if (!user || !linkId) return;
     try {
+      const leaveTime = dayjs().tz("Asia/Kolkata").format();
       await axios.put(
         `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
-        {},
+        {leaveTime},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       console.log("Leave time recorded");
@@ -376,7 +378,7 @@ useEffect(() => {
               <div className="lg:w-3/5 w-full flex flex-col items-center bg-white shadow rounded-lg p-4">
                 <div className="border-[#000080] border-[1px] w-full max-w-ful aspect-video flex justify-center items-center">
                   <div className=" w-full h-full object-cover">
-                    {/* Show promoted user (if promotedUid set and NOT admin), else show admin */}
+                    
                     {promotedUid && promotedUid !== admin ? (
                       promotedUid === email ? (
                         <LocalUser
