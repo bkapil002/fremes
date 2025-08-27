@@ -9,9 +9,8 @@ const MeetingAttendance = require('../Modal/MeetingAttendance');
 router.post('/meeting/join/:linkId', auth, async (req, res) => {
   try {
     const { linkId } = req.params;
-    
-    const { joinTime } = req.body;
     const user = req.user;
+    const { joinTime } = req.body;
     
      let parsedJoinTime;
     if (joinTime && !isNaN(Date.parse(joinTime))) {
@@ -24,27 +23,9 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
     if (!meeting) {
       return res.status(404).json({ error: 'Meeting not found' });
     }
-  
+
     if (meeting.user._id.toString() === user._id.toString()) {
       return res.status(200).json({ message: 'Creator join ignored' });
-    }
-    
-    const meetingDate = dayjs(meeting.meetingDate).format('YYYY-MM-DD');
-    const joinDate = dayjs(parsedJoinTime).format('YYYY-MM-DD');
-
-    if (joinDate !== meetingDate) {
-      return res.status(400).json({ error: 'You can only join on the meeting day' });
-    }
-
-
-    // ✅ 2. Check if join time is within the scheduled meeting time
-    const [startTimeStr, endTimeStr] = meeting.meetingTime.split(' - ').map(str => str.trim());
-    const startTime = dayjs(`${meetingDate} ${startTimeStr}`, 'YYYY-MM-DD hh:mm A');
-    const endTime = dayjs(`${meetingDate} ${endTimeStr}`, 'YYYY-MM-DD hh:mm A');
-    const joinMoment = dayjs(parsedJoinTime);
-
-    if (joinMoment.isBefore(startTime) || joinMoment.isAfter(endTime)) {
-      return res.status(400).json({ error: 'You can only join during the meeting time' });
     }
 
     const log = new MeetingAttendance({
