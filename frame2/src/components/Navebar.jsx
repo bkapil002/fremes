@@ -87,7 +87,7 @@ export default function Navebar() {
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
               </div>
               <img
-                src={user?.imageUrls[0]}
+                src={user?.imageUrls[0] || 'https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0' }
                 alt="User"
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -141,7 +141,7 @@ export default function Navebar() {
                   <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
                 </div>
                 <img
-                  src={user?.imageUrls[0]}
+                  src={user?.imageUrls[0] || 'https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0' }
                   alt="User"
                   className="w-8 h-8 rounded-full object-cover"
                 />

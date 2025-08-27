@@ -358,7 +358,7 @@ useEffect(() => {
                         src={
                           adminImage && adminImage.length > 0
                             ? adminImage[0]
-                            : ""
+                            : "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
                         }
                         alt="Chairperson"
                         className="w-28 h-38 rounded-[4px] object-cover lg:w-full lg:h-full lg:rounded-none"
