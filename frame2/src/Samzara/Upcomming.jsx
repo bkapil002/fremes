@@ -33,10 +33,8 @@ const Upcomming = () => {
     };
 
     fetchRooms();
- 
   }, [user]);
 
-  // ✅ handle confirm delete
   const handleDeleteConfirm = async () => {
     if (!selectedRoom) return;
     try {
@@ -52,7 +50,6 @@ const Upcomming = () => {
         );
       }
 
-      // remove from UI
       setRooms((prev) =>
         prev.filter((room) => room.linkId !== selectedRoom.linkId)
       );
@@ -64,7 +61,7 @@ const Upcomming = () => {
   };
 
   return (
-    <div className="flex p-2 flex-col items-center space-y-4">
+    <div className="flex p-2 flex-col w-full items-center space-y-4">
       <h2 className="text-xl md:text-2xl -mt-5 font-bold text-center text-[#2A2A72]">
         Upcoming Meetings
       </h2>
@@ -72,7 +69,7 @@ const Upcomming = () => {
       {loading ? (
         <div className=" w-full">
           {[...Array(4)].map((_, index) => (
-            <div className="bg-gray-100 animate-pulse rounded-xl mt-2 p-2 w-full max-w-md shadow-lg">
+            <div  key={index} className="bg-gray-100 animate-pulse rounded-xl mt-2 p-2 w-full shadow-lg">
               <div className="h-5 bg-gray-300 rounded w-1/3 mb-2"></div>
               <div className="h-3 bg-gray-300 rounded w-1/4 mb-4"></div>
               <div className="flex justify-between">
@@ -86,12 +83,12 @@ const Upcomming = () => {
           ))}
         </div>
       ) : (
-        <div className="w-full ">
+        <div className="w-full  ">
           {rooms.length > 0 ? (
             rooms.slice(0, 5).map((room) => (
               <div
                 key={room._id}
-                className="bg-gray-100 overflow-hidden shadow-2xl rounded-xl p-2 w-full mt-2 max-w-md"
+                className="bg-gray-100 overflow-hidden shadow-2xl rounded-xl p-2 w-full md:w-full mt-2 "
               >
                 <h2 className="text-lg font-medium md:text-xl text-[#2A2A72]">
                   {room.meetingType}

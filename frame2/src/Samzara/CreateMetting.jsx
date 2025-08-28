@@ -711,8 +711,10 @@ const timeSlots = meeting.slots;
         </div>
 
         {/* Right Section */}
-        <div className="w-full mt-9 lg:w-80 pl-2 pr-2 space-y-4">
-          <Upcomming />
+         <div className="w-full mt-9 lg:w-1/3  pl-2 pr-2 space-y-4">
+          
+            <Upcomming />
+          
         </div>
       </div>
     </div>

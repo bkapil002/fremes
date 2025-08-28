@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { MessageSquare, Bell, Menu, X } from "lucide-react";
+import {
+
+  MessageSquare,
+  Bell,
+  Menu,
+  X,
+} from "lucide-react";
 import { TbLogout, TbLogin2 } from "react-icons/tb";
 import Z from "./LOGO.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,17 +20,14 @@ export default function Navebar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(
-        "https://samzraa.onrender.com/api/users/logOut",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user?.token}`,
-          },
-          credentials: "include",
-        }
-      );
+      const response = await fetch("https://samzraa.onrender.com/api/users/logOut", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        credentials: "include",
+      });
 
       if (response.ok) {
         logout();
@@ -72,26 +75,19 @@ export default function Navebar() {
           ) : (
             <>
               <TbLogout
-                onClick={handleLogout}
-                size={20}
+                onClick={handleLogout} size={20}
                 className="text-gray-800 text-xl cursor-pointer"
               />
               <div className="relative">
-                <MessageSquare
-                  size={20}
-                  className="text-gray-600  cursor-pointer"
-                />
+                <MessageSquare  size={20} className="text-gray-600  cursor-pointer" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
               </div>
               <div className="relative">
-                <Bell className="text-gray-600 cursor-pointer" size={20} />
+                <Bell className="text-gray-600 cursor-pointer"  size={20}/>
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
               </div>
               <img
-                src={
-                  user?.imageUrls[0] ||
-                  "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
-                }
+                src={user?.imageUrls[0] || 'https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0' }
                 alt="User"
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -145,10 +141,7 @@ export default function Navebar() {
                   <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
                 </div>
                 <img
-                  src={
-                    user?.imageUrls[0] ||
-                    "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
-                  }
+                  src={user?.imageUrls[0] || 'https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0' }
                   alt="User"
                   className="w-8 h-8 rounded-full object-cover"
                 />
