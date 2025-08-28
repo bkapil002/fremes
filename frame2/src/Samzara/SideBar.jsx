@@ -27,7 +27,7 @@ const SideBar = () => {
     <>
       {/* Mobile Menu Button */}
       <div className="fixed top-16   md:hidden z-50">
-        <button className=' bg-gray-100 rounded-[3px] py-1 px-1' onClick={() => setSidebarOpen(true)}>
+        <button className=' bg-gray-200 rounded-[3px] py-1 px-1' onClick={() => setSidebarOpen(true)}>
           <Menu size={24} />
         </button>
       </div>
