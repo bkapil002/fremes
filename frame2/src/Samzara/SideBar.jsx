@@ -1,99 +1,80 @@
-import React, { useState } from 'react'
-import { X ,Menu } from "lucide-react";
-
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Menu } from "lucide-react";
 import { Link } from 'react-router-dom';
 
 const SideBar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    }
+
+    if (sidebarOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [sidebarOpen]);
 
   return (
     <>
-       <div className="fixed   transform   md:hidden ">
-          <button onClick={() => setSidebarOpen(true)}>
-            <Menu size={24} />
+      {/* Mobile Menu Button */}
+      <div className="fixed top-4 left-4 md:hidden z-50">
+        <button onClick={() => setSidebarOpen(true)}>
+          <Menu size={24} />
+        </button>
+      </div>
+
+      {/* Sidebar */}
+      <div
+        ref={sidebarRef}
+        className={`fixed md:static top-0 left-0 h-full shadow-lg w-60 p-4 bg-gray-200 z-50 transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+      >
+        {/* Close Button (Mobile) */}
+        <div className="flex justify-between items-center mb-6 md:hidden">
+          <button onClick={() => setSidebarOpen(false)}>
+            <X size={24} />
           </button>
         </div>
-    <div className={`fixed md:static top-0 left-0 h-full shadow-lg w-60 p-4 bg-gray-200 z-50 transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
-      
-      <div className="flex justify-between items-center mb-6 md:hidden">
-        <button onClick={() => setSidebarOpen(false)}>
-          <X size={24} />
-        </button>
-     </div>
-     <div className=''>
-       <ul className=" text-gray-700 font-medium">
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link to={'/'} className="flex items-center gap-2">
-            <i className="ri-home-2-line  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Home</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link to={'/'} className="flex items-center gap-2">
-            <i className="ri-profile-line  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Profile</p>
-            </Link>
-          </li>
-           <li   className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link to={'/join'} className="flex items-center gap-2">
-            <i className="ri-video-add-line text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Create Meeting</p>
-            </Link>
-          </li>
-          <li   className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link to={'/mleetingList'} className="flex items-center gap-2">
-            <i className="ri-video-on-line  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Online Meeting</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link className="flex items-center gap-2">
-            <i className="ri-group-line  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Groups</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link to={'/attendanc'} className="flex items-center gap-2">
-            <i className="ri-user-follow-line  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Attendance</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link className="flex items-center gap-2">
-            <i className=" ri-hotel-line text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Find a Centre</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link className="flex items-center gap-2">
-            <i className="ri-calendar-event-line  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Events</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link className="flex items-center gap-2">
-            <i className="ri-user-community-line  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Fellowships</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link className="flex items-center gap-2">
-            <i className="ri-question-mark  text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>FAQ's</p>
-            </Link>
-          </li>
-          <li  className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500  font-normal text-sm rounded cursor-pointer transition" >
-            <Link className="flex items-center gap-2">
-            <i className="ri-rss-line text-blue-900 text-xl"></i> 
-             <p className='text-black text-base'>Blogs</p>
-            </Link>
-          </li>  
-      </ul>
-      </div>
-    </div>
-    </>
-  )
-}
 
-export default SideBar
+        {/* Sidebar Menu */}
+        <ul className="text-gray-700 font-medium">
+          {[
+            { to: "/", icon: "ri-home-2-line", text: "Home" },
+            { to: "/", icon: "ri-profile-line", text: "Profile" },
+            { to: "/join", icon: "ri-video-add-line", text: "Create Meeting" },
+            { to: "/mleetingList", icon: "ri-video-on-line", text: "Online Meeting" },
+            { to: "/groups", icon: "ri-group-line", text: "Groups" },
+            { to: "/attendanc", icon: "ri-user-follow-line", text: "Attendance" },
+            { to: "/centre", icon: "ri-hotel-line", text: "Find a Centre" },
+            { to: "/events", icon: "ri-calendar-event-line", text: "Events" },
+            { to: "/fellowships", icon: "ri-user-community-line", text: "Fellowships" },
+            { to: "/faq", icon: "ri-question-mark", text: "FAQ's" },
+            { to: "/blogs", icon: "ri-rss-line", text: "Blogs" }
+          ].map((item, index) => (
+            <li
+              key={index}
+              className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500 font-normal text-sm rounded cursor-pointer transition"
+              onClick={() => setSidebarOpen(false)} // Close on click
+            >
+              <Link to={item.to} className="flex items-center gap-2">
+                <i className={`${item.icon} text-blue-900 text-xl`}></i>
+                <p className="text-black text-base">{item.text}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  );
+};
+
+export default SideBar;
