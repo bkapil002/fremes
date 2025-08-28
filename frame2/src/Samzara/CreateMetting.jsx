@@ -429,7 +429,7 @@ const timeSlots = meeting.slots;
                 className="border-b-2 border-gray-300 w-full text-gray-800 
                    text-base sm:text-lg lg:text-xl 
                    outline-none focus:border-[#2A2A72] transition-colors pb-2"
-                placeholder="Meeting title"
+                placeholder="Meeting Title"
               />
 
               {filteredSuggestions.length > 0 && (

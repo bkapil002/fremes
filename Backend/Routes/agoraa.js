@@ -230,11 +230,17 @@ router.get('/meeting-time/:meetingDate', auth, async (req, res) => {
 
 router.get('/all-rooms', auth, async (req, res) => {
   try {
-    const rooms = await Agora.find().sort({ createdAt: -1 }); 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+
+    const rooms = await Agora.find({
+      meetingDate: { $gte: today }   
+    }).sort({ meetingDate: 1 });     
+
     res.status(200).json(rooms);
   } catch (error) {
-    console.error('Error fetching all rooms:', error);
-    res.status(500).json({ error: 'Could not fetch rooms' });
+    console.error("Error fetching all upcoming rooms:", error);
+    res.status(500).json({ error: "Could not fetch upcoming rooms" });
   }
 });
 
