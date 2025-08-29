@@ -23,7 +23,12 @@ async function refreshTokens() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const meetings = await Agora.find({ meetingDate: { $gte: today } });
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + 8);
+
+    const meetings = await Agora.find({
+      meetingDate: { $gte: today, $lte: endDate }
+    });
 
     for (const meeting of meetings) {
       const uid = 0;
@@ -228,7 +233,7 @@ router.get('/meeting-time/:meetingDate', auth, async (req, res) => {
 
 
 
-router.get('/all-rooms', auth, async (req, res) => {
+router.get('/all-rooms' , async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0); 
