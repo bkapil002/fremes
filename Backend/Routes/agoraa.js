@@ -250,7 +250,7 @@ router.get('/all-rooms' , async (req, res) => {
 });
 
 
-router.get('today/all-rooms', async (req, res) => {
+router.get('/today/all-rooms', async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0); 
