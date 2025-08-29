@@ -253,14 +253,15 @@ router.get('/all-rooms' , async (req, res) => {
 router.get('/today/all-rooms', async (req, res) => {
   try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    today.setHours(0, 0, 0, 0); // start of today
 
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setDate(today.getDate() + 1); // start of tomorrow
 
-    const rooms = await Agora.find({
-      meetingDate: { $gte: today, $lt: tomorrow }
-    }).sort({ meetingDate: 1 });
+    const rooms = await Agora.find(
+      { meetingDate: { $gte: today, $lt: tomorrow } },
+      "meetingType meetingDate meetingTime" // <-- only select these fields
+    ).sort({ meetingDate: 1 });
 
     res.status(200).json(rooms);
   } catch (error) {
