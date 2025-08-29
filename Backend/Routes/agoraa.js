@@ -250,6 +250,28 @@ router.get('/all-rooms' , async (req, res) => {
 });
 
 
+router.get('today/all-rooms', async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const rooms = await Agora.find({
+      meetingDate: { $gte: today, $lt: tomorrow }
+    }).sort({ meetingDate: 1 });
+
+    res.status(200).json(rooms);
+  } catch (error) {
+    console.error("Error fetching today's upcoming rooms:", error);
+    res.status(500).json({ error: "Could not fetch today's meetings" });
+  }
+});
+
+
+
+
 router.put('/join-room/:linkId', auth, async (req, res) => {
   try {
     const { linkId } = req.params;
