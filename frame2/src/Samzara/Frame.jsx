@@ -639,7 +639,6 @@ useEffect(() => {
                       <LocalUser
                         audioTrack={localMicrophoneTrack}
                         cameraOn={cameraOn}
-                        micOn={micOn}
                         playAudio={false}
                         videoTrack={localCameraTrack}
                         style={{
@@ -728,7 +727,6 @@ useEffect(() => {
                         <LocalUser
                           audioTrack={localMicrophoneTrack}
                           cameraOn={cameraOn}
-                          micOn={micOn}
                           playAudio={false}
                           videoTrack={localCameraTrack}
                           style={{
