@@ -436,7 +436,7 @@ useEffect(() => {
                           audioTrack={localMicrophoneTrack}
                           cameraOn={cameraOn}
                           micOn={micOn}
-                          playAudio={true}
+                          playAudio={false}
                           videoTrack={localCameraTrack}
                         >
                           <div className="w-full overflow-hidden">
