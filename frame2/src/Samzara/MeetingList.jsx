@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const MeetingList = () => {
@@ -19,7 +19,7 @@ const MeetingList = () => {
         .toUpperCase();
       const dayNumber = String(date.getDate()).padStart(2, "0");
       week.push({
-        label: `${dayName} ${dayNumber}`,
+        label: ` ${dayNumber} ${dayName} `,
         dateOnly: date.toISOString().split("T")[0],
       });
     }
@@ -28,28 +28,28 @@ const MeetingList = () => {
 
   const getStartTimeOnly = (timeStr) => {
     if (!timeStr) return timeStr;
-    if (timeStr.includes(' - ')) {
-      return timeStr.split(' - ')[0];
+    if (timeStr.includes(" - ")) {
+      return timeStr.split(" - ")[0];
     }
     return timeStr;
   };
 
   const convertTo24Hour = (timeStr) => {
     if (!timeStr) return "";
-    
+
     const [time, period] = timeStr.split(/\s+/);
     if (!time || !period) return timeStr;
-    
-    let [hours, minutes] = time.split(':');
+
+    let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
-    
-    if (period.toLowerCase() === 'pm' && hours !== 12) {
+
+    if (period.toLowerCase() === "pm" && hours !== 12) {
       hours += 12;
-    } else if (period.toLowerCase() === 'am' && hours === 12) {
+    } else if (period.toLowerCase() === "am" && hours === 12) {
       hours = 0;
     }
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes}`;
+
+    return `${hours.toString().padStart(2, "0")}:${minutes}`;
   };
 
   const sortTimes = (times) => {
@@ -60,40 +60,42 @@ const MeetingList = () => {
     });
   };
 
-
   const isMeetingLive = (meetingTime) => {
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
     const meeting24Hour = convertTo24Hour(meetingTime);
-    
-  
-    const [meetingHours, meetingMinutes] = meeting24Hour.split(':').map(Number);
+
+    const [meetingHours, meetingMinutes] = meeting24Hour.split(":").map(Number);
     const meetingTimeInMinutes = meetingHours * 60 + meetingMinutes;
-    
-    const [currentHours, currentMinutes] = currentTime.split(':').map(Number);
+
+    const [currentHours, currentMinutes] = currentTime.split(":").map(Number);
     const currentTimeInMinutes = currentHours * 60 + currentMinutes;
-   
-    return currentTimeInMinutes >= meetingTimeInMinutes && 
-           currentTimeInMinutes <= meetingTimeInMinutes + 57;
+
+    return (
+      currentTimeInMinutes >= meetingTimeInMinutes &&
+      currentTimeInMinutes <= meetingTimeInMinutes + 57
+    );
   };
 
-  // Function to check if a meeting is upcoming (future today)
   const isMeetingUpcoming = (meetingTime) => {
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
     const meeting24Hour = convertTo24Hour(meetingTime);
-    
+
     return meeting24Hour > currentTime;
   };
 
   const fetchRooms = async () => {
     try {
-      const res = await axios.get(
-        "https://samzraa.onrender.com/api/agora/all-rooms",
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
-      );
+      const res = await axios.get("https://samzraa.onrender.com/api/agora/all-rooms", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
       setRooms(res.data);
     } catch (err) {
       console.error("Error fetching rooms:", err);
@@ -102,10 +104,10 @@ const MeetingList = () => {
 
   useEffect(() => {
     if (!user) return;
-    fetchRooms(); 
+    fetchRooms();
 
     const interval = setInterval(() => {
-      fetchRooms(); 
+      fetchRooms();
     }, 2000);
 
     return () => clearInterval(interval);
@@ -115,13 +117,13 @@ const MeetingList = () => {
   const todayLabel = days[0].label;
   const todayDate = days[0].dateOnly;
 
-  const todayMeetings = rooms.filter(room => {
+  const todayMeetings = rooms.filter((room) => {
     const roomDate = new Date(room.meetingDate).toISOString().split("T")[0];
     return roomDate === todayDate;
   });
 
   const upcomingMeetings = todayMeetings
-    .filter(room => isMeetingUpcoming(room.meetingTime))
+    .filter((room) => isMeetingUpcoming(room.meetingTime))
     .sort((a, b) => {
       const timeA = convertTo24Hour(a.meetingTime);
       const timeB = convertTo24Hour(b.meetingTime);
@@ -129,10 +131,9 @@ const MeetingList = () => {
     })
     .slice(0, 3);
 
- const liveMeetings = todayMeetings.filter((room) =>
+  const liveMeetings = todayMeetings.filter((room) =>
     isMeetingLive(room.meetingTime)
   );
-
   const groupedData = {};
   rooms.forEach((room) => {
     const dateStr = new Date(room.meetingDate).toISOString().split("T")[0];
@@ -145,43 +146,43 @@ const MeetingList = () => {
     groupedData[room.meetingType][dateStr].push(room.meetingTime);
   });
 
-  Object.keys(groupedData).forEach(meetingType => {
-    Object.keys(groupedData[meetingType]).forEach(date => {
-      groupedData[meetingType][date] = sortTimes(groupedData[meetingType][date]);
+  Object.keys(groupedData).forEach((meetingType) => {
+    Object.keys(groupedData[meetingType]).forEach((date) => {
+      groupedData[meetingType][date] = sortTimes(
+        groupedData[meetingType][date]
+      );
     });
   });
 
   const getCurrentTimeCustom = () => {
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  const displayHour = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-  
-  return `${displayHour}:${minutes} ${ampm}`;
-};
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const displayHour = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
 
- 
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
 
   return (
     <div className=" mb-4">
       <div className="px-4 pt-2">
-        <div className="w-full bg-gradient-to-r from-orange-500 to-orange-300 rounded-md shadow-sm py-5 text-center">
-          <h2 className="text-white text-xl font-semibold">
+        <div className="w-full bg-[#f89939] rounded-md shadow-sm py-5 text-center">
+          <h2 className="text-white text-xl md:text-2xl font-bold ">
             Online Meeting Schedule
           </h2>
-          <div className=" "><p className="text-white text-base font-medium   ">
-            {days[0].label} to {days[6].label}
-          </p></div>
+          <div className=" ">
+            <p className="text-white text-base font-medium   ">
+              {days[0].label} To  {days[6].label}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Upcoming Meetings and On Air Section */}
       <div className="px-4 pt-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          
-          {/* Upcoming Meetings Box */}
-         <div className="bg-white rounded-lg shadow-md">
+          <div className="bg-white rounded-lg shadow-md">
             <div className="text-black px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
               <h3 className="text-lg font-semibold">On Air</h3>
             </div>
@@ -230,20 +231,30 @@ const MeetingList = () => {
 
           <div className="bg-white rounded-lg shadow-md ">
             <div className=" text-white px-4 py-3 rounded-t-lg border-b-[1px] border-b-gray-300">
-              <h3 className="text-lg text-black font-semibold">Upcoming Meetings</h3>
+              <h3 className="text-lg text-black font-semibold">
+                Upcoming Meetings
+              </h3>
             </div>
+            
             <div className="p-4">
               {upcomingMeetings.length > 0 ? (
                 <div className="space-y-3">
                   {upcomingMeetings.map((meeting, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-md border-l-4 border-blue-400">
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-3 bg-gray-50 rounded-md border-l-4 border-[#272977]"
+                    >
                       <div>
-                        <p className="font-medium text-gray-800">{meeting.meetingType}</p>
-                        <p className="text-xs md:text-sm text-gray-600">{meeting.meetingTime}</p>
+                        <p className="font-medium text-gray-800">
+                          {meeting.meetingType}
+                        </p>
+                        <p className="text-xs md:text-sm text-gray-600">
+                          {meeting.meetingTime}
+                        </p>
                       </div>
-                      <Link 
+                      <Link
                         to={`/room/${meeting.linkId}`}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                        className="bg-[#272977] hover:bg-[#178a43] text-white px-3 py-1 rounded text-sm font-medium transition-colors"
                       >
                         Join
                       </Link>
@@ -257,24 +268,29 @@ const MeetingList = () => {
               )}
             </div>
           </div>
-          
         </div>
       </div>
 
       {/* Full Calendar View */}
-      <div className="px-4 ">
+      <div className="px-4 -mt-3 ">
         <div className="bg-gradient-to-r bg-white rounded-t-lg shadow-sm py-3  ">
-          <div className=" pl-2"><h2 className="text-black  md:text-3xl text-xl flex items-center gap-1 font-semibold"><CalendarDays size={22}/> Full Calendar</h2></div>
-          <div className="pl-9 -mt-1  flex justify-between">
-             <p className="text-black md:text-base text-xs font-medium pt-3">
+          <div className=" pl-2">
+            
+            <h2 className="text-black  md:text-3xl text-xl flex items-center gap-1 font-semibold">
+              <CalendarDays size={22} /> Full Calendar
+            </h2>
+            <div className="text-black py-1 rounded-t-lg border-b-[1px] border-b-gray-300"></div>
+          </div>
+          <div className="pl-3 -mt-1  py-1 flex justify-between">
+            <p className="text-black md:text-base text-xs font-medium pt-3">
               {days[0].label} to {days[6].label}
-             </p>
-             <div className="mr-4 mt-2.5">
-               <p className="text-black text-xs md:text-base font-medium">
-               Your Local Time: {getCurrentTimeCustom()}
-               </p>
+            </p>
+            <div className="mr-3 mt-2.5">
+              <p className="text-black text-xs md:text-base font-medium">
+                Your Local Time: {getCurrentTimeCustom()}
+              </p>
             </div>
-         </div>
+          </div>
         </div>
 
         <div className="overflow-x-auto bg-white shadow rounded-b-lg">
@@ -295,28 +311,29 @@ const MeetingList = () => {
               </tr>
             </thead>
             <tbody>
-             {Object.keys(groupedData).map((meetingType, rowIndex) => (
+              {Object.keys(groupedData).map((meetingType, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50">
-                  <td className="border md:text-base text-sm border-gray-200 p-2 font-medium text-gray-700">
+                  <td className="border md:text-base text-xs border-gray-200 p-2 font-medium text-gray-700">
                     {meetingType}
                   </td>
                   {days.map((day, colIndex) => {
-                    const times =
-                      groupedData[meetingType][day.dateOnly] || [];
+                    const times = groupedData[meetingType][day.dateOnly] || [];
                     return (
                       <td
                         key={colIndex}
                         className={`border border-gray-200 p-2 text-center ${
                           day.label === todayLabel
-                            ? "bg-blue-500 text-white font-semibold"
+                            ? "bg-[#272977] text-white font-semibold"
                             : "text-blue-600"
                         }`}
                       >
-                        {times.length > 0 ? (
-                          times.map((t, i) => <div key={i} className="text-xs md:text-base" >{getStartTimeOnly(t)}</div>)
-                        ) : (
-                          "-"
-                        )}
+                        {times.length > 0
+                          ? times.map((t, i) => (
+                              <div key={i} className="text-xs md:text-base">
+                                {getStartTimeOnly(t)}
+                              </div>
+                            ))
+                          : "-"}
                       </td>
                     );
                   })}

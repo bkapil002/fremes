@@ -54,6 +54,7 @@ const Basics = () => {
   const [promoteLoading, setPromoteLoading] = useState(false);
   const [meetingTime, setMeetingTime] = useState("");
   const [meetingtopic, setMeetingtopic] = useState("");
+  const [adminName , setAdminName] = useState("")
   const remoteUsers = useRemoteUsers();
 
 useEffect(() => {
@@ -67,8 +68,6 @@ useEffect(() => {
     const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
 
     const now = dayjs().tz("Asia/Kolkata");
-
-    // If user connects before meeting start
     let delay = 0;
     if (now.isBefore(startTime)) {
       delay = startTime.diff(now); 
@@ -84,7 +83,6 @@ useEffect(() => {
       console.log("User connected after meeting ended. Join not recorded.");
       return;
     }
-
     timer = setTimeout(() => {
       const joinTime = dayjs().tz("Asia/Kolkata").format();
 
@@ -137,7 +135,6 @@ useEffect(() => {
     }
   }
 
-  // Manual leave if user disconnects
   if (!isConnected && calling === false) {
     (async () => {
       try {
@@ -213,6 +210,7 @@ useEffect(() => {
         setAdminImage(data.agora.user.imageUrls);
         setMeetingTime(data.agora.meetingTime);
         setMeetingtopic(data.agora.meetingType);
+        setAdminName(user.name)
       } catch (error) {
         console.error("Error fetching room details:", error);
       }
@@ -347,7 +345,7 @@ useEffect(() => {
       : remoteUsers.find((user) => user.uid === promotedUid);
 
   return (
-   <div className="h-screen flex overflow-hidden">
+   <div className="flex overflow-hidden">
       <div
         className="flex-1 flex flex-col overflow-y-auto"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -375,7 +373,7 @@ useEffect(() => {
             <div className="flex-1 ">
               <Online meetingTime={meetingTime} meetingtopic={meetingtopic} />
             </div>
-            <div className="flex flex-col lg:flex-row flex-1 p-4 gap-2">
+            <div className="flex flex-col -mt-5  lg:flex-row flex-1 p-4 gap-2">
               {/* Sidebar */}
               <div className="w-full lg:w-1/5 flex flex-col gap-4">
                 <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -421,7 +419,7 @@ useEffect(() => {
 
                   {/* Footer (Name) */}
                   <div className="p-2 text-center">
-                    <p className="text-xs sm:text-sm text-gray-500">{admin}</p>
+                    <p className="text-xs sm:text-sm text-gray-500">{adminName}</p>
                   </div>
                 </div>
               </div>
@@ -707,7 +705,7 @@ useEffect(() => {
         )}
         {isConnected && (
           <div>
-            <div className="flex flex-col p-3 lg:flex-row gap-4">
+            <div className="flex -mt-4 flex-col p-3 lg:flex-row gap-4">
               <div className="flex-1 bg-white rounded-2xl shadow">
                 {/* Header */}
                 <div className="border-b px-6 py-4 text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -773,7 +771,7 @@ useEffect(() => {
             </div>
           </div>
         )}
-        {isConnected && <Know />}
+        <div className="-mt-3">{isConnected && <Know />}</div>
       </div>
     </div>
   );
