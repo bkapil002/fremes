@@ -214,7 +214,7 @@ const Basics = () => {
         setAdminImage(data.agora.user.imageUrls);
         setMeetingTime(data.agora.meetingTime);
         setMeetingtopic(data.agora.meetingType);
-        setAdminName(user.name);
+        setAdminName(data.agora.user.name);
       } catch (error) {
         console.error("Error fetching room details:", error);
       }
