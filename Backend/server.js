@@ -6,7 +6,6 @@ const setupCluster = require('./config/cluster');
 const cookieParser = require('cookie-parser');
 const user = require('./Routes/user')
 const { router: agoraa, startTokenCron } = require("./Routes/agoraa");
-require("./Routes/meetingCron")
 const app = express();
 const meetingAttendance = require('./Routes/meetingAttendance')
 

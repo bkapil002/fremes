@@ -19,6 +19,7 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import ReadVideo from "../pages/ReadVideo";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -54,72 +55,94 @@ const Basics = () => {
   const [promoteLoading, setPromoteLoading] = useState(false);
   const [meetingTime, setMeetingTime] = useState("");
   const [meetingtopic, setMeetingtopic] = useState("");
-  const [adminName , setAdminName] = useState("")
+  const [adminName, setAdminName] = useState("");
   const remoteUsers = useRemoteUsers();
 
-useEffect(() => {
-  let timer;
+  useEffect(() => {
+    let timer;
 
-  if (isConnected && user && linkId && meetingTime) {
-    const [startStr, endStr] = meetingTime.split(" - ");
-    const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
+    if (isConnected && user && linkId && meetingTime) {
+      const [startStr, endStr] = meetingTime.split(" - ");
+      const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
 
-    const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
-    const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
+      const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz(
+        "Asia/Kolkata"
+      );
+      const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz(
+        "Asia/Kolkata"
+      );
 
-    const now = dayjs().tz("Asia/Kolkata");
-    let delay = 0;
-    if (now.isBefore(startTime)) {
-      delay = startTime.diff(now); 
-      console.log(`User connected early. Waiting ${delay / 1000}s until meeting start.`);
+      const now = dayjs().tz("Asia/Kolkata");
+      let delay = 0;
+      if (now.isBefore(startTime)) {
+        delay = startTime.diff(now);
+        console.log(
+          `User connected early. Waiting ${delay / 1000}s until meeting start.`
+        );
+      } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
+        delay = 0;
+        console.log(
+          "User connected during meeting. Waiting 1 min to log join."
+        );
+      } else {
+        console.log("User connected after meeting ended. Join not recorded.");
+        return;
+      }
+      timer = setTimeout(() => {
+        const joinTime = dayjs().tz("Asia/Kolkata").format();
+
+        const logJoin = async () => {
+          try {
+            await axios.post(
+              `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+              { joinTime },
+              { headers: { Authorization: `Bearer ${user.token}` } }
+            );
+            console.log("Join time recorded:", joinTime);
+          } catch (error) {
+            console.error("Error logging join time:", error);
+          }
+        };
+
+        logJoin();
+      }, delay);
     }
 
-    else if (now.isAfter(startTime) && now.isBefore(endTime)) {
-      delay = 0; 
-      console.log("User connected during meeting. Waiting 1 min to log join.");
+    return () => clearTimeout(timer);
+  }, [isConnected, user, linkId, meetingTime]);
+
+  useEffect(() => {
+    let leaveTimer;
+
+    if (user && linkId && meetingTime) {
+      const [startStr, endStr] = meetingTime.split(" - ");
+      const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
+
+      const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz(
+        "Asia/Kolkata"
+      );
+      const now = dayjs().tz("Asia/Kolkata");
+
+      if (now.isBefore(endTime)) {
+        const msUntilEnd = endTime.diff(now);
+        leaveTimer = setTimeout(async () => {
+          try {
+            const leaveTime = dayjs().tz("Asia/Kolkata").format();
+            await axios.put(
+              `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+              { leaveTime },
+              { headers: { Authorization: `Bearer ${user.token}` } }
+            );
+            console.log("Leave time recorded automatically at meeting end");
+          } catch (error) {
+            console.error("Error logging leave time:", error);
+          }
+        }, msUntilEnd);
+      }
     }
 
-    else {
-      console.log("User connected after meeting ended. Join not recorded.");
-      return;
-    }
-    timer = setTimeout(() => {
-      const joinTime = dayjs().tz("Asia/Kolkata").format();
-
-      const logJoin = async () => {
-        try {
-          await axios.post(
-            `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
-            { joinTime },
-            { headers: { Authorization: `Bearer ${user.token}` } }
-          );
-          console.log("Join time recorded:", joinTime);
-        } catch (error) {
-          console.error("Error logging join time:", error);
-        }
-      };
-
-      logJoin();
-    }, delay);
-  }
-
-  return () => clearTimeout(timer);
-}, [isConnected, user, linkId, meetingTime]);
-
-
-useEffect(() => {
-  let leaveTimer;
-
-  if (user && linkId && meetingTime) {
-    const [startStr, endStr] = meetingTime.split(" - ");
-    const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
-
-    const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
-    const now = dayjs().tz("Asia/Kolkata");
-
-    if (now.isBefore(endTime)) {
-      const msUntilEnd = endTime.diff(now); 
-      leaveTimer = setTimeout(async () => {
+    if (!isConnected && calling === false) {
+      (async () => {
         try {
           const leaveTime = dayjs().tz("Asia/Kolkata").format();
           await axios.put(
@@ -127,34 +150,15 @@ useEffect(() => {
             { leaveTime },
             { headers: { Authorization: `Bearer ${user.token}` } }
           );
-          console.log("Leave time recorded automatically at meeting end");
+          console.log("Leave time recorded manually");
         } catch (error) {
           console.error("Error logging leave time:", error);
         }
-      }, msUntilEnd);
+      })();
     }
-  }
 
-  if (!isConnected && calling === false) {
-    (async () => {
-      try {
-        const leaveTime = dayjs().tz("Asia/Kolkata").format();
-        await axios.put(
-          `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
-          { leaveTime },
-          { headers: { Authorization: `Bearer ${user.token}` } }
-        );
-        console.log("Leave time recorded manually");
-      } catch (error) {
-        console.error("Error logging leave time:", error);
-      }
-    })();
-  }
-
-  return () => clearTimeout(leaveTimer);
-}, [isConnected, calling, user, linkId, meetingTime]);
-
-
+    return () => clearTimeout(leaveTimer);
+  }, [isConnected, calling, user, linkId, meetingTime]);
 
   useEffect(() => {
     const uids = remoteUsers.map((u) => u.uid);
@@ -210,7 +214,7 @@ useEffect(() => {
         setAdminImage(data.agora.user.imageUrls);
         setMeetingTime(data.agora.meetingTime);
         setMeetingtopic(data.agora.meetingType);
-        setAdminName(user.name)
+        setAdminName(user.name);
       } catch (error) {
         console.error("Error fetching room details:", error);
       }
@@ -345,28 +349,18 @@ useEffect(() => {
       : remoteUsers.find((user) => user.uid === promotedUid);
 
   return (
-   <div className="flex overflow-hidden">
+    <div className="flex overflow-hidden">
       <div
         className="flex-1 flex flex-col overflow-y-auto"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {!isConnected ? (
-          <div className="p-10 w-full mx-auto flex justify-center items-center h-screen flex-col gap-4">
-            <p className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#f89939] flex items-center">
-              Ready to join
-              <span className="loading-dots ml-2"></span>
-            </p>
-
-            <button
-              onClick={async () => {
-                await handleRemovePromotedUser();
-                await handleResetOwnRequest();
-                setCalling(true);
-              }}
-              className="bg-[#178a43] cursor-pointer hover:bg-[#000080] text-white mt-5 py-2 px-4 rounded"
-            >
-              Click Here
-            </button>
+          <div className="  flex justify-center items-center h-screen flex-col ">
+            <ReadVideo
+              handleRemovePromotedUser={handleRemovePromotedUser}
+              handleResetOwnRequest={handleResetOwnRequest}
+              setCalling={setCalling}
+            />
           </div>
         ) : (
           <>
@@ -419,7 +413,9 @@ useEffect(() => {
 
                   {/* Footer (Name) */}
                   <div className="p-2 text-center">
-                    <p className="text-xs sm:text-sm text-gray-500">{adminName}</p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {adminName}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -427,7 +423,6 @@ useEffect(() => {
               <div className="lg:w-3/5 w-full flex flex-col items-center bg-white shadow rounded-lg p-4">
                 <div className="border-[#000080] border-[1px] w-full max-w-ful aspect-video flex justify-center items-center">
                   <div className=" w-full h-full object-cover">
-                    
                     {promotedUid && promotedUid !== admin ? (
                       promotedUid === email ? (
                         <LocalUser
@@ -493,10 +488,10 @@ useEffect(() => {
                       {!cameraOn ? (
                         <button
                           onClick={() => setCamera(true)}
-                          className="bg-blue-900 text-white px-3 py-1 cursor-pointer text-sm rounded-lg"
+                          className="bg-blue-900 text-white cursor-pointer px-2 py-1 md:text-sm  text-xs  rounded-[8px]"
                         >
                           <spam className="flex justify-center gap-2 items-center text-sm">
-                            <CameraOff />
+                            <CameraOff size={17} />
                             Camera Off
                           </spam>
                         </button>
@@ -504,7 +499,7 @@ useEffect(() => {
                         !isRequesting ? (
                           <button
                             onClick={handlePushRequest}
-                            className="bg-[#F86925] text-white px-3 cursor-pointer py-1 text-sm rounded-lg"
+                            className="bg-[#F86925] text-white cursor-pointer  px-2 py-1 md:text-sm  text-xs  rounded-[8px]"
                             disabled={pushLoading}
                           >
                             {pushLoading ? "Requesting..." : "Request to Share"}
@@ -514,7 +509,7 @@ useEffect(() => {
                             onClick={() => {
                               handleResetOwnRequest();
                             }}
-                            className="bg-[#F86925] text-white cursor-pointer px-3 py-1 text-sm rounded-lg"
+                            className="bg-[#F86925] text-white cursor-pointer px-2 py-1 md:text-sm  text-xs  rounded-[8px]"
                             disabled={resetLoading}
                           >
                             {resetLoading ? "Cancelling..." : "Cancel Request"}
@@ -531,7 +526,7 @@ useEffect(() => {
                         await handleResetOwnRequest();
                         setCalling(false);
                       }}
-                      className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg"
+                      className="bg-blue-900  text-white  cursor-pointer px-2 py-1 md:text-sm  text-xs  rounded-[8px]"
                     >
                       End call
                     </button>
@@ -539,16 +534,16 @@ useEffect(() => {
                   {!isAdmin && promotedUid === email && (
                     <button
                       onClick={() => setMic((a) => !a)}
-                      className="bg-blue-900 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
+                      className="bg-blue-900 text-white px-2 py-1 md:text-sm  text-xs  rounded-[8px] cursor-pointer "
                     >
                       {micOn ? (
-                        <spam className="flex justify-center gap-2 items-center">
-                          <Mic />
-                          Mic On
+                        <spam className="flex justify-center gap-1 items-center">
+                          <Mic Mic size={16} />
+                          Mic on
                         </spam>
                       ) : (
-                        <spam className="flex justify-center gap-2 items-center">
-                          <MicOff />
+                        <spam className="flex justify-center gap-1 items-center">
+                          <MicOff Mic size={16} />
                           Mic off
                         </spam>
                       )}
@@ -559,38 +554,38 @@ useEffect(() => {
                     <>
                       <button
                         onClick={() => setCamera((a) => !a)}
-                        className="bg-blue-900 cursor-pointer text-white px-3 py-1 text-sm rounded-lg"
+                        className="bg-blue-900 cursor-pointer   text-white px-2 py-1 md:text-sm  text-xs  rounded-[8px]"
                       >
                         {cameraOn ? (
-                          <spam className="flex justify-center gap-2 text-sm items-center">
-                            <Camera />
-                            Camera On
+                          <spam className="flex justify-center gap-1  items-center">
+                            <Camera size={17} />
+                            Camera on
                           </spam>
                         ) : (
-                          <spam className="flex justify-center gap-2 items-center text-sm">
-                            <CameraOff />
+                          <spam className="flex justify-center gap-1  items-center  ">
+                            <CameraOff size={17} />
                             Camera off
                           </spam>
                         )}
                       </button>
                       <button
                         onClick={() => setCalling(false)}
-                        className="bg-blue-900  text-white px-3 py-1 cursor-pointer text-sm rounded-lg"
+                        className="bg-blue-900  text-white px-2 py-1 cursor-pointer md:text-sm  text-xs rounded-[8px]"
                       >
                         End call
                       </button>
                       <button
                         onClick={() => setMic((a) => !a)}
-                        className="bg-blue-900 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
+                        className="bg-blue-900 text-white px-2  py-1  md:text-sm  text-xs  cursor-pointer rounded-[8px]"
                       >
                         {micOn ? (
-                          <spam className="flex justify-center gap-2 items-center text-sm">
-                            <Mic />
-                            Mic On
+                          <spam className="flex justify-center gap-1 items-center ">
+                            <Mic size={16} />
+                            Mic on
                           </spam>
                         ) : (
-                          <spam className="flex justify-center gap-2 items-center text-sm">
-                            <MicOff />
+                          <spam className="flex justify-center gap-1 items-center ">
+                            <MicOff size={16} />
                             Mic off
                           </spam>
                         )}
@@ -605,7 +600,7 @@ useEffect(() => {
                         await handleResetOwnRequest(promotedUid);
                       }}
                       disabled={promoteLoading}
-                      className="bg-red-600 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
+                      className="bg-red-600 text-white px-2  py-1  md:text-sm  text-xs  cursor-pointer rounded-[8px]"
                     >
                       {promoteLoading ? "Loading..." : "End Share"}
                     </button>
@@ -618,7 +613,7 @@ useEffect(() => {
                         handleResetOwnRequest();
                       }}
                       disabled={promoteLoading}
-                      className="bg-red-600 text-white px-3 py-1 text-sm cursor-pointer rounded-lg"
+                      className="bg-red-600 text-white px-2  py-1  md:text-sm  text-xs  cursor-pointer rounded-[8px]"
                     >
                       {promoteLoading ? "Loading..." : "End Share"}
                     </button>
@@ -654,7 +649,7 @@ useEffect(() => {
                     </div>
                   )}
                   {requestingRemoteUsers
-                    .filter((u) => u.uid !== promotedUid) 
+                    .filter((u) => u.uid !== promotedUid)
                     .map(
                       (u) =>
                         u.uid !== email && (
@@ -741,7 +736,7 @@ useEffect(() => {
                   )}
 
                   {/* Remote normal users */}
-                   {normalRemoteUsers
+                  {normalRemoteUsers
                     .filter((user) => !pushedUids.includes(user.uid))
                     .map(
                       (user) =>
