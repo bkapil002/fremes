@@ -75,7 +75,7 @@ useEffect(() => {
     }
 
     else if (now.isAfter(startTime) && now.isBefore(endTime)) {
-      delay = 120000; 
+      delay = 0; 
       console.log("User connected during meeting. Waiting 1 min to log join.");
     }
 
