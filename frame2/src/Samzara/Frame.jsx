@@ -111,12 +111,11 @@ useEffect(() => {
   let leaveTimer;
 
   if (user && linkId && meetingTime) {
-
     const [startStr, endStr] = meetingTime.split(" - ");
     const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
+
     const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
     const now = dayjs().tz("Asia/Kolkata");
-
 
     if (now.isBefore(endTime)) {
       const msUntilEnd = endTime.diff(now); 
@@ -136,7 +135,7 @@ useEffect(() => {
     }
   }
 
-  if (!isConnected === false) {
+  if (!isConnected && calling === false) {
     (async () => {
       try {
         const leaveTime = dayjs().tz("Asia/Kolkata").format();
@@ -155,18 +154,7 @@ useEffect(() => {
   return () => clearTimeout(leaveTimer);
 }, [isConnected, calling, user, linkId, meetingTime]);
 
-useEffect(() => {
-  const handleBeforeUnload = async (event) => {
-    const leaveTime = dayjs().tz("Asia/Kolkata").format();
-    await axios.put(
-      `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
-      { leaveTime },
-      { headers: { Authorization: `Bearer ${user.token}` } }
-    );
-  };
-  window.addEventListener("beforeunload", handleBeforeUnload);
-  return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-}, [user, linkId, meetingTime]);
+
 
   useEffect(() => {
     const uids = remoteUsers.map((u) => u.uid);
