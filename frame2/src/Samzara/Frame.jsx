@@ -136,7 +136,7 @@ useEffect(() => {
     }
   }
 
-  if (!isConnected && calling === false) {
+  if (!isConnected === false) {
     (async () => {
       try {
         const leaveTime = dayjs().tz("Asia/Kolkata").format();
