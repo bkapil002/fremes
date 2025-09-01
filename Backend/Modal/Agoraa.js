@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema({
       recurrence: {
     repeatType: { type: String }, 
     interval: { type: Number, default: 1 },
-    batchSize: { type: Number, default: 15 }
+    batchSize: { type: Number, default: 5 }
   }
 })
 

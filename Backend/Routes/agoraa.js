@@ -6,7 +6,7 @@ const Agora = require('../Modal/Agoraa');
 const PushedUid = require('../Modal/PushedUid');
 const PromotedUid = require('../Modal/PromotedUid');
 const cron = require("node-cron");
-const { createRecurringMeetings } = require("./recurrence");
+const dayjs = require('dayjs');
 const appId = process.env.APP_ID;
 const appCertificate = process.env.APP_CERTIFICATE;
 
@@ -62,43 +62,102 @@ function startTokenCron() {
 }
 
 
-router.post("/create-room", auth, async (req, res) => {
+router.post('/create-room', auth, async (req, res) => {
   try {
+    if (!appId || !appCertificate) {
+      return res.status(400).json({ error: 'Missing environment variables' });
+    }
+
     const { meetingType, meetingDate, meetingTime, meetingRepeat } = req.body;
 
     if (!meetingType || !meetingDate || !meetingTime) {
-      return res.status(400).json({ error: "Meeting type, date, and time are required" });
+      return res.status(400).json({ error: 'Meeting type, date, and time are required' });
     }
 
+    const startDate = dayjs(meetingDate);
+
     const recurrence = {
-      repeatType: meetingRepeat, 
+      repeatType: meetingRepeat,
       interval: 1,
-      batchSize: 15
+      batchSize: 5
     };
 
-    const user = {
-      _id: req.user._id,
-      email: req.user.email,
-      name: req.user.name,
-      imageUrls: req.user.imageUrls
-    };
+    const loopCount = meetingRepeat === "Does not repeat" ? 1 : recurrence.batchSize;
 
-    const createdMeetings = await createRecurringMeetings(
-      user,
-      { meetingType, meetingDate, meetingTime, meetingRepeat },
-      recurrence
-    );
+    const meetingsToCreate = [];
+
+    for (let i = 0; i < loopCount; i++) {
+      let dateToUse = startDate;
+
+      if (meetingRepeat === "Daily") {
+        dateToUse = startDate.add(i * recurrence.interval, "day");
+      } else if (meetingRepeat === "Weekly") {
+        dateToUse = startDate.add(i * recurrence.interval, "week");
+      } else if (meetingRepeat === "Monthly") {
+        dateToUse = dayjs(getNthWeekdayOfMonth(startDate.toDate(), i * recurrence.interval));
+      }
+      
+        const formattedDate = dayjs(dateToUse).format("DD-MM-YYYY");
+
+
+       const safeType = meetingType.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+
+
+       const safeTime = meetingTime
+    .replace(/\s+/g, "")            
+    .replace(/:/g, "")              
+    .replace(/[^a-zA-Z0-9-]/g, "")  
+    .toLowerCase();
+
+
+  const linkId = `${safeType}-${formattedDate}-${safeTime}`;
+      const channelName = linkId;
+
+      const uid = 0;
+      const role = RtcRole.PUBLISHER;
+      const expirationTimeInSeconds = 86400;
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+
+      const token = RtcTokenBuilder.buildTokenWithUid(
+        appId,
+        appCertificate,
+        channelName,
+        uid,
+        role,
+        privilegeExpiredTs
+      );
+
+      const agora = await Agora.create({
+        token,
+        linkId,
+        appId,
+        channel: channelName,
+        user: {
+          _id: req.user._id,
+          email: req.user.email,
+          name: req.user.name,
+          imageUrls: req.user.imageUrls
+        },
+        meetingType,
+        meetingDate: dateToUse.toDate(),
+        meetingTime,
+        meetingRepeat,
+        recurrence
+      });
+
+      meetingsToCreate.push(agora);
+    }
 
     return res.status(200).json({
-      message: "Meetings created successfully",
-      meetings: createdMeetings
+      meetings: meetingsToCreate
     });
+
   } catch (error) {
-    console.error("Error creating room:", error);
-    return res.status(500).json({ error: "Server error" });
+    console.error('Token generation failed:', error);
+    return res.status(500).json({ error: 'Could not generate token and linkId' });
   }
 });
-
 
 router.delete('/delete-room/:linkId', auth, async (req, res) => {
   try {
