@@ -91,7 +91,7 @@ const Basics = () => {
     const logJoin = async () => {
       try {
         await axios.post(
-          `http://localhost:5000/api/attendance/meeting/join/${linkId}`,
+          `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
           {},
           {
             headers: { Authorization: `Bearer ${user.token}` },
@@ -113,7 +113,7 @@ useEffect(() => {
     if (!user || !linkId) return;
     try {
       await axios.put(
-        `http://localhost:5000/api/attendance/meeting/leave/${linkId}`,
+        `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
         {},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
