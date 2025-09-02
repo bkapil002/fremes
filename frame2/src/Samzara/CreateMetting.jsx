@@ -328,7 +328,7 @@ const CreateMeeting = () => {
   return (
     <div className="w-full min-h-screen p-4 sm:p-6 md:p-6 md:rounded-2xl">
       {/* Create Meeting Section */}
-      <div className="bg-white w-full rounded-2xl shadow-sm p-4 sm:p-6 mb-6">
+      <div className="bg-white w-full rounded-2xl shadow-sm -mt-2.5  p-4 sm:p-6 mb-6">
         <div className="flex w-full sm:flex-row gap-4 items-start sm:items-center">
           <button onClick={() => setTitle("")} className="text-gray-600 hover:text-gray-800 transition-colors"><X size={24} /></button>
 
@@ -407,7 +407,7 @@ const CreateMeeting = () => {
       </div>
 
       {/* Calendar Section */}
-      <div className="w-full bg-white rounded-xl flex  flex-col lg:flex-row">
+      <div className="w-full bg-white rounded-xl flex -mt-2.5  flex-col lg:flex-row">
         <div className="w-full lg:w-2/3 mb-4 lg:mb-0">
           <div className="bg-white shadow-xl p-4 md:p-6 lg:p-6  rounded-2xl">
             {/* Calendar Header */}

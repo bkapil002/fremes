@@ -90,7 +90,7 @@ const Upcomming = () => {
                 key={room._id}
                 className="bg-gray-100 overflow-hidden shadow-2xl rounded-xl p-2 w-full md:w-full mt-2 "
               >
-                <h2 className="text-lg font-medium md:text-xl text-[#2A2A72]">
+                <h2 className="text-lg font-medium md:text-xl line-clamp-1 text-[#2A2A72]">
                   {room.meetingType}
                 </h2>
                 <div className="text-[12px] md:text-xs flex text-gray-500 gap-2">
