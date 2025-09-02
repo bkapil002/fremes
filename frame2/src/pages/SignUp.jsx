@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Compressor from "compressorjs";
 import { X, Plus } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -78,14 +79,14 @@ export default function SignUp() {
 
       const data = await response.json();
       if (data.success || response.ok) {
-        alert("Sign up successful!");
+        toast.success("Sign up successful!");
         navigate("/signin");
       } else {
-        alert(data.message || "Registration failed");
+         toast.error(data.message || "Registration failed");
       }
     } catch (error) {
       console.error("Error signing up:", error);
-      alert(error.message || "An error occurred during registration");
+      toast.error(error.message || "An error occurred during registration");
     }
   };
 

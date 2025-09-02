@@ -11,6 +11,7 @@ import MeetingList from "./Samzara/MeetingList";
 import CreateMeeting from "./Samzara/CreateMetting";
 import AttendanceRequests from "./pages/AttendanceRequests";
 import Footer from "./components/Footer";
+import { Toaster } from 'react-hot-toast';
 
 function App() {
 
@@ -48,6 +49,7 @@ function App() {
             {/* Footer always at bottom */}
             <Footer />
           </div>
+          <Toaster  position="top-center" reverseOrder={false} />
         </div>
       </Router>
     </AuthProvider>

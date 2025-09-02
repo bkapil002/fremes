@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({ email: "" });
@@ -30,14 +31,15 @@ export default function SignIn() {
 
       if (response.ok) {
         const data = await response.json();
-        login({ ...data.user, token: data.token });
+       login({ ...data.user, token: data.token });
         navigate("/");
+        toast.success('Welcome in Samzara');
       } else {
         const errorData = await response.json();
-        alert(errorData.error);
+        toast.error(errorData.error);
       }
     } catch (error) {
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
       console.error("Login attempt failed:", error.message);
     } finally {
       setLoading(false);

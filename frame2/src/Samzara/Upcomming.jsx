@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { Trash2, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import toast from 'react-hot-toast';
 
 const Upcomming = () => {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ const Upcomming = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [deleteType, setDeleteType] = useState("this");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -37,6 +39,7 @@ const Upcomming = () => {
 
   const handleDeleteConfirm = async () => {
     if (!selectedRoom) return;
+    setIsLoading(true)
     try {
       if (deleteType === "this") {
         await axios.delete(
@@ -55,8 +58,13 @@ const Upcomming = () => {
       );
       setShowModal(false);
       setSelectedRoom(null);
+      toast.success("Deleted ")
+      window.location.reload();
     } catch (err) {
+      toast.error('Meeting is not Deleted')
       console.error("Error deleting room:", err);
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -191,9 +199,10 @@ const Upcomming = () => {
               </button>
               <button
                 onClick={handleDeleteConfirm}
+                disabled={isLoading}
                 className="bg-[#178a43] hover:bg-[#2A2A72] text-sm text-white px-4 py-1 rounded"
               >
-                OK
+                {isLoading ? "Wait.." : "OK"}
               </button>
             </div>
           </div>

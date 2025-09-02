@@ -11,6 +11,7 @@ import Z from "./LOGO.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Search } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Navebar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,14 +33,14 @@ export default function Navebar() {
       if (response.ok) {
         logout();
         navigate("/signin");
-        alert("Logged out successfully");
+        toast.success("Logged out successfully");
       } else {
         const errorData = await response.json();
-        alert(`Logout failed: ${errorData.message}`);
+        toast.error(`Logout failed: ${errorData.message}`);
       }
     } catch (error) {
       console.error("Error during logout:", error);
-      alert("Failed to log out. Please try again.");
+      toast.error("Failed to log out. Please try again.");
     }
   };
 

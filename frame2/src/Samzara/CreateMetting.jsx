@@ -13,6 +13,7 @@ import meeting from "./Date-meeting";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import toast from 'react-hot-toast';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -278,7 +279,7 @@ const CreateMeeting = () => {
       );
 
       console.log("Meeting Created:", res.data);
-      alert("Meeting Created Successfully ");
+      toast.success("Meeting Created Successfully ");
       setTitle("");
       setStartDate(new Date());
       setSelectedSlot(timeSlots[0]);
@@ -286,7 +287,7 @@ const CreateMeeting = () => {
       window.location.reload();
     } catch (error) {
       console.error("Error creating meeting:", error.response?.data || error);
-      alert("Failed to create meeting ");
+      toast.error("Failed to create meeting ");
     } finally {
       setLoading(false);
     }
