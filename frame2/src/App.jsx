@@ -42,7 +42,7 @@ function App() {
                 <Route path="/mleetingList" element={<MeetingList />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
-                <Route path="/attendanc" element={<AttendanceRequests />} />
+                <Route path="/attendance" element={<AttendanceRequests />} />
               </Routes>
             </div>
 
