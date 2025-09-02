@@ -21,6 +21,188 @@ const AttendanceRequests = () => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
+  // Method 1: Text-based Multi-page PDF (Recommended)
+  const generateTextBasedPDF = async (meeting) => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 15;
+    let yPosition = margin;
+
+    // === LOGO ===
+    const logoWidth = 60;
+    const logoHeight = 16;
+    const logoX = (pageWidth - logoWidth) / 2;
+    try {
+      pdf.addImage(z, "PNG", logoX, yPosition, logoWidth, logoHeight);
+    } catch (err) {
+      console.warn("Logo not found, skipping image");
+    }
+    yPosition += logoHeight + 10;
+
+    // === HEADER ===
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(22);
+    pdf.setTextColor(34, 34, 34);
+    pdf.text("Attendance Confirmation ", pageWidth / 2, yPosition, {
+      align: "center",
+    });
+
+    yPosition += 8;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(15);
+    pdf.setTextColor(34, 34, 34);
+    pdf.text("Live Online Video Meetings ", pageWidth / 2, yPosition, {
+      align: "center",
+    });
+    yPosition += 2;
+
+    // Divider Line
+    pdf.setDrawColor(253, 119, 44);
+    pdf.setLineWidth(1);
+    pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+
+    // === INTRO TEXT ===
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(70, 70, 70);
+    const introText = `Thank you for attending a Live Online Video Meeting on community.samzara.in. While you were there, you asked us toprovide confirmation of your attendance.Below are the details of the meeting you attended on ${dayjs(meeting.meetingDate).format("DD MMMM , YYYY hh:mm A")}which lasted for 60 minutes (${meeting.meetingType}).`;
+    const splitIntroText = pdf.splitTextToSize(
+      introText,
+      pageWidth - 2 * margin
+    );
+    pdf.text(splitIntroText, margin, yPosition);
+    yPosition += splitIntroText.length * 5 + 8;
+
+    // === MEETING DETAILS BOX ===
+    pdf.setFillColor(253, 236, 200);
+    pdf.roundedRect(margin, yPosition, pageWidth - 2 * margin, 20, 3, 3, "F");
+    pdf.setTextColor(253, 119, 44);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Meeting Information", margin + 4, yPosition + 6);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(50, 50, 50);
+    pdf.setFontSize(11);
+    pdf.text(
+      `Date: ${dayjs(meeting.meetingDate).format("DD MMMM, YYYY hh:mm A")}`,
+      margin + 4,
+      yPosition + 14
+    );
+    pdf.text(`Type: ${meeting.meetingType}`, margin + 90, yPosition + 14);
+    yPosition += 26;
+
+    // === PARTICIPANT DETAILS BOX ===
+    pdf.setFillColor(220, 242, 241);
+    pdf.roundedRect(margin, yPosition, pageWidth - 2 * margin, 18, 3, 3, "F");
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(31, 112, 184);
+    pdf.text("Participant Information", margin + 4, yPosition + 6);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(50, 50, 50);
+    pdf.setFontSize(11);
+    pdf.text(`Name: ${user?.name || "Guest"}`, margin + 4, yPosition + 14);
+    pdf.text(`Email: ${user?.email || "N/A"}`, margin + 80, yPosition + 14);
+    yPosition += 26;
+
+    // === ATTENDANCE EVENTS ===
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(13);
+    pdf.setTextColor(44, 62, 80);
+    pdf.text("Attendance Events", margin, yPosition);
+    yPosition += 8;
+
+    meeting.events.forEach((event, idx) => {
+      if (yPosition > pageHeight - 40) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(253, 119, 44);
+      pdf.text(`Event ${idx + 1}`, margin, yPosition);
+      yPosition += 5;
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(
+        `JOIN: ${dayjs(event.joinTime).format("DD MMMM, YYYY hh:mm A")}`,
+        margin + 5,
+        yPosition
+      );
+      yPosition += 5;
+
+      if (event.leaveTime) {
+        pdf.text(
+          `LEAVE: ${dayjs(event.leaveTime).format("DD MMMM, YYYY hh:mm A")}`,
+          margin + 5,
+          yPosition
+        );
+        yPosition += 5;
+      }
+
+      pdf.setTextColor(31, 112, 184);
+      pdf.text("Digital Signature:", margin + 5, yPosition);
+
+      // Calculate position for signature text right after the label
+      const sigXPosition =
+        margin + 5 + pdf.getTextWidth("Digital Signature: ") + 5;
+
+      // Set color for signature text
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(event.id, sigXPosition, yPosition);
+
+      // Move yPosition for next line
+      yPosition += 8;
+
+      if (idx < meeting.events.length - 1) {
+        pdf.setDrawColor(220, 220, 220);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin + 3, yPosition, pageWidth - margin - 3, yPosition);
+        yPosition += 5;
+      }
+    });
+
+    if (yPosition > pageHeight - 30) {
+      pdf.addPage();
+      yPosition = margin;
+    }
+
+    yPosition += 10;
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "italic");
+    pdf.setTextColor(31, 112, 184);
+    const footer1 =
+      "The community.samzara.in Digital Signature is a unique process that digitally signs and verifies your attendance.";
+    pdf.text(
+      pdf.splitTextToSize(footer1, pageWidth - 2 * margin),
+      margin,
+      yPosition
+    );
+    yPosition += 8;
+
+    pdf.setTextColor(44, 62, 80);
+    const footer2 =
+      " If you are experiencing any problems with the meeting attendance verification system, please email support@samzara.in and we will assist you immediately.";
+    pdf.text(
+      pdf.splitTextToSize(footer2, pageWidth - 2 * margin),
+      margin,
+      yPosition
+    );
+    yPosition += 8;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Thank You,", margin, yPosition);
+    yPosition += 5;
+    pdf.text("The community.samzara.in Team", margin, yPosition);
+
+    return pdf;
+  };
+
   const handleDownloadPDF = async (meeting) => {
     setSelectedMeeting(meeting);
 
@@ -33,101 +215,83 @@ const AttendanceRequests = () => {
       }
 
       try {
-        const clonedElement = element.cloneNode(true);
-        clonedElement.style.position = "absolute";
-        clonedElement.style.top = "-9999px";
-        clonedElement.style.left = "-9999px";
-        clonedElement.style.width = element.offsetWidth + "px";
-
-        const replaceColors = (el) => {
-          if (el.classList) {
-            el.classList.forEach((cls) => {
-              if (cls.includes("text-gray-")) {
-                el.classList.remove(cls);
-                el.classList.add("text-gray-700");
-              }
-              if (cls.includes("bg-gray-")) {
-                el.classList.remove(cls);
-                el.classList.add("bg-gray-100");
-              }
-              if (cls.includes("border-gray-")) {
-                el.classList.remove(cls);
-                el.classList.add("border-gray-300");
-              }
-            });
-          }
-
-          Array.from(el.children).forEach(replaceColors);
-        };
-
-        replaceColors(clonedElement);
-        document.body.appendChild(clonedElement);
-
-        const canvas = await html2canvas(clonedElement, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#ffffff",
-          ignoreElements: (element) => {
-            return (
-              element.classList &&
-              (element.classList.contains("print:hidden") ||
-                element.tagName === "BUTTON")
-            );
-          },
-        });
-        document.body.removeChild(clonedElement);
-
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        if (pdfHeight > pdf.internal.pageSize.getHeight()) {
-          const ratio = pdf.internal.pageSize.getHeight() / pdfHeight;
-          pdf.addImage(
-            imgData,
-            "PNG",
-            0,
-            0,
-            pdfWidth * ratio,
-            pdf.internal.pageSize.getHeight()
-          );
-        } else {
-          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        }
-
+        let pdf;
+        pdf = await generateTextBasedPDF(meeting);
         pdf.save(
           `attendance-${dayjs(meeting.meetingDate).format("YYYY-MM-DD")}.pdf`
         );
-
         setTimeout(() => setSelectedMeeting(null), 1000);
       } catch (error) {
         console.error("Error generating PDF:", error);
+
+        // Fallback to original method
         try {
           const canvas = await html2canvas(element, {
             scale: 1,
             backgroundColor: "#ffffff",
             logging: false,
             useCORS: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: 800,
+            windowHeight: element.scrollHeight,
           });
 
           const imgData = canvas.toDataURL("image/png");
           const pdf = new jsPDF("p", "mm", "a4");
           const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          const canvasHeight = canvas.height;
+          const canvasWidth = canvas.width;
+          const ratio = pdfWidth / canvasWidth;
+          const scaledHeight = canvasHeight * ratio;
 
-          pdf.addImage(
-            imgData,
-            "PNG",
-            0,
-            0,
-            pdfWidth,
-            Math.min(pdfHeight, pdf.internal.pageSize.getHeight())
-          );
+          if (scaledHeight <= pdfHeight) {
+            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, scaledHeight);
+          } else {
+            let position = 0;
+            const pageCanvasHeight = pdfHeight / ratio;
+
+            while (position < canvasHeight) {
+              const pageCanvas = document.createElement("canvas");
+              pageCanvas.width = canvasWidth;
+              pageCanvas.height = Math.min(
+                pageCanvasHeight,
+                canvasHeight - position
+              );
+
+              const ctx = pageCanvas.getContext("2d");
+              ctx.drawImage(
+                canvas,
+                0,
+                position,
+                canvasWidth,
+                pageCanvas.height,
+                0,
+                0,
+                canvasWidth,
+                pageCanvas.height
+              );
+
+              if (position > 0) {
+                pdf.addPage();
+              }
+
+              pdf.addImage(
+                pageCanvas.toDataURL("image/png"),
+                "PNG",
+                0,
+                0,
+                pdfWidth,
+                pageCanvas.height * ratio
+              );
+              position += pageCanvas.height;
+            }
+          }
+
           pdf.save(
             `attendance-${dayjs(meeting.meetingDate).format("YYYY-MM-DD")}.pdf`
           );
-
           setTimeout(() => setSelectedMeeting(null), 1000);
         } catch (fallbackError) {
           console.error("Fallback PDF generation also failed:", fallbackError);
@@ -266,6 +430,7 @@ const AttendanceRequests = () => {
         </div>
       )}
 
+      {/* Modal */}
       {selectedMeeting && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50"
@@ -273,9 +438,10 @@ const AttendanceRequests = () => {
         >
           <div
             id="attendance-modal-content"
-            className="w-full max-w-lg p-6 rounded-xl shadow-lg relative"
+            className="w-full max-w-lg p-6 rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh]"
             style={{ backgroundColor: "#ffffff", color: "#374151" }}
           >
+            {/* Close Button */}
             <button
               className="absolute top-3 right-3 cursor-pointer hover:opacity-75 print:hidden"
               style={{ color: "#6B7280" }}
@@ -283,9 +449,11 @@ const AttendanceRequests = () => {
             >
               ✕
             </button>
+
+            {/* Header */}
             <div className="flex items-center gap-3">
               <img src={z} className="w-35" alt="Logo" />
-              <h2 className=" text-lg md:text-xl" style={{ color: "#000000" }}>
+              <h2 className="text-lg md:text-xl" style={{ color: "#000000" }}>
                 Attendance Details
               </h2>
             </div>
@@ -293,6 +461,8 @@ const AttendanceRequests = () => {
               className="mt-3"
               style={{ borderTop: "1px solid #D1D5DB" }}
             ></div>
+
+            {/* Intro */}
             <p className="mb-3 mt-4 text-sm" style={{ color: "#374151" }}>
               Thank you for attending a <b>Live Online Video Meeting</b> on{" "}
               <b>community.samzara.in</b>. While you were there, you asked us to
@@ -307,7 +477,11 @@ const AttendanceRequests = () => {
               <b>{selectedMeeting.meetingType}</b>
             </p>
 
-            <div className="py-2" style={{ color: "#374151" }}>
+            {/* User Info */}
+            <div
+              className="py-2 text-xs sm:text-sm md:text-base"
+              style={{ color: "#374151" }}
+            >
               <div className="flex gap-2">
                 <p>Member Name:</p>
                 <b>{user?.name || "Guest"}</b>
@@ -318,40 +492,33 @@ const AttendanceRequests = () => {
               </div>
             </div>
 
+            {/* Events */}
             <div className="py-2" style={{ color: "#374151" }}>
               <div className="mt-2 space-y-4">
                 {selectedMeeting.events.map((e, i) => (
                   <div key={i} className="pb-3">
-                    <div className="">
-                      <p className="text-sm" style={{ color: "#4B5563" }}>
-                        Connection Type:{" "}
-                        <span
-                          className="font-bold"
-                          style={{ color: "#374151" }}
-                        >
-                          JOIN
-                        </span>{" "}
-                        at{" "}
-                        <span style={{ color: "#1F2937" }}>
-                          {dayjs(e.joinTime).format("MMMM DD, YYYY, hh:mm A")}
-                        </span>
-                      </p>
-                      <p className="text-sm mt-1" style={{ color: "#4B5563" }}>
-                        Digital Signature:{" "}
-                        <span
-                          className="break-all"
-                          style={{ color: "#2563EB" }}
-                        >
-                          {e.id}
-                        </span>
-                      </p>
-                      <div
-                        className="mt-3"
-                        style={{ borderBottom: "2px dotted #9CA3AF" }}
-                      ></div>
-                    </div>
+                    <p className="text-sm" style={{ color: "#4B5563" }}>
+                      Connection Type:{" "}
+                      <span className="font-bold" style={{ color: "#374151" }}>
+                        JOIN
+                      </span>{" "}
+                      at{" "}
+                      <span style={{ color: "#1F2937" }}>
+                        {dayjs(e.joinTime).format("MMMM DD, YYYY, hh:mm A")}
+                      </span>
+                    </p>
+                    <p className="text-sm mt-1" style={{ color: "#4B5563" }}>
+                      Digital Signature:{" "}
+                      <span className="break-all" style={{ color: "#2563EB" }}>
+                        {e.id}
+                      </span>
+                    </p>
+                    <div
+                      className="mt-3"
+                      style={{ borderBottom: "2px dotted #9CA3AF" }}
+                    ></div>
 
-                    {/* LEAVE Block (only if exists) */}
+                    {/* LEAVE Block */}
                     {e.leaveTime && (
                       <>
                         <p
@@ -391,6 +558,7 @@ const AttendanceRequests = () => {
               </div>
             </div>
 
+            {/* Footer */}
             <div>
               <p className="text-sm" style={{ color: "#374151" }}>
                 The community.samzara.in Digital Signature is a unique process
@@ -398,8 +566,8 @@ const AttendanceRequests = () => {
               </p>
               <p className="text-sm mt-2" style={{ color: "#374151" }}>
                 If you are experiencing any problems with the meeting attendance
-                verification system, please email support@samzara.in and we will
-                get back with you immediately.
+                verification system, please email <b>support@samzara.in</b> and
+                we will get back with you immediately.
               </p>
               <p className="mt-2 text-sm" style={{ color: "#374151" }}>
                 Thanks,
