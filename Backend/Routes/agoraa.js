@@ -61,6 +61,31 @@ function startTokenCron() {
   cron.schedule("0 0 * * *", refreshTokens); 
 }
 
+function getNthWeekdayOfMonth(baseDate, monthsToAdd = 1) {
+  const date = new Date(baseDate);
+
+  const dayOfWeek = date.getDay();
+  const dayOfMonth = date.getDate();
+  const nth = Math.ceil(dayOfMonth / 7);
+
+  const targetMonth = date.getMonth() + monthsToAdd;
+  const targetYear = date.getFullYear() + Math.floor(targetMonth / 12);
+  const normalizedMonth = targetMonth % 12;
+
+  const firstDay = new Date(targetYear, normalizedMonth, 1);
+  let offset = (dayOfWeek - firstDay.getDay() + 7) % 7;
+  let targetDate = 1 + offset + (nth - 1) * 7;
+
+
+  const lastDay = new Date(targetYear, normalizedMonth + 1, 0).getDate();
+  if (targetDate > lastDay) {
+    targetDate -= 7; 
+  }
+
+  return new Date(targetYear, normalizedMonth, targetDate);
+}
+
+
 
 router.post('/create-room', auth, async (req, res) => {
   try {
