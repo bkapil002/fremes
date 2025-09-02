@@ -72,7 +72,7 @@ const Basics = () => {
       );
 
       const now = dayjs().tz("Asia/Kolkata");
-      let delay = 0;
+      let delay = 120000;
       if (now.isBefore(startTime)) {
         delay = startTime.diff(now);
         console.log(
