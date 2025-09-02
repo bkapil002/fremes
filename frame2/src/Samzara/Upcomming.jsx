@@ -95,9 +95,9 @@ const Upcomming = () => {
                 </h2>
                 <div className="text-[12px] md:text-xs flex text-gray-500 gap-2">
                   <p>
-                    {new Date(room.meetingDate).toLocaleDateString("en-US", {
-                      month: "short",
+                    {new Date(room.meetingDate).toLocaleDateString("en-GB", {
                       day: "numeric",
+                      month: "short",
                       year: "numeric",
                     })}
                   </p>
