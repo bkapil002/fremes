@@ -56,11 +56,15 @@ const Basics = () => {
   const [meetingTime, setMeetingTime] = useState("");
   const [meetingtopic, setMeetingtopic] = useState("");
   const [adminName, setAdminName] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [removeUser, setRemoveUser] = useState([]);
   const remoteUsers = useRemoteUsers();
 
- useEffect(() => {
-     let timer;
-  if (isConnected && user && linkId && meetingTime) {
+  useEffect(() => {
+    let timer;
+    if (isConnected && user && linkId && meetingTime) {
       const [startStr, endStr] = meetingTime.split(" - ");
       const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
 
@@ -87,52 +91,106 @@ const Basics = () => {
         console.log("User connected after meeting ended. Join not recorded.");
         return;
       }
-       timer = setTimeout(() => {
-    const logJoin = async () => {
+      timer = setTimeout(() => {
+        const logJoin = async () => {
+          try {
+            await axios.post(
+              `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+              {},
+              {
+                headers: { Authorization: `Bearer ${user.token}` },
+              }
+            );
+            console.log("Join time recorded");
+          } catch (error) {
+            console.error("Error logging join time:", error);
+          }
+        };
+
+        logJoin();
+      }, delay);
+    }
+  }, [isConnected, user, linkId]);
+
+  useEffect(() => {
+    const handleLeave = async () => {
+      if (!user || !linkId) return;
       try {
-        await axios.post(
-          `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+        await axios.put(
+          `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
           {},
+          { headers: { Authorization: `Bearer ${user.token}` } }
+        );
+        console.log("Leave time recorded");
+      } catch (error) {
+        console.error("Error logging leave time:", error);
+      }
+    };
+
+    if (!isConnected && calling === false) {
+      handleLeave();
+    }
+
+    return () => {
+      if (isConnected) {
+        handleLeave();
+      }
+    };
+  }, [isConnected, calling, user, linkId]);
+
+  useEffect(() => {
+    if (!user || !linkId) return;
+    const fetchRemoveUserDetails = async () => {
+      try {
+        const response = await axios.get(
+          `https://samzraa.onrender.com/api/removeduser/user-removed/${linkId}`,
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
         );
-        console.log("Join time recorded");
+        setRemoveUser(
+          Array.isArray(response.data.data) ? response.data.data : []
+        );
       } catch (error) {
-        console.error("Error logging join time:", error);
+        setRemoveUser([]); // fallback
+        console.error("Error fetching removed user details:", error);
       }
     };
+    fetchRemoveUserDetails();
+    const interval = setInterval(fetchRemoveUserDetails, 3000);
+    return () => clearInterval(interval);
+  }, [user, linkId]);
 
-    logJoin();
-    }, delay);
-  }
-}, [isConnected, user, linkId]);
+  usePublish([localMicrophoneTrack, localCameraTrack]);
 
-useEffect(() => {
-  const handleLeave = async () => {
-    if (!user || !linkId) return;
+  const handleRemoveUser = async () => {
+    if (!selectedUser) return;
+
+    setRemoving(true);
     try {
-      await axios.put(
-        `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
-        {},
-        { headers: { Authorization: `Bearer ${user.token}` } }
+      await axios.post(
+        "https://samzraa.onrender.com/api/removeduser/remove-user",
+        {
+          uid: selectedUser.uid,
+          meetingType: meetingtopic,
+          meetingTime: meetingTime,
+          name: names[selectedUser.uid] || "Unknown",
+          linkId: linkId,
+          adminName: adminName,
+          admin: admin,
+        },
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
       );
-      console.log("Leave time recorded");
+
+      setShowModal(false);
+      setSelectedUser(null);
     } catch (error) {
-      console.error("Error logging leave time:", error);
+      console.error("Error removing user:", error);
     }
+    setRemoving(false);
   };
-
-  if (!isConnected && calling === false) {
-    handleLeave();
-  }
-
-  return () => {
-    if (isConnected) {
-      handleLeave();
-    }
-  };
-}, [isConnected, calling, user, linkId]);
 
   useEffect(() => {
     const uids = remoteUsers.map((u) => u.uid);
@@ -473,8 +531,12 @@ useEffect(() => {
                         !isRequesting ? (
                           <button
                             onClick={handlePushRequest}
-                            className="bg-[#F86925] text-white cursor-pointer  px-2 py-1 md:text-sm  text-xs  rounded-[8px]"
-                            disabled={pushLoading}
+                            className={`bg-[#F86925] text-white cursor-pointer px-2 py-1 md:text-sm text-xs rounded-[8px] ${
+                              removeUser.includes(email)
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                            disabled={pushLoading || removeUser.includes(email) }
                           >
                             {pushLoading ? "Requesting..." : "Request to Share"}
                           </button>
@@ -688,7 +750,7 @@ useEffect(() => {
                 {/* Audience Grid */}
                 <div className="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                   {/* Show local user if not admin */}
-                  {!isAdmin && !isRequesting && (
+                  {!isAdmin && !removeUser.includes(email) && !isRequesting && (
                     <div className="flex flex-col items-center justify-center cursor-pointer group">
                       <div className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer">
                         <LocalUser
@@ -711,13 +773,24 @@ useEffect(() => {
 
                   {/* Remote normal users */}
                   {normalRemoteUsers
-                    .filter((user) => !pushedUids.includes(user.uid))
+                    .filter(
+                      (user) =>
+                        !pushedUids.includes(user.uid) &&
+                        user.uid !== email &&
+                        !removeUser.includes(user.uid)
+                    )
                     .map(
                       (user) =>
                         user.uid !== email && (
                           <div
                             key={user.uid}
                             className="flex flex-col items-center justify-center"
+                            onClick={() => {
+                              if (isAdmin) {
+                                setSelectedUser(user);
+                                setShowModal(true);
+                              }
+                            }}
                           >
                             <div className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer">
                               <RemoteUser
@@ -742,6 +815,32 @@ useEffect(() => {
         )}
         <div className="-mt-3">{isConnected && <Know />}</div>
       </div>
+      {showModal && selectedUser && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-lg p-6 w-80">
+            <h3 className="text-lg font-semibold mb-4">Remove User</h3>
+            <p className="mb-4">
+              Do you want to remove{" "}
+              <strong>{names[selectedUser.uid] || "this user"}</strong>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-400 text-white rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemoveUser}
+                disabled={removing}
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                {removing ? "Removing..." : "Remove"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

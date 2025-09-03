@@ -68,7 +68,7 @@ const AttendanceRequests = () => {
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "normal");
     pdf.setTextColor(70, 70, 70);
-    const introText = `Thank you for attending a Live Online Video Meeting on community.samzara.in. While you were there, you asked us toprovide confirmation of your attendance.Below are the details of the meeting you attended on ${dayjs(meeting.meetingDate).format("DD MMMM , YYYY hh:mm A")}which lasted for 60 minutes (${meeting.meetingType}).`;
+    const introText = `Thank you for attending a Live Online Video Meeting on community.samzara.in. While you were there, you asked us toprovide confirmation of your attendance.Below are the details of the meeting you attended on ${dayjs(meeting.meetingDate).format("DD MMMM , YYYY hh:mm A")} which lasted for 60 minutes (${meeting.meetingType}).`;
     const splitIntroText = pdf.splitTextToSize(
       introText,
       pageWidth - 2 * margin
