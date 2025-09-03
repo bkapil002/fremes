@@ -53,7 +53,7 @@ const SideBar = () => {
             { to: "/join", icon: "ri-video-add-line", text: "Create Meeting" },
             { to: "/mleetingList", icon: "ri-video-on-line", text: "Online Meeting" },
             { to: "/groups", icon: "ri-group-line", text: "Groups" },
-            { to: "/attendanc", icon: "ri-user-follow-line", text: "Attendance" },
+            { to: "/attendance", icon: "ri-user-follow-line", text: "Attendance" },
             { to: "/centre", icon: "ri-hotel-line", text: "Find a Centre" },
             { to: "/events", icon: "ri-calendar-event-line", text: "Events" },
             { to: "/fellowships", icon: "ri-user-community-line", text: "Fellowships" },
