@@ -62,81 +62,85 @@ const Basics = () => {
   const [removeUser, setRemoveUser] = useState([]);
   const remoteUsers = useRemoteUsers();
 
-  useEffect(() => {
-    let timer;
-    if (isConnected && user && linkId && meetingTime) {
-      const [startStr, endStr] = meetingTime.split(" - ");
-      const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
+useEffect(() => {
+  if (!isConnected || !user || !linkId || !meetingTime) return;
 
-      const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz(
-        "Asia/Kolkata"
-      );
-      const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz(
-        "Asia/Kolkata"
-      );
+  if (!meetingTime.includes(" - ")) return;
 
-      const now = dayjs().tz("Asia/Kolkata");
-      let delay = 120000;
-      if (now.isBefore(startTime)) {
-        delay = startTime.diff(now);
-        console.log(
-          `User connected early. Waiting ${delay / 1000}s until meeting start.`
-        );
-      } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
-        delay = 0;
-        console.log(
-          "User connected during meeting. Waiting 1 min to log join."
-        );
-      } else {
-        console.log("User connected after meeting ended. Join not recorded.");
-        return;
-      }
-      timer = setTimeout(() => {
-        const logJoin = async () => {
-          try {
-            await axios.post(
-              `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
-              {},
-              {
-                headers: { Authorization: `Bearer ${user.token}` },
-              }
-            );
-            console.log("Join time recorded");
-          } catch (error) {
-            console.error("Error logging join time:", error);
-          }
-        };
+  let timer;
+  const [startStr, endStr] = meetingTime.split(" - ");
+  const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
 
-        logJoin();
-      }, delay);
-    }
-  }, [isConnected, user, linkId]);
+  const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
+  const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
+  const now = dayjs().tz("Asia/Kolkata");
 
-  useEffect(() => {
-    const handleLeave = async () => {
-      if (!user || !linkId) return;
+  let delay = 120000; 
+  if (now.isBefore(startTime)) {
+    delay = startTime.diff(now);
+    console.log(`User connected early. Waiting ${delay / 1000}s until meeting start.`);
+  } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
+    delay = 60000; // 1 min
+    console.log("User connected during meeting. Waiting 1 min to log join.");
+  } else {
+    console.log("User connected after meeting ended. Join not recorded.");
+    return;
+  }
+
+  timer = setTimeout(() => {
+    const logJoin = async () => {
       try {
-        await axios.put(
-          `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+        await axios.post(
+          `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
           {},
-          { headers: { Authorization: `Bearer ${user.token}` } }
+          {
+            headers: { Authorization: `Bearer ${user.token}` },
+          }
         );
-        console.log("Leave time recorded");
+        console.log("Join time recorded");
       } catch (error) {
-        console.error("Error logging leave time:", error);
+        console.error("Error logging join time:", error);
       }
     };
+    logJoin();
+  }, delay);
 
-    if (!isConnected && calling === false) {
+  return () => {
+    if (timer) clearTimeout(timer);
+  };
+}, [isConnected, user, linkId, meetingTime]);
+
+
+
+    useEffect(() => {
+  let hasLeft = false;
+
+  const handleLeave = async () => {
+    if (hasLeft || !user || !linkId) return;
+    hasLeft = true;
+
+    try {
+      await axios.put(
+        `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+        {},
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      console.log("Leave time recorded");
+    } catch (error) {
+      console.error("Error logging leave time:", error);
+    }
+  };
+
+  if (!isConnected && calling === false) {
+    handleLeave();
+  }
+
+  return () => {
+    if (isConnected) {
       handleLeave();
     }
-
-    return () => {
-      if (isConnected) {
-        handleLeave();
-      }
-    };
-  }, [isConnected, calling, user, linkId]);
+  };
+}, [isConnected, calling, user, linkId]);
 
   useEffect(() => {
     if (!user || !linkId) return;
