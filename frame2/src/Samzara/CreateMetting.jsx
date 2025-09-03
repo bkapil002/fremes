@@ -371,7 +371,7 @@ const CreateMeeting = () => {
             </button>
 
             {isTimeOpen && (
-              <div className="absolute mt-2 w-full max-h-40 overflow-y-auto bg-gray-100 border border-gray-200 rounded-lg shadow-lg z-20">
+              <div className="absolute mt-50 w-full max-h-40 overflow-y-auto bg-gray-100 border border-gray-200 rounded-lg shadow-lg z-20">
                 {availableTimeSlots.map((slot) => {
                   const [s, e] = slot.split(" - ");
                   return (
