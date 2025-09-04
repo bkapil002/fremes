@@ -30,6 +30,10 @@ const meetingAttendanceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  linkId:{
+    type:String,
+    required: true
+  },
   joinTime: {
     type: Date,
     required: true

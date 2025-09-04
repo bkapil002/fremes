@@ -28,6 +28,7 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
       meetingType: meeting.meetingType,
       meetingTime: meeting.meetingTime,
       meetingDate: meeting.meetingDate,
+      linkId:meeting.linkId,
       joinTime: new Date()
     });
 

@@ -50,4 +50,35 @@ router.get('/user-removed/:linkId', auth, async (req, res) => {
 });
 
 
+router.delete('/delete-attendance/:linkId', auth, async (req, res) => {
+  try {
+    const { linkId } = req.params;
+
+    if (!linkId) {
+      return res.status(400).json({ message: 'linkId is required' });
+    }
+
+    // find all removed users for this linkId
+    const removedUsers = await RemovedUser.find({ linkId }).sort({ createdAt: -1 });
+    const removedEmails = removedUsers.map(u => u.uid);
+
+    // delete attendance where linkId matches and email is in removed list
+    const result = await MeetingAttendance.deleteMany({
+      linkId,
+      email: { $in: removedEmails }
+    });
+
+    return res.status(200).json({
+      message: result.deletedCount > 0
+        ? 'Attendance deleted successfully'
+        : 'No matching attendance found',
+      deletedCount: result.deletedCount,
+      removedEmails
+    });
+  } catch (error) {
+    console.error('Error deleting attendance:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
