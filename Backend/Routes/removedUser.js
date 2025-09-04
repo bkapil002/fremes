@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const RemovedUser  = require('../Modal/RemovedUser');
 const { auth } = require('../middleware/auth');
-
+const MeetingAttendance =require('../Modal/MeetingAttendance')
 
 router.post('/remove-user', auth, async (req, res) => {
     try {
