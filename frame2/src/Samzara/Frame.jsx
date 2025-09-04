@@ -670,73 +670,58 @@ const Basics = () => {
                   People Requesting to Share
                 </div>
 
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 gap-3 p-3">
+                <div className="flex flex-wrap justify-center gap-1 p-2">
                   {isRequesting && promotedUid !== email && (
-                    <div className="w-16 sm:w-20 h-16 sm:h-20 relative mx-auto rounded-full flex items-center justify-center group">
+                    <div className="relative w-18 h-18 sm:w-19 sm:h-19 rounded-[4px] overflow-hidden bg-black flex items-center justify-center">
                       <LocalUser
                         audioTrack={localMicrophoneTrack}
                         cameraOn={cameraOn}
+                        micOn={micOn}
                         playAudio={false}
                         videoTrack={localCameraTrack}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "10%",
-                        }}
+                        style={{ width: "100%", height: "100%" }}
                       >
-                        <div className="w-full overflow-hidden">
-                          <p className="bg-gray-700/60 w-full text-white text-xs text-center truncate">
-                            {user.name}
-                          </p>
-                        </div>
+                        <p className="absolute bottom-0 left-0 w-full bg-black/60 text-white text-xs text-center truncate px-1">
+                          {user.name}
+                        </p>
                       </LocalUser>
                     </div>
                   )}
-                  {requestingRemoteUsers
-                    .filter((u) => u.uid !== promotedUid)
-                    .map(
-                      (u) =>
-                        u.uid !== email && (
-                          <div
-                            key={u.uid}
-                            className="flex flex-col items-center space-y-1"
-                          >
-                            {isAdmin && (
-                              <button
-                                onClick={() => handleResetOwnRequest(u.uid)}
-                                className="text-[10px] sm:text-xs bg-gray-800 hover:bg-red-600 cursor-pointer text-white rounded px-2 py-0.5 mb-1"
-                                title="Remove request"
-                              >
-                                Remove
-                              </button>
-                            )}
 
-                            <div
-                              className={`w-16 sm:w-20 h-16 sm:h-20 mx-auto rounded-full flex items-center justify-center ${
-                                isAdmin ? "cursor-pointer" : ""
-                              } group`}
-                              onClick={() =>
-                                isAdmin && handlePromoteUser(u.uid)
-                              }
-                            >
-                              <RemoteUser
-                                user={u}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  borderRadius: "10%",
-                                }}
-                              >
-                                <div className="w-full overflow-hidden">
-                                  <p className="bg-gray-700/60 w-full text-white text-[10px] sm:text-xs text-center truncate">
-                                    {names[u.uid] || "Loading..."}
-                                  </p>
-                                </div>
-                              </RemoteUser>
-                            </div>
-                          </div>
-                        )
-                    )}
+                  {requestingRemoteUsers
+                    .filter((u) => u.uid !== promotedUid && u.uid !== email)
+                    .map((u) => (
+                      <div key={u.uid} className="relative">
+                        {/* Remove button (Admin only) */}
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleResetOwnRequest(u.uid)}
+                            className="absolute -top-1 -right- z-10 text-[10px] bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                            title="Remove request"
+                          >
+                            X
+                          </button>
+                        )}
+
+                        <div
+                          className={`w-18 h-18 sm:w-19 sm:h-19  rounded-[4px] overflow-hidden bg-black flex items-center justify-center ${
+                            isAdmin
+                              ? "cursor-pointer hover:ring-2 hover:ring-[#F86925]"
+                              : ""
+                          }`}
+                          onClick={() => isAdmin && handlePromoteUser(u.uid)}
+                        >
+                          <RemoteUser
+                            user={u}
+                            style={{ width: "100%", height: "100%" }}
+                          >
+                            <p className="absolute bottom-0 left-0 w-full bg-black/60 text-white text-xs text-center truncate px-1">
+                              {names[u.uid] || "Loading..."}
+                            </p>
+                          </RemoteUser>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
