@@ -62,6 +62,27 @@ const Basics = () => {
   const [removeUser, setRemoveUser] = useState([]);
   const remoteUsers = useRemoteUsers();
 
+  useEffect(() => {
+  if (!user || !linkId) return;
+
+  const fetchRemoveattendance = async () => {
+    try {
+      await axios.delete(
+        `https://samzraa.onrender.com/api/removeduser/delete-attendance/${linkId}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
+    } catch (error) {
+      
+    }
+  };
+
+  fetchRemoveattendance();
+  const interval = setInterval(fetchRemoveattendance, 300000);
+
+  return () => clearInterval(interval);
+}, [user, linkId]);
 
   useEffect(() => {
     if (!isConnected || !user || !linkId || !meetingTime) return;
