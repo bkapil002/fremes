@@ -62,85 +62,89 @@ const Basics = () => {
   const [removeUser, setRemoveUser] = useState([]);
   const remoteUsers = useRemoteUsers();
 
-useEffect(() => {
-  if (!isConnected || !user || !linkId || !meetingTime) return;
+  useEffect(() => {
+    if (!isConnected || !user || !linkId || !meetingTime) return;
 
-  if (!meetingTime.includes(" - ")) return;
+    if (!meetingTime.includes(" - ")) return;
 
-  let timer;
-  const [startStr, endStr] = meetingTime.split(" - ");
-  const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
+    let timer;
+    const [startStr, endStr] = meetingTime.split(" - ");
+    const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
 
-  const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
-  const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
-  const now = dayjs().tz("Asia/Kolkata");
+    const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz(
+      "Asia/Kolkata"
+    );
+    const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz(
+      "Asia/Kolkata"
+    );
+    const now = dayjs().tz("Asia/Kolkata");
 
-  let delay = 120000; 
-  if (now.isBefore(startTime)) {
-    delay = startTime.diff(now);
-    console.log(`User connected early. Waiting ${delay / 1000}s until meeting start.`);
-  } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
-    delay = 60000; // 1 min
-    console.log("User connected during meeting. Waiting 1 min to log join.");
-  } else {
-    console.log("User connected after meeting ended. Join not recorded.");
-    return;
-  }
+    let delay = 120000;
+    if (now.isBefore(startTime)) {
+      delay = startTime.diff(now);
+      console.log(
+        `User connected early. Waiting ${delay / 1000}s until meeting start.`
+      );
+    } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
+      delay = 60000; // 1 min
+      console.log("User connected during meeting. Waiting 1 min to log join.");
+    } else {
+      console.log("User connected after meeting ended. Join not recorded.");
+      return;
+    }
 
-  timer = setTimeout(() => {
-    const logJoin = async () => {
+    timer = setTimeout(() => {
+      const logJoin = async () => {
+        try {
+          await axios.post(
+            `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+            {},
+            {
+              headers: { Authorization: `Bearer ${user.token}` },
+            }
+          );
+          console.log("Join time recorded");
+        } catch (error) {
+          console.error("Error logging join time:", error);
+        }
+      };
+      logJoin();
+    }, delay);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isConnected, user, linkId, meetingTime]);
+
+  useEffect(() => {
+    let hasLeft = false;
+
+    const handleLeave = async () => {
+      if (hasLeft || !user || !linkId) return;
+      hasLeft = true;
+
       try {
-        await axios.post(
-          `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+        await axios.put(
+          `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
           {},
-          {
-            headers: { Authorization: `Bearer ${user.token}` },
-          }
+          { headers: { Authorization: `Bearer ${user.token}` } }
         );
-        console.log("Join time recorded");
+        console.log("Leave time recorded");
       } catch (error) {
-        console.error("Error logging join time:", error);
+        console.error("Error logging leave time:", error);
       }
     };
-    logJoin();
-  }, delay);
 
-  return () => {
-    if (timer) clearTimeout(timer);
-  };
-}, [isConnected, user, linkId, meetingTime]);
-
-
-
-    useEffect(() => {
-  let hasLeft = false;
-
-  const handleLeave = async () => {
-    if (hasLeft || !user || !linkId) return;
-    hasLeft = true;
-
-    try {
-      await axios.put(
-        `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
-        {},
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      console.log("Leave time recorded");
-    } catch (error) {
-      console.error("Error logging leave time:", error);
-    }
-  };
-
-  if (!isConnected && calling === false) {
-    handleLeave();
-  }
-
-  return () => {
-    if (isConnected) {
+    if (!isConnected && calling === false) {
       handleLeave();
     }
-  };
-}, [isConnected, calling, user, linkId]);
+
+    return () => {
+      if (isConnected) {
+        handleLeave();
+      }
+    };
+  }, [isConnected, calling, user, linkId]);
 
   useEffect(() => {
     if (!user || !linkId) return;
@@ -540,7 +544,7 @@ useEffect(() => {
                                 ? "opacity-50 cursor-not-allowed"
                                 : ""
                             }`}
-                            disabled={pushLoading || removeUser.includes(email) }
+                            disabled={pushLoading || removeUser.includes(email)}
                           >
                             {pushLoading ? "Requesting..." : "Request to Share"}
                           </button>
@@ -752,11 +756,16 @@ useEffect(() => {
                 </div>
 
                 {/* Audience Grid */}
-                <div className="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div
+                  className={`flex flex-wrap justify-center gap-3 p-4 ${
+                    normalRemoteUsers.length === 0 ? "h-50" : ""
+                  }`}
+                >
+                  {" "}
                   {/* Show local user if not admin */}
                   {!isAdmin && !removeUser.includes(email) && !isRequesting && (
-                    <div className="flex flex-col items-center justify-center cursor-pointer group">
-                      <div className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer">
+                    <div className="flex flex-col items-center justify-center cursor-pointer group w-24">
+                      <div className="md:w-24 w-20 h-20 md:h-24  relative mx-auto rounded-full flex items-center justify-center">
                         <LocalUser
                           audioTrack={localMicrophoneTrack}
                           cameraOn={cameraOn}
@@ -765,16 +774,15 @@ useEffect(() => {
                           style={{
                             width: "100%",
                             height: "100%",
-                            borderRadius: "12%",
+                            borderRadius: "8px",
                           }}
                         />
                       </div>
-                      <p className="mt-1 w-full text-[#3C3C3C] text-xs sm:text-sm text-center truncate">
+                      <p className="mb-1.5 w-full text-[#3C3C3C] text-xs sm:text-sm text-center truncate">
                         {user.name}
                       </p>
                     </div>
                   )}
-
                   {/* Remote normal users */}
                   {normalRemoteUsers
                     .filter(
@@ -788,7 +796,7 @@ useEffect(() => {
                         user.uid !== email && (
                           <div
                             key={user.uid}
-                            className="flex flex-col items-center justify-center"
+                            className="flex flex-col items-center justify-center cursor-pointer group w-24"
                             onClick={() => {
                               if (isAdmin) {
                                 setSelectedUser(user);
@@ -796,17 +804,17 @@ useEffect(() => {
                               }
                             }}
                           >
-                            <div className="w-24 h-24 relative mx-auto rounded-full items-center justify-center group cursor-pointer">
+                            <div className="md:w-24 w-20 h-20 md:h-24 relative mx-auto rounded-full flex items-center justify-center">
                               <RemoteUser
                                 user={user}
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  borderRadius: "12%",
+                                  borderRadius: "8px",
                                 }}
                               />
                             </div>
-                            <p className="mt-1 w-full text-[#3C3C3C] text-xs sm:text-sm text-center truncate">
+                            <p className="mb-1.5 w-full text-[#3C3C3C] text-xs sm:text-sm text-center truncate">
                               {names[user.uid] || "Loading..."}
                             </p>
                           </div>
