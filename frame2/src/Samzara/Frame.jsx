@@ -79,7 +79,7 @@ const Basics = () => {
   };
 
   fetchRemoveattendance();
-  const interval = setInterval(fetchRemoveattendance, 300000);
+  const interval = setInterval(fetchRemoveattendance, 9000);
 
   return () => clearInterval(interval);
 }, [user, linkId]);
