@@ -196,7 +196,7 @@ const Basics = () => {
 useEffect(() => {
   let leaveTimer;
 
-  if (user && linkId && meetingTime && meetingTime.includes(" - ")) {
+  if (user && linkId && meetingTime) {
     const [startStr, endStr] = meetingTime.split(" - ");
     const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
 
