@@ -169,6 +169,7 @@ const Basics = () => {
       }
     };
   }, [isConnected, calling, user, linkId]);
+  
 
 
   useEffect(() => {
@@ -189,6 +190,46 @@ const Basics = () => {
   window.addEventListener("unload", handleUnload);
   return () => window.removeEventListener("unload", handleUnload);
 }, [isConnected, linkId, user]);
+
+
+
+useEffect(() => {
+  let leaveTimer;
+
+  if (user && linkId && meetingTime && meetingTime.includes(" - ")) {
+    const [startStr, endStr] = meetingTime.split(" - ");
+    const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
+
+    const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
+    const now = dayjs().tz("Asia/Kolkata");
+
+    if (now.isBefore(endTime)) {
+      const msUntilEnd = endTime.diff(now);
+      console.log(`Meeting ends in ${msUntilEnd / 1000} seconds`);
+
+      leaveTimer = setTimeout(async () => {
+        try {
+          const leaveTime = dayjs().tz("Asia/Kolkata").format();
+          await axios.put(
+            `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+            { leaveTime },
+            { headers: { Authorization: `Bearer ${user.token}` } }
+          );
+          console.log("Leave time recorded automatically at meeting end");
+        } catch (error) {
+          console.error("Error logging leave time:", error);
+        }
+      }, msUntilEnd);
+    } else {
+      console.log("Meeting already ended, no leave scheduled");
+    }
+  }
+
+  return () => {
+    if (leaveTimer) clearTimeout(leaveTimer);
+  };
+}, [user, linkId, meetingTime]);
+
 
 
   useEffect(() => {
