@@ -138,6 +138,8 @@ const Basics = () => {
     };
   }, [isConnected, user, linkId, meetingTime]);
 
+  
+
   useEffect(() => {
     let hasLeft = false;
 
@@ -167,6 +169,27 @@ const Basics = () => {
       }
     };
   }, [isConnected, calling, user, linkId]);
+
+
+  useEffect(() => {
+  const handleUnload = () => {
+    if (isConnected) {
+      fetch(`http://localhost:5000/api/attendance/meeting/leave/${linkId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`
+        },
+        body: JSON.stringify({}),
+        keepalive: true
+      });
+    }
+  };
+
+  window.addEventListener("unload", handleUnload);
+  return () => window.removeEventListener("unload", handleUnload);
+}, [isConnected, linkId, user]);
+
 
   useEffect(() => {
     if (!user || !linkId) return;
