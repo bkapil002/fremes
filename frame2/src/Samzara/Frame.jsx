@@ -174,7 +174,7 @@ const Basics = () => {
   useEffect(() => {
   const handleUnload = () => {
     if (isConnected) {
-      fetch(`http://localhost:5000/api/attendance/meeting/leave/${linkId}`, {
+      fetch(`https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
