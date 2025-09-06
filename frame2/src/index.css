@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 
+
 body{
-    background-color:#dde1e6 
+    background-color:#f0f2f5 ;
+    font-family: "Rubik", sans-serif !important;
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
@@ -23,7 +25,7 @@ body{
 
 .loading-dots {
   display: inline-block;
-  width: 1.5em;  
+  width: 1.5em;  /* reserve space for up to 3 dots */
   text-align: left;
 }
 
@@ -31,3 +33,4 @@ body{
   content: '';
   animation: dots 2s steps(1, end) infinite;
 }
+

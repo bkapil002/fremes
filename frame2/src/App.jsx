@@ -21,8 +21,9 @@ function App() {
    <AuthProvider>
       <Router>
         <Navebar />
-        <div className="h-screen flex overflow-hidden">
-          <div className="mt-1">
+        <div className="h-screen w-full  justify-center flex overflow-hidden">
+          <div className=" flex w-320 overflow-hidden">
+          <div >
             <SideBar />
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
@@ -46,10 +47,11 @@ function App() {
               </Routes>
             </div>
 
-            {/* Footer always at bottom */}
+            {/* Footer always at bottom */} 
             <Footer />
           </div>
-          <Toaster  position="top-center" reverseOrder={false} />
+           <Toaster  position="top-center" reverseOrder={false} />
+           </div>
         </div>
       </Router>
     </AuthProvider>

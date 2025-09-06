@@ -26,7 +26,7 @@ const SideBar = () => {
   return (
     <>
       {/* Mobile Menu Button */}
-      <div className="fixed top-16   md:hidden z-50">
+      <div className="fixed top-16  bg-[#f0f2f5 ]  md:hidden z-50">
         <button className=' bg-gray-200 rounded-[3px] py-1 px-1' onClick={() => setSidebarOpen(true)}>
           <Menu size={24} />
         </button>
@@ -35,7 +35,7 @@ const SideBar = () => {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed md:static top-0 left-0 h-full shadow-lg w-60 p-4 bg-gray-200 z-50 transform transition-transform duration-300 ease-in-out
+        className={`fixed md:static top-0 left-0 h-full bg-[#f0f2f5] w-60 p-4 z-50 transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         {/* Close Button (Mobile) */}
@@ -62,12 +62,12 @@ const SideBar = () => {
           ].map((item, index) => (
             <li
               key={index}
-              className="flex items-center gap-3 p-2 hover:bg-gray-100 text-gray-500 font-normal text-sm rounded cursor-pointer transition"
+              className="flex items-center gap-3 p-2 hover:bg-[#e9e9e9] text-gray-500 font-normal text-sm rounded cursor-pointer transition"
               onClick={() => setSidebarOpen(false)} // Close on click
             >
-              <Link to={item.to} className="flex items-center gap-2">
-                <i className={`${item.icon} text-blue-900 text-xl`}></i>
-                <p className="text-black text-base">{item.text}</p>
+              <Link to={item.to} className="flex items-center gap-3">
+                <i className={`${item.icon} text-blue-900 text-[15px]`}></i>
+                <p className="text-black text-[15px] font-medium  font-weight:400 font-remi">{item.text}</p>
               </Link>
             </li>
           ))}
@@ -78,22 +78,3 @@ const SideBar = () => {
 };
 
 export default SideBar;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
