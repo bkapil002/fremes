@@ -35,7 +35,7 @@ const SideBar = () => {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed md:static top-0 left-0 h-full bg-[#f0f2f5] w-60 p-4 z-50 transform transition-transform duration-300 ease-in-out
+        className={`fixed md:static top-0 left-0 h-full bg-[#f0f2f5] w-60 p-4 z-50 md:mt-1 mt-0 transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         {/* Close Button (Mobile) */}
