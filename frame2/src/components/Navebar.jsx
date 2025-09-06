@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { MessageSquare, Bell, Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { TbLogout, TbLogin2 } from "react-icons/tb";
 import Z from "./LOGO.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,6 +10,9 @@ export default function Navebar() {
   const navigate = useNavigate();
 
   const { isAuthenticated, logout, user } = useAuth();
+  const [showPopup, setShowPopup] = useState(false);
+  const [query, setQuery] = useState("");
+  const popupRef = useRef(null);
 
   const handleLogout = async () => {
     try {
@@ -37,10 +39,21 @@ export default function Navebar() {
     }
   };
 
-  const [query, setQuery] = useState("");
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowPopup(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <nav className=" bg-[#ededed] shadow-sm py-[14px]">
+    <nav className=" bg-[#ededed] shadow-sm py-[16px]">
       <div className=" flex justify-center">
         <div className="flex w-[1120px] items-center  justify-between">
           <div className="flex items-center ">
@@ -73,11 +86,7 @@ export default function Navebar() {
               </Link>
             ) : (
               <>
-                <TbLogout
-                  onClick={handleLogout}
-                  size={20}
-                  className="text-gray-800 text-xl cursor-pointer"
-                />
+               
                 <div className="relative">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +100,6 @@ export default function Navebar() {
                       fill="currentColor"
                     ></path>
                   </svg>
-                 
                 </div>
                 <div className="relative">
                   <svg
@@ -106,7 +114,6 @@ export default function Navebar() {
                     <circle cx="15" cy="10" r="2"></circle>
                     <circle cx="9" cy="10" r="2"></circle>
                   </svg>
-                 
                 </div>
                 <div className="relative">
                   <svg
@@ -121,21 +128,54 @@ export default function Navebar() {
                       fill="currentColor"
                     ></path>
                   </svg>
-                  
                 </div>
-                <img
-                  src={
-                    user?.imageUrls[0] ||
-                    "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
-                  }
-                  alt="User"
-                  className="w-[27px] h-[27px] rounded-full object-cover"
-                />
+                <div className="relative" ref={popupRef}>
+                  <img
+                    src={
+                      user?.imageUrls[0] ||
+                      "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
+                    }
+                    alt="User"
+                    className="w-[27px] h-[27px] rounded-full object-cover"
+                    onClick={() => setShowPopup((prev) => !prev)}
+                  />
+                  {showPopup && (
+                    <div className="absolute   -right-5 -mt-[43px] w-[250px] h-[167px]  bg-white  rounded-lg shadow-lg z-50">
+                      <div className="px-2 py-4  border-b  border-gray-200 text-black text-[14px]    font-semibold">
+                        <div className=" flex px-3 -mt-2 py-2 mb-1  items-center  place-content-between bg-[#f5f5f5] hover:bg-[#272974] hover:text-white cursor-pointer rounded-[10px]">
+                        {user?.name || "User"}
+                        <img
+                          src={
+                            user?.imageUrls[0] ||
+                            "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
+                          }
+                          alt="User"
+                          className="w-[27px] h-[27px] rounded-full object-cover"
+                        />
+                        </div>
+                      </div>
+                      <ul>
+                        <li
+                          className="px-4 py-2 hover:bg-[#272974] font-medium text-[15px] text-[#555]  hover:text-white mt-2  cursor-pointer"
+                          onClick={() => navigate("/profile")}
+                        >
+                          Night mode
+                        </li>
+
+                        <li
+                          className="px-4 py-2  cursor-pointer font-medium text-[15px] hover:bg-[#272974] text-[#555]  hover:text-white"
+                          onClick={handleLogout}
+                        >
+                          <i class="ri-logout-box-r-line"></i>
+                          Log Out
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
-
-          {/* Mobile Menu Toggle */}
         </div>
       </div>
     </nav>
