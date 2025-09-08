@@ -337,12 +337,12 @@ const CreateMeeting = () => {
       
       if (deleteType === "this") {
         await axios.delete(
-          `http://localhost:5000/api/agora/delete-room/${selectedRoom.linkId}`,
+          `https://samzraa.onrender.com/api/agora/delete-room/${selectedRoom.linkId}`,
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       } else if (deleteType === "all") {
         await axios.delete(
-          `http://localhost:5000/api/agora/delete-upcoming/${selectedRoom.linkId}`,
+          `https://samzraa.onrender.com/api/agora/delete-upcoming/${selectedRoom.linkId}`,
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       }
