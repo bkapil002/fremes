@@ -13,7 +13,8 @@ import meeting from "./Date-meeting";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -176,6 +177,10 @@ const CreateMeeting = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [upcomingMeetings, setUpcomingMeetings] = useState([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+   const [isLoading, setIsLoading] = useState(false);
+   const [showModal, setShowModal] = useState(false);
+   const [selectedRoom, setSelectedRoom] = useState(null);
+    const [deleteType, setDeleteType] = useState("this");
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -325,6 +330,37 @@ const CreateMeeting = () => {
   };
 
   const [startTime, endTime] = selectedSlot.split(" - ");
+  const handleDeleteConfirm = async () => {
+    if (!selectedRoom) return;
+    setIsLoading(true)
+    try {
+      
+      if (deleteType === "this") {
+        await axios.delete(
+          `http://localhost:5000/api/agora/delete-room/${selectedRoom.linkId}`,
+          { headers: { Authorization: `Bearer ${user.token}` } }
+        );
+      } else if (deleteType === "all") {
+        await axios.delete(
+          `http://localhost:5000/api/agora/delete-upcoming/${selectedRoom.linkId}`,
+          { headers: { Authorization: `Bearer ${user.token}` } }
+        );
+      }
+
+      setUpcomingMeetings((prev) =>
+        prev.filter((room) => room.linkId !== selectedRoom.linkId)
+      );
+      setShowModal(false);
+      setSelectedRoom(null);
+      toast.success("Deleted ")
+      window.location.reload();
+    } catch (err) {
+      toast.error('Meeting is not Deleted')
+      console.error("Error deleting room:", err);
+    }finally{
+      setIsLoading(false)
+    }
+  };
 
   return (
     <div className="w-full min-h-screen p-4 sm:p-6 md:p-6 md:rounded-2xl">
@@ -429,12 +465,23 @@ const CreateMeeting = () => {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid -ml-[16px] w-full h-[60vh] sm:h-[70vh] md:h-[600px] overflow-auto" style={{ gridTemplateColumns: `60px repeat(${daysArr.length}, 1fr)` }} onMouseUp={handleMouseUp}>
+            <div
+              className="grid -ml-[16px] w-full h-[60vh] sm:h-[70vh] md:h-[600px] overflow-auto"
+              style={{
+                gridTemplateColumns: `60px repeat(${daysArr.length}, 1fr)`,
+              }}
+              onMouseUp={handleMouseUp}
+            >
               <div></div>
               {daysArr.map((day, idx) => (
-                <div key={idx} className="flex border-r-[#e3e3e3] border-b-[#cacaca] text-gray-500 flex-col items-center justify-center mb-2 font-medium text-[12px] sm:text-xs min-w-[90px] bg-white sticky top-0 z-10">
+                <div
+                  key={idx}
+                  className="flex border-r-[#e3e3e3] border-b-[#cacaca] text-gray-500 flex-col items-center justify-center mb-2 font-medium text-[12px] sm:text-xs min-w-[90px] bg-white sticky top-0 z-10"
+                >
                   {day.format("ddd")}
-                  <span className="text-[20px] sm:text-[20px] text-gray-700 ">{day.format("D")}</span>
+                  <span className="text-[20px] sm:text-[20px] text-gray-700 ">
+                    {day.format("D")}
+                  </span>
                 </div>
               ))}
 
@@ -444,19 +491,145 @@ const CreateMeeting = () => {
 
                 return (
                   <React.Fragment key={i}>
-                    <div className="sticky left-0 z-10 md:mr-1 bg-white h-10 text-[10px] sm:text-xs text-gray-500 flex items-start justify-end pr-2 sm:pr-4 border-gray-300">{formatHour(slotStart)}</div>
+                    <div className="sticky left-0 z-10 md:mr-1 bg-white h-10 text-[10px] sm:text-xs text-gray-500 flex items-start justify-end pr-2 sm:pr-4 border-gray-300">
+                      {formatHour(slotStart)}
+                    </div>
                     {daysArr.map((day, j) => {
-                      const isDragging = dragging && dragging.day.isSame(day, "day") && i >= Math.min(dragging.startHour, dragging.endHour) && i <= Math.max(dragging.startHour, dragging.endHour);
-                      const isSelectedTime = day.isSame(dayjs(startDate), "day") && hours === selectedHour;
+                      const isDragging =
+                        dragging &&
+                        dragging.day.isSame(day, "day") &&
+                        i >= Math.min(dragging.startHour, dragging.endHour) &&
+                        i <= Math.max(dragging.startHour, dragging.endHour);
+                      const isSelectedTime =
+                        day.isSame(dayjs(startDate), "day") &&
+                        hours === selectedHour;
                       const meeting = getMeetingForSlot(day, slot);
 
                       return (
-                        <div key={`${i}-${j}`} className={`relative border-b border-r   border-r-gray-300 border-b-gray-400 h-10 cursor-pointer min-w-[100px] sm:min-w-[110px] ${isDragging ? "bg-blue-200" : isSelectedTime ? "bg-gray-300 animate-pulse rounded-[6px]" : meeting ? "bg-green-100 border-green-300" : "hover:bg-blue-50"}`} onMouseDown={() => handleMouseDown(day, i)} onMouseEnter={() => handleMouseEnter(day, i)} onClick={() => { setStartDate(day.toDate()); setSelectedSlot(slot); }} title={meeting ? `Meeting: ${meeting.meetingType}` : ""}>
+                        <div
+                          key={`${i}-${j}`}
+                          className={`relative border-b border-r border-r-gray-300 border-b-gray-400 h-10 cursor-pointer min-w-[100px] sm:min-w-[110px] 
+                               ${
+                                 isDragging
+                                   ? "bg-blue-200"
+                                   : isSelectedTime
+                                   ? "bg-gray-300 animate-pulse rounded-[6px]"
+                                   : meeting
+                                   ? "bg-green-100 border-green-300"
+                                   : "hover:bg-blue-50"
+                               } 
+                               group`}
+                          onMouseDown={() => handleMouseDown(day, i)}
+                          onMouseEnter={() => handleMouseEnter(day, i)}
+                          onClick={() => {
+                            setStartDate(day.toDate());
+                            setSelectedSlot(slot);
+                          }}
+                          title=""
+                        >
                           {meeting && (
                             <div className="absolute inset-0 overflow-hidden">
-                              <div className="bg-[#178a43] hover:bg-[#000080] hover: flex flex-col   text-white  w-full h-full rounded p-1 truncate">
-                                <span className="truncate text-[11px] ">{meeting.meetingType.length > 16 ? meeting.meetingType.substring(0, 15) + "..." : meeting.meetingType}</span>
-                                <span className="truncate text-[11px]">{meeting.meetingTime.length > 17 ? meeting.meetingTime.substring(0, 18) + "" : meeting.meetingTime}</span>
+                              <div className="bg-[#178a43] hover:bg-[#000080] flex flex-col text-white w-full h-full  p-1 truncate">
+                                <span className="truncate text-[11px]">
+                                  {meeting.meetingType.length > 16
+                                    ? meeting.meetingType.substring(0, 15) +
+                                      "..."
+                                    : meeting.meetingType}
+                                </span>
+                                <span className="truncate text-[11px]">
+                                  {meeting.meetingTime.length > 17
+                                    ? meeting.meetingTime.substring(0, 18)
+                                    : meeting.meetingTime}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Hover Card */}
+                          {meeting && (
+                            <div
+                              className={`absolute top-full  w-48 bg-gray-100 shadow-lg rounded-lg p-3 z-50 
+                                      opacity-0 group-hover:opacity-100 transition-opacity duration-200 
+                                       pointer-events-none group-hover:pointer-events-auto 
+                                   ${j === daysArr.length - 1 ? "right-0" : "left-0"}`}
+                            >
+                              <h4 className="text-sm font-semibold text-gray-800">
+                                {meeting.meetingType}
+                              </h4>
+                              <p className="text-xs text-gray-600 mb-2">
+                                {meeting.meetingTime}
+                              </p>
+
+                              <div className="flex gap-2">
+                                <Link
+                                  to={`/room/${meeting.linkId}`}
+                                  className="flex-1 bg-gradient-to-r  bg-[#178a43]  hover:bg-[#000080]  text-white px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 hover:shadow-md transform hover:scale-105 active:scale-95"
+                                >
+                                  Join Meeting
+                                </Link>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => {
+                                      if (navigator.share) {
+                                        navigator
+                                          .share({
+                                            title: "Join My Meeting",
+                                            text: `Join this meeting: ${
+                                              meeting.meetingType
+                                            } on ${new Date(
+                                              meeting.meetingDate
+                                            ).toLocaleDateString()}`,
+                                            url: `${window.location.origin}/room/${meeting.linkId}`,
+                                          })
+                                          .catch((err) =>
+                                            console.log("Share cancelled", err)
+                                          );
+                                      } else {
+                                        alert(
+                                          "Sharing is not supported on this browser."
+                                        );
+                                      }
+                                    }}
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg text-xs transition-all duration-200 hover:shadow-sm transform hover:scale-105 active:scale-95"
+                                    title="Share meeting"
+                                  >
+                                    <svg
+                                      className="w-3 h-3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                                      />
+                                    </svg>
+                                  </button>
+                                  <button
+                                     onClick={() => {
+                                       setSelectedRoom(meeting);
+                                       setShowModal(true);
+                                        }}
+                                    className="bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 p-2 rounded-lg text-xs transition-all duration-200 hover:shadow-sm transform hover:scale-105 active:scale-95"
+                                    title="Delete meeting"
+                                  >
+                                    <svg
+                                      className="w-3 h-3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           )}
@@ -475,6 +648,50 @@ const CreateMeeting = () => {
           <Upcomming />
         </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-500/60 flex items-center justify-center z-50">
+          <div className="bg-gray-100 rounded-lg shadow-lg w-80 p-5">
+            <h3 className="text-lg font-semibold mb-4">
+              Delete recurring event
+            </h3>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="delete"
+                  checked={deleteType === "this"}
+                  onChange={() => setDeleteType("this")}
+                />
+                <span>This event</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="delete"
+                  checked={deleteType === "all"}
+                  onChange={() => setDeleteType("all")}
+                />
+                <span>All events</span>
+              </label>
+            </div>
+            <div className="flex justify-end gap-4 mt-5">
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-[#2A2A72] text-sm cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={isLoading}
+                className="bg-[#178a43] hover:bg-[#2A2A72] text-sm text-white px-4 py-1 rounded"
+              >
+                {isLoading ? "Wait.." : "OK"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
