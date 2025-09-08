@@ -48,11 +48,12 @@ function App() {
             </div>
 
             {/* Footer always at bottom */} 
-            <Footer />
+            
           </div>
            <Toaster  position="top-center" reverseOrder={false} />
            </div>
         </div>
+        <Footer />
       </Router>
     </AuthProvider>
   )
