@@ -5,6 +5,8 @@ const ReadVideo = ({
   handleRemovePromotedUser,
   handleResetOwnRequest,
   setCalling,
+  meetingDescription,
+  meetingtopic
 }) => {
   const videoRef = useRef(null);
   const [micOn, setMicOn] = useState(true);
@@ -111,19 +113,22 @@ const ReadVideo = ({
         </div>
 
         {/* Join Section */}
-        <div className="flex flex-col justify-center items-center w-full md:w-1/2 lg:w-1/3 text-center p-4 bg-gray-50">
-          <p className="text-lg md:text-xl lg:text-2xl font-bold text-[#f89939] mb-4">
-            Ready to join
+        <div className="flex flex-col  justify-center items-center w-full md:w-1/2 lg:w-1/3 text-center p-4 bg-gray-50">
+        <p className="text-[30px] md:text-[30px] lg:text-[30px] font-bold text-[#f89939] mb-3 line-clamp-1" >{meetingtopic}</p>
+        <p  className=" text-gray-600 ">{meetingDescription}</p>
+          <p className="text-lg md:text-xl lg:text-2xl mt-4 font-bold text-[#f89939] mb-4">
+            Ready to 
+            <span className="loading-dots ml-2"></span>
           </p>
           <button
             onClick={async () => {
-              setIsLoading(true); // Start loading
+              setIsLoading(true); 
               try {
                 await handleRemovePromotedUser();
                 await handleResetOwnRequest();
                 setCalling(true);
               } finally {
-                setIsLoading(false); // Stop loading
+                setIsLoading(false);
               }
             }}
             disabled={isLoading}
@@ -146,7 +151,7 @@ const ReadVideo = ({
                     d="M4 12a8 8 0 018-8v8z"
                   ></path>
                 </svg>
-                <span>Join...</span>
+                <span>Joing...</span>
               </div>
             ) : (
               "Join "

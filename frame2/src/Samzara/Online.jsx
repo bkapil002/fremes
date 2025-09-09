@@ -14,9 +14,9 @@ const Online = ({ meetingTime, meetingtopic }) => {
   return (
     <div className="-mt-2">
       <div className=" p-4 space-y-2">
-        <div className="bg-white rounded-md shadow-sm p-2 md:p-4 flex items-center justify-center space-x-2">
-          <FaCircle className="text-green-600 text-xs" />
-          <span className="md:text-lg text-sm font-medium text-[#2A2A72]">
+        <div className="bg-white rounded-md shadow-sm p-2 md:p-3 flex items-center justify-center space-x-2">
+          <FaCircle className="text-green-600 text-[9px] md:text-xs" />
+          <span className="md:text-[25px] text-sm font-semibold text-[#2A2A72]">
             Live Online Meetings
           </span>
         </div>
@@ -48,19 +48,19 @@ const Online = ({ meetingTime, meetingtopic }) => {
               </div>
               <div className="mt-1 text-sm">
                 <span className="md:text-sm text-xs">Meeting Topic:</span>{" "}
-                <span className="font-semibold">{meetingtopic}</span>
+                <span className="font-semibold md:text-sm text-xs">{meetingtopic}</span>
               </div>
             </div>
 
             {/* Right Side */}
             <div className="text-center -mt-2 md:mt-0 md:text-right md:text-sm text-xs">
-              <span className="font-semibold">Current Time:</span>{" "}
+              <span className="font-semibold md:text-sm text-xsmd:text-sm text-xs">Current Time:</span>{" "}
               <span className="text-red-600 font-semibold">
                 {getCurrentTimeCustom()}
               </span>
               <div>
                 <button
-                  className="text-gray-600 hover:underline text-xs"
+                  className="text-gray-600 hover:underline md:text-sm text-xs cursor-pointer"
                   onClick={() => navigate("/")}
                 >
                   Back to Home

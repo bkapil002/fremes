@@ -164,6 +164,7 @@ const CreateMeeting = () => {
 
   const { user } = useAuth();
   const [title, setTitle] = useState("");
+   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [repeat, setRepeat] = useState("Does not repeat");
   const [isOpen, setIsOpen] = useState(false);
@@ -267,6 +268,7 @@ const CreateMeeting = () => {
 
   const handleSave = async () => {
     if (!title) return alert("Please enter a meeting title");
+     if (!description) return toast.error("Please enter a meeting Description");
 
     const localDate = dayjs(startDate).hour(parseTime(selectedSlot).hours).minute(parseTime(selectedSlot).minutes).second(0);
     const istDate = localDate.tz("Asia/Kolkata").format();
@@ -279,6 +281,7 @@ const CreateMeeting = () => {
           meetingDate: istDate,
           meetingTime: selectedSlot,
           meetingRepeat: repeat,
+          meetingDescription: description,
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -365,81 +368,313 @@ const CreateMeeting = () => {
   return (
     <div className="w-full min-h-screen p-4 sm:p-6 md:p-6 md:rounded-2xl">
       {/* Create Meeting Section */}
-      <div className="bg-white w-full rounded-2xl shadow-sm -mt-2.5  p-4 sm:p-6 mb-6">
-        <div className="flex w-full sm:flex-row gap-4 items-start sm:items-center">
-          <button onClick={() => setTitle("")} className="text-gray-600 hover:text-gray-800 transition-colors"><X size={24} /></button>
+       <div className="bg-white flex -mt-2 flex-col lg:flex-row w-full rounded-xl shadow-sm p-6 sm:p-8 mb-6 gap-8">
+        {/* Left Section - Form Inputs */}
+        <div className="flex flex-col gap-6 lg:w-1/2">
+          <div className="space-y-6">
+            {/* Meeting Title Section */}
+            <div className="relative group">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Meeting Title
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={title}
+                  onChange={handleChange}
+                  className="border-b-2 border-gray-300 w-full text-gray-800 text-base sm:text-lg lg:text-xl outline-none focus:border-[#2A2A72] transition-colors pb-3 bg-transparent hover:border-gray-400"
+                  placeholder="Enter meeting title..."
+                />
+                {title && (
+                  <button
+                    type="button"
+                    onClick={() => setTitle("")}
+                    className="absolute cursor-pointer right-0 bottom-2 text-gray-400 hover:text-gray-600 transition"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
 
-          <div className="flex gap-3 sm:gap-3 items-start sm:items-center">
-            <div className="relative w-full sm:w-72 lg:w-96">
-              <input type="text" value={title} onChange={handleChange} className="border-b-2 border-gray-300 w-full text-gray-800 text-base sm:text-lg lg:text-xl outline-none focus:border-[#2A2A72] transition-colors pb-2" placeholder="Meeting title" />
+                {filteredSuggestions.length > 0 && (
+                  <ul className="absolute left-0 top-full mt-2 w-full max-h-48 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg z-50 backdrop-blur-sm">
+                    {filteredSuggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        onClick={() => handleSelect(suggestion)}
+                        className="px-4 py-3 cursor-pointer hover:bg-blue-50 text-gray-800 text-sm sm:text-base transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
+                      >
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
 
-              {filteredSuggestions.length > 0 && (
-                <ul className="absolute left-0 top-full mt-1 w-full max-h-48 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-md z-50">
-                  {filteredSuggestions.map((suggestion, index) => (
-                    <li key={index} onClick={() => handleSelect(suggestion)} className="px-3 py-2 cursor-pointer hover:bg-blue-100 text-gray-800 text-sm sm:text-base">{suggestion}</li>
-                  ))}
-                </ul>
+            {/* Meeting Description Section */}
+            <div className="relative group">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <div className="relative">
+                <textarea
+                  rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  maxLength={150}
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-800 text-base sm:text-lg outline-none focus:border-[#2A2A72] transition-all duration-200 resize-none hover:border-gray-300 shadow-sm focus:shadow-md"
+                  placeholder="Add meeting description..."
+                />
+                <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+                  {150 - description.length}
+                </div>
+              </div>
+            </div>
+
+            {/* Save Button */}
+          </div>
+        </div>
+
+        {/* Right Section - Date/Time/Repeat */}
+        <div className="flex flex-col gap-6 lg:w-1/2">
+          <div className=" rounded-xl space-y-4">
+            <div className="relative" ref={datePickerRef}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <svg
+                  className="w-4 h-4 inline mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Date
+              </label>
+              <button
+                onClick={() => setShowDatePicker((s) => !s)}
+                className="w-full rounded-lg bg-white border-1 border-gray-200 text-[#3C3C3C] hover:border-gray-300 focus:border-[#2A2A72] px-4 py-3 md:text-sm text-xs transition-all duration-200 outline-none shadow-sm hover:shadow-md flex items-center justify-between"
+              >
+                <span className="font-medium">
+                  {startDate.toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {showDatePicker && (
+                <SimpleDatePicker
+                  selectedDate={startDate}
+                  onDateChange={setStartDate}
+                  minDate={new Date()}
+                  onClose={() => setShowDatePicker(false)}
+                />
               )}
             </div>
 
-            <button onClick={handleSave} disabled={loading} className="bg-[#178a43] cursor-pointer hover:bg-[#000080] text-white text-sm sm:text-base px-5 sm:px-6 py-2 rounded-[8px] transition-colors sm:w-auto">
-              {loading ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </div>
+            {/* Time Section - Start Time and End Time */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                <svg
+                  className="w-4 h-4 inline mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Time
+              </label>
 
-        <div className="flex flex-col md:flex-row flex-wrap gap-3 sm:gap-2 mt-6 items-start md:items-center">
-          <div className="relative w-full md:w-34" ref={datePickerRef}>
-            <button onClick={() => setShowDatePicker((s) => !s)} className="w-full rounded-lg bg-gray-100 border text-[#3C3C3C] border-gray-200 px-3 py-2 md:text-sm text-xs transition-all outline-none">
-             {startDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-            </button>
+              <div className="grid grid-cols-2 gap-3" ref={timeRef}>
+                {/* Start Time */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsTimeOpen(!isTimeOpen)}
+                    className="w-full rounded-lg bg-white border-1 border-gray-200 hover:border-gray-300 focus:border-[#2A2A72] px-3 py-2.5 text-xs sm:text-sm text-gray-700 transition-all duration-200 outline-none shadow-sm hover:shadow-md flex items-center justify-between"
+                  >
+                    <span className="font-medium">{startTime}</span>
+                    {isTimeOpen ? (
+                      <svg
+                        className="w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 15l7-7 7 7"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    )}
+                  </button>
 
-            {showDatePicker && (
-              <SimpleDatePicker selectedDate={startDate} onDateChange={setStartDate} minDate={new Date()} onClose={() => setShowDatePicker(false)} />
-            )}
-          </div>
+                  {isTimeOpen && (
+                    <div className="absolute top-full mt-2 w-full max-h-40 overflow-y-auto bg-white border-1 border-gray-200 rounded-lg shadow-lg z-20">
+                      {availableTimeSlots.map((slot) => {
+                        const [s, e] = slot.split(" - ");
+                        return (
+                          <button
+                            key={slot}
+                            onClick={() => {
+                              setSelectedSlot(slot);
+                              setIsTimeOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
+                          >
+                            <span className="font-medium">{s}</span>
+                            <span className="text-gray-500 mx-2">to</span>
+                            <span className="text-gray-500">{e}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
 
-          {/* Start Time */}
-          <div className="relative flex w-full sm:w-70 justify-center items-center gap-2 " ref={timeRef}>
-            <button onClick={() => setIsTimeOpen(!isTimeOpen)} className="flex items-center justify-between w-full md:w-36 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50">
-              {startTime}
-              {isTimeOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {isTimeOpen && (
-              <div className="absolute mt-50 w-full max-h-40 overflow-y-auto bg-gray-100 border border-gray-200 rounded-lg shadow-lg z-20">
-                {availableTimeSlots.map((slot) => {
-                  const [s, e] = slot.split(" - ");
-                  return (
-                    <button key={slot} onClick={() => { setSelectedSlot(slot); setIsTimeOpen(false); }} className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                      <span className="pr-1">{s}</span> {" to "}<span className="text-gray-500 pl-1">{e}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            <span className="hidden sm:block text-gray-500 text-sm">to</span>
-            <div className="w-full sm:w-40 rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-xs md:w-36 sm:text-sm text-gray-700">{endTime}</div>
-          </div>
-        </div>
-
-        {/* Repeat Dropdown */}
-        <div className="mt-4 relative sm:w-60" ref={repeatRef}>
-          <button onClick={() => setIsOpen(!isOpen)} className="flex items-center md:text-sm text-xs justify-between w-full md:min-w-[259px] rounded-lg bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors py-2 px-3  sm:text-sm">
-            {getRepeatLabel(repeat, startDate)}
-            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
-
-          {isOpen && (
-            <div className="absolute w-full mt-1 rounded-lg shadow-lg bg-gray-100 border border-gray-200 focus:outline-none z-20">
-              <div className="py-1">
-                {["Does not repeat", "Daily", "Weekly", "Monthly"].map((option) => (
-                  <button key={option} onClick={() => { setRepeat(option); setIsOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors md:text-sm text-xs text-gray-700">{getRepeatLabel(option, startDate)}</button>
-                ))}
+                {/* End Time */}
+                <div>
+                  <div className="w-full rounded-lg bg-gray-50 border-1 border-gray-200 px-3 py-2.5 text-xs sm:text-sm text-gray-600">
+                    <span className="font-medium">{endTime}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
+
+            {/* Repeat Dropdown */}
+            <div className="relative" ref={repeatRef}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <svg
+                  className="w-4 h-4 inline mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Repeat
+              </label>
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full rounded-lg bg-white border-1 border-gray-200 hover:border-gray-300 focus:border-[#2A2A72] text-gray-700 transition-all duration-200 py-3 px-4 text-sm outline-none shadow-sm hover:shadow-md flex items-center justify-between"
+              >
+                <span className="font-medium">
+                  {getRepeatLabel(repeat, startDate)}
+                </span>
+                {isOpen ? (
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 15l7-7 7 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                )}
+              </button>
+
+              {isOpen && (
+                <div className="absolute w-full mt-2 rounded-lg shadow-lg bg-white border-2 border-gray-200 focus:outline-none z-20">
+                  <div className="py-1">
+                    {["Does not repeat", "Daily", "Weekly", "Monthly"].map(
+                      (option) => (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setRepeat(option);
+                            setIsOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-150 text-sm text-gray-700 first:rounded-t-lg last:rounded-b-lg"
+                        >
+                          {getRepeatLabel(option, startDate)}
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="">
+              <button
+                onClick={handleSave}
+                disabled={loading}
+                className="bg-[#178a43] hover:bg-[#000080] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-8 py-3 rounded-lg transition-all duration-200 w-full  flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>Save Meeting</>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -548,11 +783,15 @@ const CreateMeeting = () => {
                           {/* Hover Card */}
                           {meeting && (
                             <div
-                              className={`absolute top-full  w-48 bg-gray-100 shadow-lg rounded-lg p-3 z-50 
-                                      opacity-0 group-hover:opacity-100 transition-opacity duration-200 
-                                       pointer-events-none group-hover:pointer-events-auto 
-                                   ${j === daysArr.length - 1 ? "right-0" : "left-0"}`}
-                            >
+                              className={`absolute ${
+                                i >= 13
+                                  ? "bottom-full "
+                                  : "top-full "
+                              } w-48 bg-gray-100 shadow-lg rounded-lg p-3 z-50 
+                                 opacity-0 group-hover:opacity-100 transition-opacity duration-200 
+                                 pointer-events-none group-hover:pointer-events-auto 
+                                ${j === daysArr.length - 1 ? "right-0" : "left-0"}`}
+                              >
                               <h4 className="text-sm font-semibold text-gray-800">
                                 {meeting.meetingType}
                               </h4>

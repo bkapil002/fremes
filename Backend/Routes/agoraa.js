@@ -93,9 +93,9 @@ router.post('/create-room', auth, async (req, res) => {
       return res.status(400).json({ error: 'Missing environment variables' });
     }
 
-    const { meetingType, meetingDate, meetingTime, meetingRepeat } = req.body;
+    const { meetingType, meetingDate, meetingTime, meetingRepeat,meetingDescription } = req.body;
 
-    if (!meetingType || !meetingDate || !meetingTime) {
+    if (!meetingType || !meetingDate || !meetingTime || !meetingDescription) {
       return res.status(400).json({ error: 'Meeting type, date, and time are required' });
     }
 
@@ -167,6 +167,7 @@ router.post('/create-room', auth, async (req, res) => {
         meetingType,
         meetingDate: dateToUse.toDate(),
         meetingTime,
+        meetingDescription,
         meetingRepeat,
         recurrence
       });
@@ -383,6 +384,7 @@ router.put('/join-room/:linkId', auth, async (req, res) => {
         meetingType:agora.meetingType,
         meetingDate:agora.meetingDate,
         meetingTime:agora.meetingTime,
+        meetingDescription:agora.meetingDescription,
         user: {
           _id: agora.user._id,
           email: agora.user.email,
