@@ -55,6 +55,7 @@ const Basics = () => {
   const [promoteLoading, setPromoteLoading] = useState(false);
   const [meetingTime, setMeetingTime] = useState("");
   const [meetingtopic, setMeetingtopic] = useState("");
+  const [meetingDescription, setMeetingDescription] = useState("")
   const [adminName, setAdminName] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -340,6 +341,7 @@ useEffect(() => {
         setAdminImage(data.agora.user.imageUrls);
         setMeetingTime(data.agora.meetingTime);
         setMeetingtopic(data.agora.meetingType);
+        setMeetingDescription(data.agora.meetingDescription)
         setAdminName(data.agora.user.name);
       } catch (error) {
         console.error("Error fetching room details:", error);
@@ -486,6 +488,8 @@ useEffect(() => {
               handleRemovePromotedUser={handleRemovePromotedUser}
               handleResetOwnRequest={handleResetOwnRequest}
               setCalling={setCalling}
+              meetingDescription={meetingDescription}
+              meetingtopic={meetingtopic}
             />
           </div>
         ) : (
