@@ -755,18 +755,20 @@ useEffect(() => {
                 </div>
               </div>
               {/* Right sidebar */}
-              <div className="w-full lg:w-1/5 bg-white shadow rounded-lg">
+              <div className="w-full lg:w-1/5 bottom-1 bg-white shadow rounded-lg flex flex-col">
                 <div className="bg-[#F86925] text-white text-center py-2 font-semibold rounded-t-lg text-sm sm:text-xs">
                   People Requesting to Share
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-1 p-2">
+                <div
+                  className="justify-center flex flex-wrap gap-1 p-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 "
+                  style={{ maxHeight: "350px" }} 
+                >
                   {isRequesting && promotedUid !== email && (
                     <div className="relative w-18 h-18 sm:w-19 sm:h-19 rounded-[4px] overflow-hidden bg-black flex items-center justify-center">
                       <LocalUser
                         audioTrack={localMicrophoneTrack}
                         cameraOn={cameraOn}
-                        micOn={micOn}
                         playAudio={false}
                         videoTrack={localCameraTrack}
                         style={{ width: "100%", height: "100%" }}
@@ -786,7 +788,7 @@ useEffect(() => {
                         {isAdmin && (
                           <button
                             onClick={() => handleResetOwnRequest(u.uid)}
-                            className="absolute -top-1 -right- z-10 text-[10px] bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                            className="absolute   z-10 text-[10px] bg-red-600 hover:bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center"
                             title="Remove request"
                           >
                             X
@@ -794,7 +796,7 @@ useEffect(() => {
                         )}
 
                         <div
-                          className={`w-18 h-18 sm:w-19 sm:h-19  rounded-[4px] overflow-hidden bg-black flex items-center justify-center ${
+                          className={`w-18 h-18 sm:w-19 sm:h-19 rounded-[4px] overflow-hidden bg-black flex items-center justify-center ${
                             isAdmin
                               ? "cursor-pointer hover:ring-2 hover:ring-[#F86925]"
                               : ""
