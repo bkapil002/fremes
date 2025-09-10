@@ -68,6 +68,20 @@ const Upcomming = () => {
     }
   };
 
+    const getMeetingEndDateTime = (meetingDate, meetingTime) => {
+    try {
+      const [startStr, endStr] = meetingTime.split(" - ");
+
+      const dateStr = new Date(meetingDate).toISOString().split("T")[0];
+      const endDateTime = new Date(`${dateStr} ${endStr}`);
+
+      return endDateTime;
+    } catch (e) {
+      console.error("Time parse error:", e);
+      return null;
+    }
+  };
+
   return (
     <div className="flex p-2 flex-col w-full items-center space-y-4">
       <h2 className="text-xl md:text-2xl -mt-5 font-bold text-center text-[#2A2A72]">
@@ -93,7 +107,16 @@ const Upcomming = () => {
       ) : (
         <div className="w-full  ">
           {rooms.length > 0 ? (
-            rooms.slice(0, 5).map((room) => (
+            rooms
+              .filter((room) => {
+                const endTime = getMeetingEndDateTime(
+                  room.meetingDate,
+                  room.meetingTime
+                );
+                return endTime && endTime > new Date(); 
+              })
+              .slice(0, 5)
+              .map((room) => (
               <div
                 key={room._id}
                 className="bg-gray-100 overflow-hidden shadow-2xl rounded-xl p-2 w-full md:w-full mt-2 "
