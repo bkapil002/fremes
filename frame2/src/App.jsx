@@ -12,6 +12,7 @@ import CreateMeeting from "./Samzara/CreateMetting";
 import AttendanceRequests from "./pages/AttendanceRequests";
 import Footer from "./components/Footer";
 import { Toaster } from 'react-hot-toast';
+import ProtectedRoute from "./context/ProtectedRoute";
 
 function App() {
 
@@ -23,7 +24,7 @@ function App() {
         <Navebar />
         <div className="h-screen w-full  justify-center flex overflow-hidden">
           <div className=" flex w-320 overflow-hidden">
-          <div >
+          <div className="">
             <SideBar />
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
@@ -37,13 +38,15 @@ function App() {
             {/* Page Content */}
             <div className="flex-1">
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/join" element={<CreateMeeting />} />
-                <Route path="/room/:linkId" element={<Frame />} />
-                <Route path="/mleetingList" element={<MeetingList />} />
                 <Route path="/signin" element={<SignIn />} />
+                {/* <Route path="/signin" element={<Navigate to="https://community.samzara.in/" replace />} /> */}
                 <Route path="/signup" element={<SignUp />} />
-                <Route path="/attendance" element={<AttendanceRequests />} />
+
+                  <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                  <Route path="/join" element={<ProtectedRoute><CreateMeeting /></ProtectedRoute>} />
+                  <Route path="/room/:linkId" element={<ProtectedRoute><Frame /></ProtectedRoute>} />
+                  <Route path="/mleetingList" element={<ProtectedRoute><MeetingList /></ProtectedRoute>} />
+                  <Route path="/attendance" element={<ProtectedRoute><AttendanceRequests /></ProtectedRoute>} />
               </Routes>
             </div>
 
@@ -51,7 +54,9 @@ function App() {
             
           </div>
            <Toaster  position="top-center" reverseOrder={false} />
+           
            </div>
+           
         </div>
         <Footer />
       </Router>
