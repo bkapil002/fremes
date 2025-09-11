@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Mic, MicOff, Video, VideoOff ,X} from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, X } from "lucide-react";
 
 const ReadVideo = ({
   handleRemovePromotedUser,
   handleResetOwnRequest,
   setCalling,
   meetingDescription,
-  meetingtopic
+  meetingtopic,
 }) => {
   const videoRef = useRef(null);
   const [micOn, setMicOn] = useState(true);
@@ -64,105 +64,130 @@ const ReadVideo = ({
       return;
     }
     if (stream && stream.getVideoTracks().length > 0) {
-      stream.getVideoTracks().forEach(
-        (track) => (track.enabled = !track.enabled)
-      );
+      stream
+        .getVideoTracks()
+        .forEach((track) => (track.enabled = !track.enabled));
       setCameraOn(!cameraOn);
     }
   };
 
   return (
-    <div className="flex w-full justify-center h-screen items-center px-4">
-      <div className="flex flex-col md:flex-row w-full max-w-4xl shadow-lg rounded-xl overflow-hidden">
-        {/* Video Section */}
-        <div className="relative w-full md:w-1/2 lg:w-2/3 bg-black">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-64 md:h-[300px] lg:h-[350px] object-cover"
-          />
-          <div className="absolute bottom-3 right-3 flex space-x-3">
-            {/* Mic Button */}
-            <button
-              onClick={toggleMic}
-              className="bg-gray-800 p-3 rounded-full hover:bg-gray-700"
-              title={micOn ? "Mute Mic" : "Unmute Mic"}
-            >
-              {micOn ? (
-                <Mic className="text-white" size={22} />
-              ) : (
-                <MicOff className="text-white" size={22} />
-              )}
-            </button>
-
-            {/* Camera Button */}
-            <button
-              onClick={toggleCamera}
-              className="bg-gray-800 p-3 rounded-full hover:bg-gray-700"
-              title={cameraOn ? "Turn Off Camera" : "Turn On Camera"}
-            >
-              {cameraOn ? (
-                <Video className="text-white" size={22} />
-              ) : (
-                <VideoOff className="text-white" size={22} />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Join Section */}
-        <div className="flex flex-col  justify-center items-center w-full md:w-1/2 lg:w-1/3 text-center p-4 bg-gray-50">
-        <p className="text-[30px] md:text-[30px] lg:text-[30px] font-bold text-[#f89939] mb-3 line-clamp-1" >{meetingtopic}</p>
-        <p  className=" text-gray-600 ">{meetingDescription}</p>
-          <p className="text-lg md:text-xl lg:text-2xl mt-4 font-bold text-[#f89939] mb-4">
-            Ready to 
-            <span className="loading-dots ml-2"></span>
+    <>
+      {/* Meeting Header */}
+      <div className="text-center -mt-30  mb-6 px-4">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#f89939] mb-3 leading-tight">
+          {meetingtopic}
+        </h1>
+        {meetingDescription && (
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+            {meetingDescription}
           </p>
-          <button
-            onClick={async () => {
-              setIsLoading(true); 
-              try {
-                await handleRemovePromotedUser();
-                await handleResetOwnRequest();
-                setCalling(true);
-              } finally {
-                setIsLoading(false);
-              }
-            }}
-            disabled={isLoading}
-            className="bg-[#178a43] cursor-pointer hover:bg-[#000080]  text-white px-5 py-3 rounded-[8px] font-semibold mb-4 w-full md:w-3/4"
-          >
-            {isLoading ? (
-              <div className="flex items-center  justify-center space-x-2">
-                <svg className="animate-spin h-5 w-5 text-white"xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  ></path>
-                </svg>
-                <span>Joing...</span>
-              </div>
-            ) : (
-              "Join "
-            )}
-          </button>
+        )}
+      </div>
+
+      {/* Main Section */}
+      <div className="flex w-full justify-center items-center px-4 pb-10">
+        <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
+          {/* Video Section */}
+          <div className="relative w-full md:w-2/3 bg-black">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-64 md:h-[340px] lg:h-[400px] object-cover"
+            />
+            <div className="absolute bottom-4 right-4 flex space-x-3">
+              {/* Mic Button */}
+              <button
+                onClick={toggleMic}
+                className="bg-gray-800 p-3 rounded-full shadow-md hover:bg-gray-700 transition"
+                title={micOn ? "Mute Mic" : "Unmute Mic"}
+              >
+                {micOn ? (
+                  <Mic className="text-white" size={22} />
+                ) : (
+                  <MicOff className="text-white" size={22} />
+                )}
+              </button>
+
+              {/* Camera Button */}
+              <button
+                onClick={toggleCamera}
+                className="bg-gray-800 p-3 rounded-full shadow-md hover:bg-gray-700 transition"
+                title={cameraOn ? "Turn Off Camera" : "Turn On Camera"}
+              >
+                {cameraOn ? (
+                  <Video className="text-white" size={22} />
+                ) : (
+                  <VideoOff className="text-white" size={22} />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Join Section */}
+          <div className="flex flex-col justify-center items-center w-full md:w-1/3 text-center p-8 bg-gray-50 border-l border-gray-200">
+            {/* Title */}
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold text-[#f89939] mb-8 tracking-wide">
+              Ready to <span className="loading-dots -ml-2"></span>
+            </p>
+
+            {/* Join Button */}
+            <button
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  await handleRemovePromotedUser();
+                  await handleResetOwnRequest();
+                  setCalling(true);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              disabled={isLoading}
+              className="relative bg-[#178a43] hover:bg-[#000080] transition-all duration-300 text-white px-8 py-3 rounded-xl font-semibold w-full md:w-4/5 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    ></path>
+                  </svg>
+                  <span className="font-medium">Joining...</span>
+                </div>
+              ) : (
+                "Join Now"
+              )}
+            </button>
+
+            {/* Small note */}
+            <p className="mt-5 text-sm text-gray-500">
+              Make sure your camera & mic are working before joining
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Permission Error */}
+      {/* Permission Error Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-500/60 bg-opacity-50 flex justify-center items-center z-50 px-4">
+        <div className="fixed inset-0 bg-gray-500/60 flex justify-center items-center z-50 px-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg relative">
             <button
               onClick={() => setShowModal(false)}
@@ -170,11 +195,11 @@ const ReadVideo = ({
             >
               <X size={20} />
             </button>
-            <h2 className="text-xl font-bold mb-4">Permission Blocked</h2>
-            <p className="text-gray-700 mb-4">
+            <h2 className="text-xl font-bold mb-3">Permission Blocked</h2>
+            <p className="text-gray-700 mb-4 text-sm">
               To enable your camera or microphone:
             </p>
-            <ol className="list-decimal pl-5 text-gray-600 text-sm space-y-2">
+            <ol className="list-decimal pl-5 text-gray-600 text-sm space-y-1">
               <li>Click the lock icon in your browser's address bar.</li>
               <li>
                 Go to <b>Site Settings</b> or <b>Permissions</b>.
@@ -186,14 +211,14 @@ const ReadVideo = ({
             </ol>
             <button
               onClick={() => setShowModal(false)}
-              className="mt-4 bg-[#178a43] hover:bg-[#000080] cursor-pointer text-white px-4 py-2 rounded-[8px] w-full"
+              className="mt-5 bg-[#178a43] hover:bg-[#000080] transition text-white px-4 py-2 rounded-lg w-full"
             >
               Retry
             </button>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

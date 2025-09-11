@@ -53,7 +53,7 @@ const Online = ({ meetingTime, meetingtopic }) => {
                 {meetingtopic}
               </div>
               <div className="text-red-600 md:text-sm text-xs ">
-                From :<span className=" font-semibold">({meetingTime})</span>
+                From :<span className=" font-semibold">{meetingTime}</span>
               </div>
             </div>
 
