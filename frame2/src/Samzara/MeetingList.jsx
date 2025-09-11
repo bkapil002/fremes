@@ -323,7 +323,7 @@ const MeetingList = () => {
                         key={colIndex}
                         className={`border border-gray-200 p-2 text-center ${
                           day.label === todayLabel
-                            ? "bg-[#272977] text-white font-semibold"
+                            ? "bg-[#272977] text-white "
                             : "text-[#272977]"
                         }`}
                       >

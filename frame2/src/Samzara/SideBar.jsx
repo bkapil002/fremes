@@ -46,7 +46,7 @@ const SideBar = () => {
         </div>
 
         {/* Sidebar Menu */}
-        <ul className="text-gray-700 font-medium">
+        <ul className="text-gray-700">
           {[
             { to: "/", icon: "ri-home-2-line", text: "Home" },
             { to: "/", icon: "ri-profile-line", text: "Profile" },
@@ -62,12 +62,12 @@ const SideBar = () => {
           ].map((item, index) => (
             <li
               key={index}
-              className="flex items-center gap-3 p-2 hover:bg-[#e9e9e9] text-gray-500 font-normal text-sm rounded cursor-pointer transition"
+              className="flex items-center gap-3 p-2 mb-0.5 hover:bg-[#e9e9e9] text-gray-500 font-normal text-sm rounded cursor-pointer transition"
               onClick={() => setSidebarOpen(false)} // Close on click
             >
               <Link to={item.to} className="flex items-center gap-3">
                 <i className={`${item.icon} text-blue-900 text-[15px]`}></i>
-                <p className="text-black text-[15px] font-medium  font-weight:400 font-remi">{item.text}</p>
+                <p className="text-gray-800 text-[15px]  font-medium ">{item.text}</p>
               </Link>
             </li>
           ))}
