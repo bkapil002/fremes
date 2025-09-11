@@ -72,9 +72,9 @@ const ReadVideo = ({
   };
 
   return (
-    <>
+    <div className=" h-screen  mt-10">
       {/* Meeting Header */}
-      <div className="text-center -mt-30  mb-6 px-4">
+      <div className="text-center  mb-6 px-4">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#f89939] mb-3 leading-tight">
           {meetingtopic}
         </h1>
@@ -218,7 +218,7 @@ const ReadVideo = ({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
