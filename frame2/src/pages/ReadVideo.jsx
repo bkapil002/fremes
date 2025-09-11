@@ -127,7 +127,7 @@ const ReadVideo = ({
           </div>
 
           {/* Join Section */}
-          <div className="flex flex-col justify-center items-center w-full md:w-1/3 text-center p-8 bg-gray-50 border-l border-gray-200">
+          <div className="flex flex-col justify-center  items-center w-full md:w-1/3 text-center p-8 bg-gray-50 border-l border-gray-200">
             {/* Title */}
             <p className="text-xl md:text-2xl lg:text-3xl font-bold text-[#f89939] mb-8 tracking-wide">
               Ready to <span className="loading-dots -ml-2"></span>
