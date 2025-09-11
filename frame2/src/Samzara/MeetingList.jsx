@@ -324,7 +324,7 @@ const MeetingList = () => {
                         className={`border border-gray-200 p-2 text-center ${
                           day.label === todayLabel
                             ? "bg-[#272977] text-white font-semibold"
-                            : "text-blue-600"
+                            : "text-[#272977]"
                         }`}
                       >
                         {times.length > 0
