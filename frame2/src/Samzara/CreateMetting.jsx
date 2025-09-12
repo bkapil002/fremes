@@ -802,7 +802,7 @@ const CreateMeeting = () => {
                               <div className="flex gap-2">
                                 <Link
                                   to={`/room/${meeting.linkId}`}
-                                  className="flex-1 bg-gradient-to-r  bg-[#178a43]  hover:bg-[#000080]  text-white px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 hover:shadow-md transform hover:scale-105 active:scale-95"
+                                   className="flex-1 bg-gradient-to-r  bg-[#178a43]  hover:bg-[#000080]  text-white flex justify-center items-center py-2 rounded-lg text-[12px] transition-all duration-200 hover:shadow-md transform hover:scale-105 active:scale-95"
                                 >
                                   Join Meeting
                                 </Link>
