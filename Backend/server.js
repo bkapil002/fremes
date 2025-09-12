@@ -12,8 +12,8 @@ const removedUser = require('./Routes/removedUser')
 
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CLIENT_URL 
-    : 'https://samzra.onrender.com',
+     ? [process.env.CLIENT_URL, 'http://community.samzara.in']
+    : ['https://samzra.onrender.com', 'http://community.samzara.in'],
   credentials: true
 }));
 
