@@ -10,12 +10,17 @@ const app = express();
 const meetingAttendance = require('./Routes/meetingAttendance')
 const removedUser = require('./Routes/removedUser')
 
+
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-     ? [process.env.CLIENT_URL, 'http://community.samzara.in']
-    : ['https://samzra.onrender.com', 'http://community.samzara.in'],
-  credentials: true
+    ? process.env.CLIENT_URL 
+    : ['https://samzra.onrender.com','http://community.samzara.in'],
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'], 
 }));
+
+
 
 app.use(cookieParser());
 app.use(express.json());
