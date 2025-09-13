@@ -59,9 +59,36 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
 });
 
 
-router.post('/login', async(req,res)=>{
+// router.post('/login', async(req,res)=>{
+//     try{
+//        const {email }= req.body;
+//        const user = await User.findOne({email});
+
+//        if(!user){
+//          return res.status(400).json({message: 'Invalid credential'});
+//        }
+
+//        const token = generateToken(user._id);
+
+//        res.cookie('token',token)
+//        .json({
+//         token,
+//         user:{
+//           _id:user._id,
+//           name:user.name,
+//           email:user.email,
+//           imageUrls:user.imageUrls
+//         }
+//        })
+//     }catch(error){
+//       res.status(500).json({error: error.message});
+//     }
+// })
+
+
+router.get('/auth/:email', async(req,res)=>{
     try{
-       const {email }= req.body;
+       const { email } = req.params; 
        const user = await User.findOne({email});
 
        if(!user){
@@ -84,6 +111,7 @@ router.post('/login', async(req,res)=>{
       res.status(500).json({error: error.message});
     }
 })
+
 
 
 router.put('/name/:email', async (req, res) => {
