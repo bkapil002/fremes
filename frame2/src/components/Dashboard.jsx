@@ -19,7 +19,7 @@ export default function Dashboard() {
     const doLogin = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/users/auth/${encodeURIComponent(email)}`,
+          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(email)}`,
           {
             method: "GET",
             credentials: "include", // ✅ allow cookies
