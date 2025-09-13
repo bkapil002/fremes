@@ -48,17 +48,17 @@ const SideBar = () => {
         {/* Sidebar Menu */}
         <ul className="text-gray-700">
           {[
-            { to: "/", icon: "ri-home-2-line", text: "Home" },
+              { to: "https://community.samzara.in", icon: "ri-home-2-line", text: "Home" },
             { to: "/", icon: "ri-profile-line", text: "Profile" },
             { to: "/join", icon: "ri-video-add-line", text: "Create Meeting" },
             { to: "/mleetingList", icon: "ri-video-on-line", text: "Online Meeting" },
-            { to: "/groups", icon: "ri-group-line", text: "Groups" },
+            { to: "https://community.samzara.in/groups", icon: "ri-group-line", text: "Groups" },
             { to: "/attendance", icon: "ri-user-follow-line", text: "Attendance" },
-            { to: "/centre", icon: "ri-hotel-line", text: "Find a Centre" },
-            { to: "/events", icon: "ri-calendar-event-line", text: "Events" },
+            { to: "https://findrehabcentres.com", icon: "ri-hotel-line", text: "Find a Centre" },
+            { to: "https://community.samzara.in/events", icon: "ri-calendar-event-line", text: "Events" },
             { to: "/fellowships", icon: "ri-user-community-line", text: "Fellowships" },
             { to: "/faq", icon: "ri-question-mark", text: "FAQ's" },
-            { to: "/blogs", icon: "ri-rss-line", text: "Blogs" }
+            { to: "https://community.samzara.in/blogs", icon: "ri-rss-line", text: "Blogs" }
           ].map((item, index) => (
             <li
               key={index}
