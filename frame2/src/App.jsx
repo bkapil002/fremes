@@ -23,7 +23,7 @@ function App() {
       <Router>
         <Navebar />
         <div className="h-screen w-full  justify-center flex overflow-hidden">
-          <div className=" flex w-320 overflow-hidden">
+          <div className=" flex w-320 2xl:w-295  overflow-hidden">
           <div className="">
             <SideBar />
           </div>
