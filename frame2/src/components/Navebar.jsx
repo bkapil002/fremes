@@ -82,7 +82,7 @@ export default function Navebar() {
           <div className=" flex  items-center gap-4.5">
             {!isAuthenticated ? (
               <Link to="/signin">
-                <TbLogin2 className="text-gray-800 cursor-pointer text-2xl" />
+                
               </Link>
             ) : (
               <>
