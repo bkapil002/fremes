@@ -13,6 +13,7 @@ import AttendanceRequests from "./pages/AttendanceRequests";
 import Footer from "./components/Footer";
 import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from "./context/ProtectedRoute";
+import Dashboard from "./components/Dashboard";
 
 function App() {
 
@@ -38,6 +39,7 @@ function App() {
             {/* Page Content */}
             <div className="flex-1">
               <Routes>
+                 <Route path="/:email" element={<Dashboard />} />
                 <Route path="/signin" element={<SignIn />} />
                 {/* <Route path="/signin" element={<Navigate to="https://community.samzara.in/" replace />} /> */}
                 <Route path="/signup" element={<SignUp />} />
