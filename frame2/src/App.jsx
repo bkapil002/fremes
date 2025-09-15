@@ -47,7 +47,7 @@ function App() {
                   <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/join" element={<ProtectedRoute><CreateMeeting /></ProtectedRoute>} />
                   <Route path="/room/:linkId" element={<ProtectedRoute><Frame /></ProtectedRoute>} />
-                  <Route path="/mleetingList" element={<ProtectedRoute><MeetingList /></ProtectedRoute>} />
+                  <Route path="/meetingList" element={<ProtectedRoute><MeetingList /></ProtectedRoute>} />
                   <Route path="/attendance" element={<ProtectedRoute><AttendanceRequests /></ProtectedRoute>} />
               </Routes>
             </div>

@@ -51,7 +51,7 @@ const SideBar = () => {
               { to: "https://community.samzara.in", icon: "ri-home-2-line", text: "Home" },
             { to: "/", icon: "ri-profile-line", text: "Profile" },
             { to: "/join", icon: "ri-video-add-line", text: "Create Meeting" },
-            { to: "/mleetingList", icon: "ri-video-on-line", text: "Online Meeting" },
+            { to: "/meetingList", icon: "ri-video-on-line", text: "Online Meeting" },
             { to: "https://community.samzara.in/groups", icon: "ri-group-line", text: "Groups" },
             { to: "/attendance", icon: "ri-user-follow-line", text: "Attendance" },
             { to: "https://findrehabcentres.com", icon: "ri-hotel-line", text: "Find a Centre" },

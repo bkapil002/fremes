@@ -34,7 +34,7 @@ export default function Dashboard() {
 
         // ✅ Save user in context (global state)
         login({ ...data.user, token: data.token });
-        navigate("/mleetingList");
+        navigate("/meetingList");
 
         setError(null);
       } catch (err) {
