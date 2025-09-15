@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   },
    imageUrls:[ {
         type: String,
-        required: true
+       
       }],
 },{ timestamps: true });
 
