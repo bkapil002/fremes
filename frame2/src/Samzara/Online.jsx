@@ -12,7 +12,7 @@ const Online = ({ meetingTime, meetingtopic }) => {
   };
   const navigate = useNavigate();
   return (
-    <div className="-mt-2">
+    <div className="mt-1">
       <div className=" p-4 space-y-2">
         <div className="bg-white rounded-md shadow-sm p-2 md:p-3 flex items-center justify-between">
           {/* Left & Center Content */}

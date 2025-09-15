@@ -71,6 +71,46 @@ const ReadVideo = ({
     }
   };
 
+
+  const isMeetingExpired = (() => {
+  try {
+    const meetingDateObj = new Date(meetingDate);
+
+
+    const [startTime, endTime] = meetingTime.split("-").map(t => t.trim());
+
+    const parseTime = (timeStr) => {
+      const [time, modifier] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":").map(Number);
+
+      if (modifier === "PM" && hours !== 12) hours += 12;
+      if (modifier === "AM" && hours === 12) hours = 0;
+
+      const dateObj = new Date(meetingDateObj);
+      dateObj.setHours(hours);
+      dateObj.setMinutes(minutes || 0);
+      dateObj.setSeconds(0);
+      return dateObj;
+    };
+
+    const startDateTime = parseTime(startTime);
+    const endDateTime = parseTime(endTime);
+
+    const earlyJoinTime = new Date(startDateTime.getTime() - 6 * 60 * 1000);
+
+    const now = new Date();
+    if (now < earlyJoinTime) return true;
+
+    if (now > endDateTime) return true;
+
+    // Otherwise → enabled
+    return false;
+  } catch (err) {
+    console.error("Error parsing date/time:", err);
+    return false;
+  }
+})();
+
   return (
     <div className=" h-screen  mt-10">
       {/* Meeting Header */}
@@ -145,8 +185,8 @@ const ReadVideo = ({
                   setIsLoading(false);
                 }
               }}
-              disabled={isLoading}
-              className="relative bg-[#178a43] hover:bg-[#000080] transition-all duration-300 text-white px-8 py-3 rounded-xl font-semibold w-full md:w-4/5 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+              disabled={isLoading || isMeetingExpired}
+              className={` relative bg-[#178a43] hover:bg-[#000080]  disabled:hover:bg-[#178a43]   transition-all duration-300 text-white px-8 py-3  rounded-xl font-semibold w-full md:w-4/5  hadow-lg hover:shadow-xl   disabled:opacity-70 disabled:cursor-not-allowed`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">

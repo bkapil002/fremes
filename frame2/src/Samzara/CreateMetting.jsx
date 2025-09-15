@@ -366,7 +366,7 @@ const CreateMeeting = () => {
   };
 
   return (
-    <div className="w-full min-h-screen p-4 sm:p-6 md:p-6 md:rounded-2xl">
+    <div className="w-full min-h-screen mt-1 p-4 sm:p-6 md:p-6 md:rounded-2xl">
       {/* Create Meeting Section */}
        <div className="bg-white flex -mt-2 flex-col lg:flex-row w-full rounded-xl shadow-sm p-6 sm:p-8 mb-6 gap-8">
         {/* Left Section - Form Inputs */}

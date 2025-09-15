@@ -345,7 +345,7 @@ const AttendanceRequests = () => {
   }, [user]);
 
   return (
-    <div className="p-3">
+    <div className="p-3 mt-2">
       {/* Header */}
       <div className="bg-gradient-to-r justify-center items-center text-center from-orange-500 to-orange-300 p-4 rounded-lg text-white mb-4">
         <h1 className="text-xl sm:text-2xl font-bold">

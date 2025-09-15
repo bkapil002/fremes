@@ -44,11 +44,9 @@ const SideBar = () => {
             <X size={24} />
           </button>
         </div>
-
-        {/* Sidebar Menu */}
         <ul className="text-gray-700">
           {[
-              { to: "https://community.samzara.in", icon: "ri-home-2-line", text: "Home" },
+            { to: "https://community.samzara.in", icon: "ri-home-2-line", text: "Home" },
             { to: "/", icon: "ri-profile-line", text: "Profile" },
             { to: "/join", icon: "ri-video-add-line", text: "Create Meeting" },
             { to: "/meetingList", icon: "ri-video-on-line", text: "Online Meeting" },
@@ -63,7 +61,7 @@ const SideBar = () => {
             <li
               key={index}
               className="flex items-center gap-3 p-2 mb-0.5 hover:bg-[#e9e9e9] text-gray-500 font-normal text-sm rounded cursor-pointer transition"
-              onClick={() => setSidebarOpen(false)} // Close on click
+              onClick={() => setSidebarOpen(false)} 
             >
               <Link to={item.to} className="flex items-center gap-3">
                 <i className={`${item.icon} text-blue-900 text-[15px]`}></i>
