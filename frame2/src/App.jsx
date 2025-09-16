@@ -14,6 +14,7 @@ import Footer from "./components/Footer";
 import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from "./context/ProtectedRoute";
 import Dashboard from "./components/Dashboard";
+import AttendanceNavigate from "./components/AttendanceNavigate";
 
 function App() {
 
