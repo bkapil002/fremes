@@ -31,11 +31,13 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
 
 
         const imageUrls = [];
+        if (req.files && req.files.length > 0) {
         for (const file of req.files) {
             const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
             const result = await cloudinary.uploader.upload(base64Image, { folder: 'products' });
             imageUrls.push(result.secure_url);
         }
+      }
 
         const user = await User.create({ email, name , imageUrls});
 
