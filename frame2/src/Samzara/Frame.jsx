@@ -54,6 +54,7 @@ const Basics = () => {
   const [promotedUid, setPromotedUid] = useState(null);
   const [promoteLoading, setPromoteLoading] = useState(false);
   const [meetingTime, setMeetingTime] = useState("");
+  const [meetingDate , setMeetingDate] =useState("")
   const [meetingtopic, setMeetingtopic] = useState("");
   const [meetingDescription, setMeetingDescription] = useState("")
   const [adminName, setAdminName] = useState("");
@@ -61,6 +62,7 @@ const Basics = () => {
   const [showModal, setShowModal] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [removeUser, setRemoveUser] = useState([]);
+  
   const remoteUsers = useRemoteUsers();
 
   useEffect(() => {
@@ -340,6 +342,7 @@ useEffect(() => {
         setAdmin(data.agora.user.email);
         setAdminImage(data.agora.user.imageUrls);
         setMeetingTime(data.agora.meetingTime);
+        setMeetingDate(data.agora.meetingDate)
         setMeetingtopic(data.agora.meetingType);
         setMeetingDescription(data.agora.meetingDescription)
         setAdminName(data.agora.user.name);
@@ -490,6 +493,8 @@ useEffect(() => {
               setCalling={setCalling}
               meetingDescription={meetingDescription}
               meetingtopic={meetingtopic}
+               meetingTime={meetingTime}
+              meetingDate={meetingDate}
             />
           </div>
         ) : (

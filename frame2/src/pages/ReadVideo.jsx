@@ -7,6 +7,8 @@ const ReadVideo = ({
   setCalling,
   meetingDescription,
   meetingtopic,
+  meetingTime,
+  meetingDate,
 }) => {
   const videoRef = useRef(null);
   const [micOn, setMicOn] = useState(true);
