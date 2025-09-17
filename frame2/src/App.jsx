@@ -16,8 +16,12 @@ import ProtectedRoute from "./context/ProtectedRoute";
 import Dashboard from "./components/Dashboard";
 import AttendanceNavigate from "./components/AttendanceNavigate";
 
-function App() {
 
+function App() {
+function ExternalRedirect({ url }) {
+  window.location.href = url;
+  return null;
+}
 
   return (
 
@@ -45,8 +49,8 @@ function App() {
                 <Route path="/user-attendance/:email" element={<AttendanceNavigate/>}/>
                 {/* <Route path="/signin" element={<Navigate to="https://community.samzara.in/" replace />} /> */}
                 {/* <Route path="/signup" element={<SignUp />} /> */}
-
-                  <Route path="/" element={<ProtectedRoute><Navigate to="https://community.samzara.in" replace /></ProtectedRoute>} />
+                  <Route path="/" element={<ExternalRedirect url="https://community.samzara.in" />} />
+                
                   <Route path="/join" element={<ProtectedRoute><CreateMeeting /></ProtectedRoute>} />
                   <Route path="/room/:linkId" element={<ProtectedRoute><Frame /></ProtectedRoute>} />
                   <Route path="/meetingList" element={<ProtectedRoute><MeetingList /></ProtectedRoute>} />
