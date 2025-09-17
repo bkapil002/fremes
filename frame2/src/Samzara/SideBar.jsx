@@ -58,7 +58,7 @@ const SideBar = () => {
               icon: "ri-home-2-line",
               text: "Home",
             },
-            { to: "/", icon: "ri-profile-line", text: "Profile" },
+            { to: "https://community.samzara.in", icon: "ri-profile-line", text: "Profile" },
             { to: "/join", icon: "ri-video-add-line", text: "Create Meeting" },
             {
               to: "/meetingList",
@@ -86,11 +86,13 @@ const SideBar = () => {
               text: "Events",
             },
             {
-              to: "/fellowships",
+              to: "https://community.samzara.in",
               icon: "ri-user-community-line",
               text: "Fellowships",
             },
-            { to: "/faq", icon: "ri-question-mark", text: "FAQ's" },
+            { to: "https://community.samzara.in", 
+              icon: "ri-question-mark",
+               text: "FAQ's" },
             {
               to: "https://community.samzara.in/blogs",
               icon: "ri-rss-line",
