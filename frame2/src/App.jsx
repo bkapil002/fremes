@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navebar from './components/Navebar'
 import Frame from './Samzara/Frame'
 import { AuthProvider } from "./context/AuthContext";
@@ -46,7 +46,7 @@ function App() {
                 {/* <Route path="/signin" element={<Navigate to="https://community.samzara.in/" replace />} /> */}
                 {/* <Route path="/signup" element={<SignUp />} /> */}
 
-                  <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                  <Route path="/" element={<ProtectedRoute><Navigate to="https://community.samzara.in" replace /></ProtectedRoute>} />
                   <Route path="/join" element={<ProtectedRoute><CreateMeeting /></ProtectedRoute>} />
                   <Route path="/room/:linkId" element={<ProtectedRoute><Frame /></ProtectedRoute>} />
                   <Route path="/meetingList" element={<ProtectedRoute><MeetingList /></ProtectedRoute>} />
