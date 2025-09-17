@@ -75,7 +75,7 @@ const MeetingList = () => {
     const currentTimeInMinutes = currentHours * 60 + currentMinutes;
 
     return (
-      currentTimeInMinutes >= meetingTimeInMinutes &&
+      currentTimeInMinutes >= meetingTimeInMinutes - 6 &&
       currentTimeInMinutes <= meetingTimeInMinutes + 57
     );
   };
@@ -123,7 +123,9 @@ const MeetingList = () => {
   });
 
   const upcomingMeetings = todayMeetings
-    .filter((room) => isMeetingUpcoming(room.meetingTime))
+    .filter((room) => {
+      return isMeetingUpcoming(room.meetingTime) && !isMeetingLive(room.meetingTime);
+    })
     .sort((a, b) => {
       const timeA = convertTo24Hour(a.meetingTime);
       const timeB = convertTo24Hour(b.meetingTime);
