@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -8,7 +8,16 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const emailFromQuery = params.get("email");
+    if (emailFromQuery) {
+      setFormData({ email: emailFromQuery });
+    }
+  }, [location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,9 +40,9 @@ export default function SignIn() {
 
       if (response.ok) {
         const data = await response.json();
-       login({ ...data.user, token: data.token });
+        login({ ...data.user, token: data.token });
         navigate("/");
-        toast.success('Welcome in Samzara');
+        toast.success("Welcome in Samzara");
       } else {
         const errorData = await response.json();
         toast.error(errorData.error);
@@ -69,7 +78,8 @@ export default function SignIn() {
               name="email"
               type="email"
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm"
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 
+              focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm"
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
@@ -117,7 +127,7 @@ export default function SignIn() {
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
-         If you are Not registered yet?{" "}
+          If you are Not registered yet?{" "}
           <Link
             to="/signup"
             className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
