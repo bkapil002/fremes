@@ -1,87 +1,131 @@
-import React from "react";
-
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function SignIn() {
+  const [formData, setFormData] = useState({ email: "" });
+  const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await fetch("https://samzraa.onrender.com/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+       login({ ...data.user, token: data.token });
+        navigate("/");
+        toast.success('Welcome in Samzara');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error);
+      }
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+      console.error("Login attempt failed:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-  <div className="flex gap-4 p-4">
-  {/* LEFT SIDE (Feed Section) */}
-  <div className="w-full md:w-2/3 flex flex-col gap-4">
-    {/* Post Box */}
-    <div className="bg-gray-300 animate-pulse rounded-lg p-4">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-gray-400 rounded-full" />
-        <div className="w-40 h-4 bg-gray-400 rounded-md" />
-      </div>
-      <div className="flex flex-wrap mt-10 justify-center gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-7 w-30 bg-gray-400 rounded-full" />
-        ))}
-      </div>
-    </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br px-4">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
+          Welcome Back 👋
+        </h2>
+        <p className="text-center text-gray-500 mb-6 text-sm">
+          Please sign in to continue
+        </p>
 
-    {/* Greeting Card */}
-    <div className="bg-gray-300 animate-pulse rounded-lg p-4 space-y-3">
-      <div className="h-4 w-40 bg-gray-400 rounded-md" />
-      <div className="h-4 w-60 bg-gray-400 rounded-md" />
-    </div>
-
-    {/* Quick Action Icons */}
-    <div className="bg-gray-300 animate-pulse rounded-lg p-4 flex justify-around">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="h-8 w-8 bg-gray-400 rounded-full" />
-      ))}
-    </div>
-
-    {/* Feed Post Skeleton */}
-    <div className="bg-gray-300 animate-pulse rounded-lg p-4">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 bg-gray-400 rounded-full" />
-        <div className="w-32 h-4 bg-gray-400 rounded-md" />
-      </div>
-      <div className="h-48 md:h-72 bg-gray-400 rounded-md mb-4" />
-      <div className="flex justify-between gap-2 flex-wrap">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-6 w-20 bg-gray-400 rounded-full" />
-        ))}
-      </div>
-    </div>
-  </div>
-
-  {/* RIGHT SIDE (Sidebar) */}
-  <div className="hidden md:flex w-1/3 flex-col gap-4">
-    {/* Profile Card */}
-    <div className="bg-gray-300 animate-pulse rounded-lg p-6 flex flex-col items-center">
-      <div className="w-16 h-16 bg-gray-400 rounded-full mb-4" />
-      <div className="w-32 h-4 bg-gray-400 rounded-md mb-2" />
-      <div className="w-20 h-4 bg-gray-400 rounded-md" />
-    </div>
-
-    {/* Trending */}
-    <div className="bg-gray-300 animate-pulse rounded-lg p-4 space-y-3">
-      <div className="w-24 h-4 bg-gray-400 rounded-md" />
-      <div className="w-32 h-4 bg-gray-400 rounded-md" />
-    </div>
-
-    {/* Ad Section */}
-    <div className="bg-gray-300 animate-pulse rounded-lg h-36" />
-
-    {/* People You May Know */}
-    <div className="bg-gray-300 animate-pulse rounded-lg p-4">
-      <div className="w-40 h-4 bg-gray-400 rounded-md mb-4" />
-      <div className="flex justify-around">
-        {[...Array(2)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center gap-2">
-            <div className="w-12 h-12 bg-gray-400 rounded-full" />
-            <div className="w-20 h-4 bg-gray-400 rounded-md" />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-sm"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+            />
           </div>
-        ))}
+
+          {/* Button with loading state */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium shadow-md transition-all duration-200 ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
+          >
+            {loading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                Submit...
+              </>
+            ) : (
+              "Submit"
+            )}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-600">
+         If you are Not registered yet?{" "}
+          <Link
+            to="/signup"
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
+            Click here
+          </Link>
+        </p>
       </div>
     </div>
-  </div>
-</div>
   );
 }
