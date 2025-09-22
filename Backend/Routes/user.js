@@ -88,31 +88,42 @@ router.post('/login', async(req,res)=>{
 })
 
 
-router.get('/auth/:decodedEmail', async(req,res)=>{
-    try{
-       const { decodedEmail } = req.params; // use the same name as route
-       const user = await User.findOne({ email: decodedEmail });
+router.get('/auth/:encodedEmail', async (req, res) => {
+  try {
 
-       if(!user){
-         return res.status(400).json({message: 'Invalid credential'});
-       }
-
-       const token = generateToken(user._id);
-
-       res.cookie('token',token)
-       .json({
-        token,
-        user:{
-          _id:user._id,
-          name:user.name,
-          email:user.email,
-          imageUrls:user.imageUrls
-        }
-       })
-    }catch(error){
-      res.status(500).json({error: error.message});
+    const referrer = req.get('referer') || '';
+    if (!referrer.includes('w.com')) {
+      return res.status(403).json({ message: 'Access denied. Invalid source.' });
     }
-})
+
+    const { encodedEmail } = req.params;
+    let email;
+    try {
+      email = atob(encodedEmail);
+    } catch (err) {
+      return res.status(400).json({ message: 'Invalid email encoding' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credential' });
+    }
+
+    const token = generateToken(user._id);
+
+    res.cookie('token', token).json({
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        imageUrls: user.imageUrls
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 
