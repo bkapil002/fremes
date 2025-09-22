@@ -4,59 +4,61 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
- const { email: encodedEmail } = useParams(); // rename email → encodedEmail
+  const { email:encodedEmail } = useParams(); 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const { login } = useAuth();
+ const [error, setError] = useState(null);
+ const navigate = useNavigate();
+  const { user, login } = useAuth(); 
+ useEffect(() => {
+  if (!encodedEmail) {
+    setError("No email provided in URL");
+    setLoading(false);
+    return;
+  }
 
-  useEffect(() => {
-    if (!encodedEmail) {
-      setError("No email provided in URL");
-      setLoading(false);
-      return;
-    }
+  let decodedEmail;
+  try {
+    decodedEmail = atob(encodedEmail); // decode Base64
+    console.log("Decoded email:", decodedEmail);
+  } catch (err) {
+    setError("Invalid email encoding");
+    setLoading(false);
+    return;
+  }
 
-    let decodedEmail;
+  const doLogin = async () => {
     try {
-      decodedEmail = atob(encodedEmail); // decode Base64
-      console.log("Decoded email:", decodedEmail);
-    } catch (err) {
-      setError("Invalid email encoding");
-      setLoading(false);
-      return;
-    }
-
-    const doLogin = async () => {
-      try {
-        const res = await fetch(
-          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(decodedEmail)}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Authentication failed");
+      const res = await fetch(
+        `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(decodedEmail)}`,
+        {
+          method: "GET",
+          credentials: "include",
         }
+      );
 
-        // ✅ Save user in context (global state)
-        login({ ...data.user, token: data.token });
-        navigate("/meetingList");
-        setError(null);
-      } catch (err) {
-        console.error(err);
-        setError(err.message || "Something went wrong");
-      } finally {
-        setLoading(false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Authentication failed");
       }
-    };
 
-    doLogin();
-  }, [encodedEmail, login, navigate]);
+      // Save user in context
+      login({ ...data.user, token: data.token });
+      navigate("/meetingList");
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong");
+      window.location.href = "https://community.samzara.in";
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  doLogin();
+}, [encodedEmail, login, navigate]);
+
+
 
   return (
      <div className="p-4 space-y-6">
