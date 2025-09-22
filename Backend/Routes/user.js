@@ -92,7 +92,7 @@ router.get('/auth/:encodedEmail', async (req, res) => {
   try {
 
     const referrer = req.get('referer') || '';
-    if (!referrer.includes('w.com')) {
+    if (!referrer.includes('https://community.samzara.in')) {
       return res.status(403).json({ message: 'Access denied. Invalid source.' });
     }
 
