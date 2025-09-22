@@ -4,14 +4,25 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { email } = useParams(); 
+  const { email: encodedEmail } = useParams();
   const [loading, setLoading] = useState(true);
  const [error, setError] = useState(null);
  const navigate = useNavigate();
   const { user, login } = useAuth(); 
+
   useEffect(() => {
-    if (!email) {
-      setError("No name provided in URL");
+    if (!encodedEmail) {
+      setError("No email provided in URL");
+      setLoading(false);
+      return;
+    }
+
+    let decodedEmail;
+    try {
+      decodedEmail = atob(encodedEmail); 
+      console.log("Decoded email:", decodedEmail);
+    } catch (err) {
+      setError("Invalid email encoding");
       setLoading(false);
       return;
     }
@@ -40,7 +51,6 @@ export default function Dashboard() {
       } catch (err) {
         console.error(err);
         setError(err.message || "Something went wrong");
-         window.location.href = "https://community.samzara.in";
       } finally {
         setLoading(false);
       }
