@@ -88,7 +88,7 @@ router.post('/login', async(req,res)=>{
 })
 
 
-router.get('/auth/:encodedEmail', async (req, res) => {
+router.get('/auth/:decodedEmail', async (req, res) => {
   try {
 
     const referrer = req.get('referer') || '';
@@ -96,10 +96,10 @@ router.get('/auth/:encodedEmail', async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Invalid source.' });
     }
 
-    const { encodedEmail } = req.params;
+    const { decodedEmail } = req.params;
     let email;
     try {
-      email = atob(encodedEmail);
+      email = atob(decodedEmail);
     } catch (err) {
       return res.status(400).json({ message: 'Invalid email encoding' });
     }
