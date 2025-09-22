@@ -4,11 +4,11 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { email: encodedEmail } = useParams();
+ const { email: encodedEmail } = useParams(); // rename email → encodedEmail
   const [loading, setLoading] = useState(true);
- const [error, setError] = useState(null);
- const navigate = useNavigate();
-  const { user, login } = useAuth(); 
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     if (!encodedEmail) {
@@ -19,7 +19,7 @@ export default function Dashboard() {
 
     let decodedEmail;
     try {
-      decodedEmail = atob(encodedEmail); 
+      decodedEmail = atob(encodedEmail); // decode Base64
       console.log("Decoded email:", decodedEmail);
     } catch (err) {
       setError("Invalid email encoding");
@@ -30,10 +30,10 @@ export default function Dashboard() {
     const doLogin = async () => {
       try {
         const res = await fetch(
-          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(email)}`,
+          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(decodedEmail)}`,
           {
             method: "GET",
-            credentials: "include", 
+            credentials: "include",
           }
         );
 
@@ -46,7 +46,6 @@ export default function Dashboard() {
         // ✅ Save user in context (global state)
         login({ ...data.user, token: data.token });
         navigate("/meetingList");
-
         setError(null);
       } catch (err) {
         console.error(err);
@@ -57,8 +56,7 @@ export default function Dashboard() {
     };
 
     doLogin();
-  }, [email, login,navigate]);
-
+  }, [encodedEmail, login, navigate]);
 
   return (
      <div className="p-4 space-y-6">

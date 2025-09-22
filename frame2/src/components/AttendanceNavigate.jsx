@@ -40,7 +40,7 @@ export default function AttendanceNavigate() {
       } catch (err) {
         console.error(err);
         setError(err.message || "Something went wrong");
-        window.location.href = "https://community.samzara.in";
+        // window.location.href = "https://community.samzara.in";
       } finally {
         setLoading(false);
       }

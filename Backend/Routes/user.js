@@ -88,31 +88,39 @@ router.post('/login', async(req,res)=>{
 })
 
 
-router.get('/auth/:email', async(req,res)=>{
-    try{
-       const { email } = req.params; 
-       const user = await User.findOne({email});
-
-       if(!user){
-         return res.status(400).json({message: 'Invalid credential'});
-       }
-
-       const token = generateToken(user._id);
-
-       res.cookie('token',token)
-       .json({
-        token,
-        user:{
-          _id:user._id,
-          name:user.name,
-          email:user.email,
-          imageUrls:user.imageUrls
-        }
-       })
-    }catch(error){
-      res.status(500).json({error: error.message});
+router.get('/auth/:encodedEmail', async (req, res) => {
+  try {
+    const { encodedEmail } = req.params;
+    let email;
+    try {
+      email = Buffer.from(encodedEmail, 'base64').toString('utf8');
+    } catch (err) {
+      return res.status(400).json({ message: 'Invalid email encoding' });
     }
-})
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credential' });
+    }
+
+    const token = generateToken(user._id);
+
+    res
+      .cookie('token', token)
+      .json({
+        token,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          imageUrls: user.imageUrls,
+        },
+      });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 
