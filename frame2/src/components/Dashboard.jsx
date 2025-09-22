@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { email:encodedEmail } = useParams(); 
+  const { encodedEmail } = useParams(); 
   const [loading, setLoading] = useState(true);
  const [error, setError] = useState(null);
  const navigate = useNavigate();
