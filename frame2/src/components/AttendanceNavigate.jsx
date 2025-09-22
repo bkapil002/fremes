@@ -20,6 +20,7 @@ export default function AttendanceNavigate() {
 
     try {
       if (encodedEmail.includes("@")) {
+
        window.location.href = "https://community.samzara.in";
         setLoading(false);
         return;
