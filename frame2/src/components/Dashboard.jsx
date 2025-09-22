@@ -8,24 +8,28 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
  const [error, setError] = useState(null);
  const navigate = useNavigate();
-  const { user, login } = useAuth(); 
+  const {  login } = useAuth(); 
  useEffect(() => {
-  if (!encodedEmail) {
-    setError("No email provided in URL");
-    setLoading(false);
-    return;
-  }
+    if (!encodedEmail) {
+      setError("No email provided in URL");
+      setLoading(false);
+      return;
+    }
 
-   let cleanedEncodedEmail;
-    let decodedEmail;
+    let decodedEmail = null;
 
     try {
-  
-      cleanedEncodedEmail = encodedEmail.slice(9, -3);
-      console.log("Cleaned Base64:", cleanedEncodedEmail);
+      if (encodedEmail.includes("@")) {
+        console.log("Direct email from URL:", encodedEmail);
 
-     
-      decodedEmail = atob(cleanedEncodedEmail);
+       window.location.href = "https://community.samzara.in";
+        setLoading(false);
+        return;
+      }
+
+      // Case: encoded string with extra chars
+      const base64Part = encodedEmail.slice(9, -3); // remove first 9 and last 3 chars
+      decodedEmail = atob(base64Part);
       console.log("Decoded email:", decodedEmail);
     } catch (err) {
       setError("Invalid email encoding");
@@ -33,38 +37,37 @@ export default function Dashboard() {
       return;
     }
 
-  const doLogin = async () => {
-    try {
-      const res = await fetch(
-        `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(decodedEmail)}`,
-        {
-          method: "GET",
-          credentials: "include",
+    // Only do API login in encoded mode
+    const doLogin = async () => {
+      try {
+        const res = await fetch(
+          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(decodedEmail)}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Authentication failed");
         }
-      );
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Authentication failed");
+        login({ ...data.user, token: data.token });
+        navigate("/meetingList");
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Something went wrong");
+        window.location.href = "https://community.samzara.in";
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Save user in context
-      login({ ...data.user, token: data.token });
-      navigate("/meetingList");
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Something went wrong");
-      window.location.href = "https://community.samzara.in";
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  doLogin();
-}, [encodedEmail, login, navigate]);
-
+    doLogin();
+  }, [encodedEmail, login, navigate]);
 
 
   return (
