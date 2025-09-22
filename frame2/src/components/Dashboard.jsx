@@ -16,15 +16,22 @@ export default function Dashboard() {
     return;
   }
 
-  let decodedEmail;
-  try {
-    decodedEmail = atob(encodedEmail); // decode Base64
-    console.log("Decoded email:", decodedEmail);
-  } catch (err) {
-    setError("Invalid email encoding");
-    setLoading(false);
-    return;
-  }
+   let cleanedEncodedEmail;
+    let decodedEmail;
+
+    try {
+  
+      cleanedEncodedEmail = encodedEmail.slice(9, -3);
+      console.log("Cleaned Base64:", cleanedEncodedEmail);
+
+     
+      decodedEmail = atob(cleanedEncodedEmail);
+      console.log("Decoded email:", decodedEmail);
+    } catch (err) {
+      setError("Invalid email encoding");
+      setLoading(false);
+      return;
+    }
 
   const doLogin = async () => {
     try {
