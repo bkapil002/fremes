@@ -4,26 +4,43 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function AttendanceNavigate() {
-  const { email } = useParams(); 
+  const { encodedEmail } = useParams(); 
   const [loading, setLoading] = useState(true);
  const [error, setError] = useState(null);
  const navigate = useNavigate();
   const {  login } = useAuth(); 
-
-   useEffect(() => {
-    if (!email) {
-      setError("No name provided in URL");
+ useEffect(() => {
+    if (!encodedEmail) {
+      setError("No email provided in URL");
       setLoading(false);
       return;
     }
 
+    let decodedEmail = null;
+
+    try {
+      if (encodedEmail.includes("@")) {
+       window.location.href = "https://community.samzara.in";
+        setLoading(false);
+        return;
+      }
+      const base64Part = encodedEmail.slice(9, -3); 
+      decodedEmail = atob(base64Part);
+    } catch (err) {
+      setError("Invalid email encoding");
+      setLoading(false);
+      window.location.href = "https://community.samzara.in";
+      return;
+    }
+
+    // Only do API login in encoded mode
     const doLogin = async () => {
       try {
         const res = await fetch(
-          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(email)}`,
+          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(decodedEmail)}`,
           {
             method: "GET",
-            credentials: "include", 
+            credentials: "include",
           }
         );
 
@@ -33,21 +50,20 @@ export default function AttendanceNavigate() {
           throw new Error(data.message || "Authentication failed");
         }
 
-
         login({ ...data.user, token: data.token });
-        navigate("/attendance");
+        navigate("/meetingList");
         setError(null);
       } catch (err) {
         console.error(err);
         setError(err.message || "Something went wrong");
-        // window.location.href = "https://community.samzara.in";
+        window.location.href = "https://community.samzara.in";
       } finally {
         setLoading(false);
       }
     };
 
     doLogin();
-  }, [email, login,navigate]);
+  }, [encodedEmail, login, navigate]);
 
 
   return (

@@ -20,20 +20,16 @@ export default function Dashboard() {
 
     try {
       if (encodedEmail.includes("@")) {
-        console.log("Direct email from URL:", encodedEmail);
-
        window.location.href = "https://community.samzara.in";
         setLoading(false);
         return;
       }
-
-      // Case: encoded string with extra chars
-      const base64Part = encodedEmail.slice(9, -3); // remove first 9 and last 3 chars
+      const base64Part = encodedEmail.slice(9, -3); 
       decodedEmail = atob(base64Part);
-      console.log("Decoded email:", decodedEmail);
     } catch (err) {
       setError("Invalid email encoding");
       setLoading(false);
+      window.location.href = "https://community.samzara.in";
       return;
     }
 

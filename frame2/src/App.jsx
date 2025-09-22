@@ -47,7 +47,7 @@ function ExternalRedirect({ url }) {
                  <Route path="/:encodedEmail" element={<Dashboard />} />
                 <Route path="/signIn" element={<SignIn />} />
                 {/* <Route path="/signIn/:email" element={<SignIn />} /> */}
-                <Route path="/user-attendance/:email" element={<AttendanceNavigate/>}/>
+                <Route path="/user-attendance/:encodedEmail" element={<AttendanceNavigate/>}/>
                 {/* <Route path="/signin" element={<Navigate to="https://community.samzara.in/" replace />} /> */}
                 {/* <Route path="/signup" element={<SignUp />} /> */}
                   <Route path="/" element={<ExternalRedirect url="https://community.samzara.in" />} />
