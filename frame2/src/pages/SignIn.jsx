@@ -12,12 +12,19 @@ export default function SignIn() {
   const { login } = useAuth();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const emailFromQuery = params.get("email");
-    if (emailFromQuery) {
-      setFormData({ email: emailFromQuery });
+  const params = new URLSearchParams(location.search);
+  const emailFromQuery = params.get("email");
+
+  if (emailFromQuery) {
+    try {
+      const decodedEmail = atob(emailFromQuery); 
+      setFormData({ email: decodedEmail });
+      console.log("Decoded email:", decodedEmail); 
+    } catch (error) {
+      console.error("Failed to decode email:", error);
     }
-  }, [location.search]);
+  }
+}, [location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
