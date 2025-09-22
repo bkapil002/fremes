@@ -45,7 +45,7 @@ function ExternalRedirect({ url }) {
             <div className="flex-1">
               <Routes>
                  <Route path="/:email" element={<Dashboard />} />
-                <Route path="/signIn" element={<SignIn />} />
+                <Route path="/signIn/:email" element={<SignIn />} />
                 <Route path="/user-attendance/:email" element={<AttendanceNavigate/>}/>
                 {/* <Route path="/signin" element={<Navigate to="https://community.samzara.in/" replace />} /> */}
                 {/* <Route path="/signup" element={<SignUp />} /> */}
