@@ -345,7 +345,7 @@ router.get('/today/all-rooms', async (req, res) => {
 
     const rooms = await Agora.find(
       { meetingDate: { $gte: today, $lt: tomorrow } },
-      "meetingType meetingDate meetingTime" // <-- only select these fields
+      "meetingType meetingDate meetingTime  linkId" // <-- only select these fields
     ).sort({ meetingDate: 1 });
 
     res.status(200).json(rooms);
