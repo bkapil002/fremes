@@ -27,7 +27,7 @@ export default function Navebar() {
 
       if (response.ok) {
         logout();
-        navigate("/signin");
+        navigate("https://community.samzara.in");
         toast.success("Logged out successfully");
       } else {
         const errorData = await response.json();
