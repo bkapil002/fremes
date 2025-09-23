@@ -15,6 +15,7 @@ import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from "./context/ProtectedRoute";
 import Dashboard from "./components/Dashboard";
 import AttendanceNavigate from "./components/AttendanceNavigate";
+import MeetingListNavigate from "./components/MeetingListNavigate";
 
 
 function App() {
@@ -48,6 +49,7 @@ function ExternalRedirect({ url }) {
                 <Route path="/signIn" element={<SignIn />} />
                 {/* <Route path="/signIn/:email" element={<SignIn />} /> */}
                 <Route path="/user-attendance/:encodedEmail" element={<AttendanceNavigate/>}/>
+                <Route path="/meeting/:encodedEmail/:linkId" element={<MeetingListNavigate/>}/>
                 {/* <Route path="/signin" element={<Navigate to="https://community.samzara.in/" replace />} /> */}
                 {/* <Route path="/signup" element={<SignUp />} /> */}
                   <Route path="/" element={<ExternalRedirect url="https://community.samzara.in" />} />
