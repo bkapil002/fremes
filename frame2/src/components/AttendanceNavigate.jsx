@@ -52,7 +52,7 @@ export default function AttendanceNavigate() {
         }
 
         login({ ...data.user, token: data.token });
-        navigate("/meetingList");
+        navigate("/attendance");
         setError(null);
       } catch (err) {
         console.error(err);
