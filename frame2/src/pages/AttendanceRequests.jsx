@@ -272,7 +272,7 @@ const AttendanceRequests = () => {
       if (!user) return;
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/attendance/attendance/my",
+          "https://samzraa.onrender.com/api/attendance/attendance/my",
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
