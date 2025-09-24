@@ -366,149 +366,137 @@ const AttendanceRequests = () => {
 
       {/* Modal */}
       {selectedMeeting && (
-        <div
+         <div
           className="fixed inset-0 flex items-center justify-center z-50"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         >
           <div
             id="attendance-modal-content"
-            className="w-full max-w-lg p-6 rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh]"
-            style={{ backgroundColor: "#ffffff", color: "#374151" }}
+            className="w-full max-w-2xl p-0 rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh] bg-white"
           >
             {/* Close Button */}
             <button
-              className="absolute top-3 right-3 cursor-pointer hover:opacity-75 print:hidden"
-              style={{ color: "#6B7280" }}
+              className="absolute top-3 z-50 right-3 text-white cursor-pointer hover:opacity-75"
               onClick={() => setSelectedMeeting(null)}
             >
               ✕
             </button>
 
-            {/* Header */}
-            <div className="flex items-center gap-3">
-              <img src={z} className="w-35" alt="Logo" />
-              <h2 className="text-lg md:text-xl" style={{ color: "#000000" }}>
-                Attendance Details
-              </h2>
-            </div>
+            {/* Header Bar */}
             <div
-              className="mt-3"
-              style={{ borderTop: "1px solid #D1D5DB" }}
-            ></div>
+              className="relative rounded-[12px] overflow-hidden"
+              style={{
+                backgroundImage: `url(${image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                minHeight: "250px",
+              }}
+            >
+              {/* Soft overlay for background */}
+              <div className="absolute inset-0 bg-black/30"></div>
+
+              {/* Centered Content */}
+              <div className="relative z-10 flex flex-col items-center justify-center h-full py-10">
+                {/* Logo */}
+                <img src={z} alt="Logo" className="w-44 mb-4" />
+                {/* Attendance Confirmation Bar */}
+                <div className="bg-white/90 rounded-t-lg px-8 py-2 w-full max-w-md text-center shadow-md">
+                  <h2 className="text-xl font-bold text-[#f89939] tracking-wide">
+                    Attendance Confirmation
+                  </h2>
+                </div>
+                {/* Meeting Info Bar */}
+                <div className="bg-[#f89939] rounded-b-lg px-8 py-2 w-full max-w-md text-center flex items-center justify-center gap-2 shadow-md">
+                  <span className="text-white text-base font-semibold">
+                    Live Online Video Meetings
+                  </span>
+                </div>
+              </div>
+            </div>
 
             {/* Intro */}
-            <p className="mb-3 mt-4 text-sm" style={{ color: "#374151" }}>
-              Thank you for attending a <b>Live Online Video Meeting</b> on{" "}
-              <b>community.samzara.in</b>. While you were there, you asked us to
-              provide confirmation of your attendance. Below are the details of
-              the meeting you attended on{" "}
-              <b>
-                {dayjs(selectedMeeting.meetingDate).format(
-                  "MMMM DD, YYYY hh:mm A"
-                )}
-              </b>{" "}
-              which lasted for <b>60 minutes</b> for{" "}
-              <b>{selectedMeeting.meetingType}</b>
-            </p>
+            <div className="p-6">
+              <p className="text-sm text-gray-700 mb-4">
+                Thank you for attending a <b>Live Online Video Meeting</b> on{" "}
+                <b>community.samzara.in</b>. Below are the details of the
+                meeting you attended on{" "}
+                <b>
+                  {dayjs(selectedMeeting.meetingDate).format(
+                    "MMMM DD, YYYY hh:mm A"
+                  )}
+                </b>{" "}
+                which lasted for <b>60 minutes</b> (
+                {selectedMeeting.meetingType}).
+              </p>
 
-            {/* User Info */}
-            <div
-              className="py-2 text-xs sm:text-sm md:text-base"
-              style={{ color: "#374151" }}
-            >
-              <div className="flex gap-2">
-                <p>Member Name:</p>
-                <b>{user?.name || "Guest"}</b>
-              </div>
-              <div className="flex gap-2">
-                <p>Email:</p>
-                <b>{user?.email || "N/A"}</b>
-              </div>
-            </div>
-
-            {/* Events */}
-            <div className="py-2" style={{ color: "#374151" }}>
-              <div className="mt-2 space-y-4">
-                {selectedMeeting.events.map((e, i) => (
-                  <div key={i} className="pb-3">
-                    <p className="text-sm" style={{ color: "#4B5563" }}>
-                      Connection Type:{" "}
-                      <span className="font-bold" style={{ color: "#374151" }}>
-                        JOIN
-                      </span>{" "}
-                      at{" "}
-                      <span style={{ color: "#1F2937" }}>
-                        {dayjs(e.joinTime).format("MMMM DD, YYYY, hh:mm A")}
-                      </span>
-                    </p>
-                    <p className="text-sm mt-1" style={{ color: "#4B5563" }}>
-                      Digital Signature:{" "}
-                      <span className="break-all" style={{ color: "#2563EB" }}>
-                        {e.id}
-                      </span>
-                    </p>
-                    <div
-                      className="mt-3"
-                      style={{ borderBottom: "2px dotted #9CA3AF" }}
-                    ></div>
-
-                    {/* LEAVE Block */}
-                    {e.leaveTime && (
-                      <>
-                        <p
-                          className="text-sm mt-3"
-                          style={{ color: "#4B5563" }}
-                        >
-                          Connection Type:{" "}
-                          <span
-                            className="font-bold"
-                            style={{ color: "#374151" }}
-                          >
-                            LEAVE
-                          </span>{" "}
-                          at{" "}
-                          <span style={{ color: "#1F2937" }}>
-                            {dayjs(e.leaveTime).format(
-                              "MMMM DD, YYYY, hh:mm A"
-                            )}
-                          </span>
-                        </p>
-                        <p
-                          className="text-sm mt-1"
-                          style={{ color: "#4B5563" }}
-                        >
-                          Digital Signature:{" "}
-                          <span
-                            className="break-all"
-                            style={{ color: "#2563EB" }}
-                          >
-                            {e.id}
-                          </span>
-                        </p>
-                      </>
-                    )}
+              {/* Info Boxes */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                {/* Meeting Information */}
+                <div className="flex-1 rounded-lg overflow-hidden border border-green-200">
+                  <div className="bg-[#1a8b45] p-2 text-center">
+                    <h3 className="font-bold text-white text-base m-0">
+                      Meeting Information
+                    </h3>
                   </div>
-                ))}
+                  {/* White line divider */}
+                  <div className="bg-white h-1 w-full"></div>
+                  <div className="bg-[#1a8b45] p-3 text-white text-sm">
+                    <div>
+                      Date:{" "}
+                      {dayjs(selectedMeeting.meetingDate).format(
+                        "DD MMMM, YYYY hh:mm A"
+                      )}
+                    </div>
+                    <div>Type: {selectedMeeting.meetingType}</div>
+                  </div>
+                </div>
+                {/* Participant Information */}
+                <div className="flex-1 rounded-lg overflow-hidden border border-blue-200">
+                  <div className="bg-[#282a74] p-2 text-center">
+                    <h3 className="font-bold text-white text-base m-0">
+                      Participant Information
+                    </h3>
+                  </div>
+                  <div className="bg-white h-1 w-full"></div>
+                  <div className="bg-[#282a74] p-3 text-white text-sm">
+                    <div>Name: {user?.name || "Guest"}</div>
+                    <div>Email: {user?.email || "N/A"}</div>
+                  </div>
+                </div>
               </div>
+
+              {/* Attendance Events */}
+              <h3 className="text-gray-800 font-bold mb-2">
+                Attendance Events:
+              </h3>
+              {selectedMeeting.events.map((e, i) => (
+                <div key={i} className="mb-4">
+                  <p className="font-bold text-[#f89939]">Event {i + 1}</p>
+                  <p className="text-sm text-gray-700">
+                    JOIN: {dayjs(e.joinTime).format("MMMM DD, YYYY hh:mm A")}
+                  </p>
+                  {e.leaveTime && (
+                    <p className="text-sm text-gray-700">
+                      LEAVE:{" "}
+                      {dayjs(e.leaveTime).format("MMMM DD, YYYY hh:mm A")}
+                    </p>
+                  )}
+                  <p className="text-sm text-blue-600">
+                    Digital Signature: <span className="break-all">{e.id}</span>
+                  </p>
+                </div>
+              ))}
             </div>
 
             {/* Footer */}
-            <div>
-              <p className="text-sm" style={{ color: "#374151" }}>
+            <div className="bg-[#f89939] text-white p-4 rounded-b-xl text-sm">
+              <p>
                 The community.samzara.in Digital Signature is a unique process
-                that digitally signs and verifies your attendance upon request.
+                that digitally signs and verifies your attendance. If you are
+                experiencing any problems, please email support@samzara.in.
               </p>
-              <p className="text-sm mt-2" style={{ color: "#374151" }}>
-                If you are experiencing any problems with the meeting attendance
-                verification system, please email <b>support@samzara.in</b> and
-                we will get back with you immediately.
-              </p>
-              <p className="mt-2 text-sm" style={{ color: "#374151" }}>
-                Thanks,
-              </p>
-              <p className="text-sm mt-1" style={{ color: "#374151" }}>
-                <b>The community.samzara.in Team</b>
-              </p>
+              <p className="mt-2 font-bold">Thank You,</p>
+              <p className="font-bold">The community.samzara.in Team</p>
             </div>
           </div>
         </div>
