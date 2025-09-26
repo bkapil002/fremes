@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const dayjs = require('dayjs');
 const { auth } = require('../middleware/auth');
 const Agora = require('../Modal/Agoraa');
 const MeetingAttendance = require('../Modal/MeetingAttendance');
@@ -23,28 +22,26 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
     }
 
     const log = new MeetingAttendance({
-      meetingId: meeting._id,
+       meetingId: meeting._id,
       userId: user._id,
       name: user.name,
       email: user.email,
       meetingType: meeting.meetingType,
       meetingTime: meeting.meetingTime,
       meetingDate: meeting.meetingDate,
-      linkId: meeting.linkId,
+      linkId:meeting.linkId,
       joinTime: new Date()
     });
 
     await log.save();
     const subject = `You joined a meeting: ${meeting.meetingType}`;
     const html = joinEmailTemplate(user, meeting); 
-    const emailSent = await emailServer.sendEmail(user.email, subject, html);
+    await emailServer.sendEmail(user.email, subject, html);
 
-    // Only ONE response
-    return res.status(200).json({ message: 'Join time recorded', log, emailSent });
-
+    res.status(200).json({ message: 'Join time recorded', log });
   } catch (error) {
     console.error('Error logging join time:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
