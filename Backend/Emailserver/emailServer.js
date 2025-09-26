@@ -5,8 +5,8 @@ class EmailServer {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
+        user: 'aapnidukaan612@gmail.com',
+        pass: 'jopx vpfp xjty ktbj'
       }
     });
   }
@@ -14,7 +14,7 @@ class EmailServer {
   async sendEmail(to, subject, html) {
     try {
       await this.transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: 'aapnidukaan612@gmail.com',
         to,
         subject,
         html
