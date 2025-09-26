@@ -87,7 +87,7 @@ const Basics = () => {
   return () => clearInterval(interval);
 }, [user, linkId]);
 
-  useEffect(() => {
+ useEffect(() => {
     if (!isConnected || !user || !linkId || !meetingTime) return;
 
     if (!meetingTime.includes(" - ")) return;
@@ -103,15 +103,14 @@ const Basics = () => {
       "Asia/Kolkata"
     );
     const now = dayjs().tz("Asia/Kolkata");
-
-    let delay = 120000;
+    let delay = 0;
     if (now.isBefore(startTime)) {
       delay = startTime.diff(now);
       console.log(
         `User connected early. Waiting ${delay / 1000}s until meeting start.`
       );
     } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
-      delay = 60000; // 1 min
+      delay = 0;
       console.log("User connected during meeting. Waiting 1 min to log join.");
     } else {
       console.log("User connected after meeting ended. Join not recorded.");
