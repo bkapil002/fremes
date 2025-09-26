@@ -4,6 +4,8 @@ const dayjs = require('dayjs');
 const { auth } = require('../middleware/auth');
 const Agora = require('../Modal/Agoraa');
 const MeetingAttendance = require('../Modal/MeetingAttendance');
+const emailServer = require('../Emailserver/emailServer')
+const joinEmailTemplate  = require('../MailTemplate/joinEmailTemplate')
 
 
 router.post('/meeting/join/:linkId', auth, async (req, res) => {
@@ -33,6 +35,10 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
     });
 
     await log.save();
+    const subject = `You joined a meeting: ${meeting.meetingType}`;
+    const html = joinEmailTemplate(user, meeting);
+    await emailServer.sendEmail(user.email, subject, html);
+
 
     res.status(200).json({ message: 'Join time recorded', log });
   } catch (error) {
