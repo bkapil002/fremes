@@ -1,12 +1,12 @@
 const nodemailer = require('nodemailer');
-
+require('dotenv').config();
 class EmailServer {
   constructor() {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'aapnidukaan612@gmail.com',
-        pass: 'jopx vpfp xjty ktbj'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
       }
     });
   }
@@ -14,7 +14,7 @@ class EmailServer {
   async sendEmail(to, subject, html) {
     try {
       await this.transporter.sendMail({
-        from: 'aapnidukaan612@gmail.com',
+        from: process.env.EMAIL_USER,
         to,
         subject,
         html
