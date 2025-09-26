@@ -35,17 +35,23 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
     });
 
     await log.save();
-    const subject = `You joined a meeting: ${meeting.meetingType}`;
-    const html = joinEmailTemplate(user, meeting); 
-    const emailSent = await emailServer.sendEmail(user.email, subject, html);
-    res.status(200).json({ message: 'Join time recorded', log, emailSent });
-
+   emailServer
+      .sendEmail(
+        user.email,
+        `You joined a meeting: ${meeting.meetingType}`,
+        joinEmailTemplate(user, meeting)
+      )
+      .then(() => console.log(`✅ Email sent to ${user.email}`))
+      .catch((err) => console.error('❌ Email sending failed:', err));
     res.status(200).json({ message: 'Join time recorded', log });
   } catch (error) {
     console.error('Error logging join time:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 });
+
 
 router.put('/meeting/leave/:linkId', auth, async (req, res) => {
   try {
