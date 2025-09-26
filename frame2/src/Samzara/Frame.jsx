@@ -87,52 +87,58 @@ const Basics = () => {
   return () => clearInterval(interval);
 }, [user, linkId]);
 
-useEffect(() => {
-  if (!isConnected || !user || !linkId || !meetingTime) return;
+ useEffect(() => {
+    if (!isConnected || !user || !linkId || !meetingTime) return;
 
-  if (!meetingTime.includes(" - ")) return;
+    if (!meetingTime.includes(" - ")) return;
 
-  let timer;
-  const [startStr, endStr] = meetingTime.split(" - ");
-  const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
+    let timer;
+    const [startStr, endStr] = meetingTime.split(" - ");
+    const today = dayjs().tz("Asia/Kolkata").format("YYYY-MM-DD");
 
-  const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
-  const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz("Asia/Kolkata");
-  const now = dayjs().tz("Asia/Kolkata");
+    const startTime = dayjs(`${today} ${startStr}`, "YYYY-MM-DD h:mm A").tz(
+      "Asia/Kolkata"
+    );
+    const endTime = dayjs(`${today} ${endStr}`, "YYYY-MM-DD h:mm A").tz(
+      "Asia/Kolkata"
+    );
+    const now = dayjs().tz("Asia/Kolkata");
+    let delay = 0;
+    if (now.isBefore(startTime)) {
+      delay = startTime.diff(now);
+      console.log(
+        `User connected early. Waiting ${delay / 1000}s until meeting start.`
+      );
+    } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
+      delay = 0;
+      console.log("User connected during meeting. Waiting 1 min to log join.");
+    } else {
+      console.log("User connected after meeting ended. Join not recorded.");
+      return;
+    }
 
-  let delay = 0;
-  if (now.isBefore(startTime)) {
-    delay = startTime.diff(now);
-    console.log(`User connected early. Waiting ${delay / 1000}s until meeting start.`);
-  } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
-    delay = 0;
-    console.log("User connected during meeting. Logging join immediately.");
-  } else {
-    console.log("User connected after meeting ended. Join not recorded.");
-    return;
-  }
+    timer = setTimeout(() => {
+      const logJoin = async () => {
+        try {
+          await axios.post(
+            `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+            {},
+            {
+              headers: { Authorization: `Bearer ${user.token}` },
+            }
+          );
+          console.log("Join time recorded");
+        } catch (error) {
+          console.error("Error logging join time:", error);
+        }
+      };
+      logJoin();
+    }, delay);
 
-  timer = setTimeout(() => {
-    const logJoin = async () => {
-      try {
-        const res = await axios.post(
-          `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
-          {},
-          { headers: { Authorization: `Bearer ${user.token}` } }
-        );
-        console.log("✅ Join time recorded:", res.data.message);
-        console.log("📧 Email status:", res.data.emailStatus);
-      } catch (error) {
-        console.error("❌ Error logging join time:", error);
-      }
+    return () => {
+      if (timer) clearTimeout(timer);
     };
-    logJoin();
-  }, delay);
-
-  return () => {
-    if (timer) clearTimeout(timer);
-  };
-}, [isConnected, user, linkId, meetingTime]);
+  }, [isConnected, user, linkId, meetingTime]);
 
   
 
