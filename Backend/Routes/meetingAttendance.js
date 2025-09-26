@@ -37,7 +37,8 @@ router.post('/meeting/join/:linkId', auth, async (req, res) => {
     await log.save();
     const subject = `You joined a meeting: ${meeting.meetingType}`;
     const html = joinEmailTemplate(user, meeting); 
-    await emailServer.sendEmail(user.email, subject, html);
+    const emailSent = await emailServer.sendEmail(user.email, subject, html);
+    res.status(200).json({ message: 'Join time recorded', log, emailSent });
 
     res.status(200).json({ message: 'Join time recorded', log });
   } catch (error) {
