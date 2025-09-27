@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { TbLogout, TbLogin2 } from "react-icons/tb";
 import Z from "./LOGO.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -13,6 +12,7 @@ export default function Navebar() {
   const [showPopup, setShowPopup] = useState(false);
   const [query, setQuery] = useState("");
   const popupRef = useRef(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
 
   const handleLogout = async () => {
     try {
@@ -38,6 +38,26 @@ export default function Navebar() {
       toast.error("Failed to log out. Please try again.");
     }
   };
+
+  useEffect(() => {
+    if (!user?.email) return;
+    fetch("https://community.samzara.in/getUserByEmail.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        email: user.email,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.api_status === 200 && data.user_data?.avatar) {
+          setAvatarUrl(`https://community.samzara.in/${data.user_data.avatar}`);
+        }
+      })
+      .catch((err) => console.error("Error:", err));
+  }, [user?.email]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -173,7 +193,7 @@ export default function Navebar() {
                 <div className="relative" ref={popupRef}>
                   <img
                     src={
-                      user?.imageUrls[0] ||
+                      avatarUrl ||
                       "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
                     }
                     alt="User"
@@ -187,7 +207,7 @@ export default function Navebar() {
                           {user?.name || "User"}
                           <img
                             src={
-                              user?.imageUrls[0] ||
+                              avatarUrl ||
                               "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
                             }
                             alt="User"
@@ -229,7 +249,7 @@ export default function Navebar() {
 
                   <img
                     src={
-                      user?.imageUrls[0] ||
+                      avatarUrl ||
                       "https://community.samzara.in/upload/photos/d-avatar.jpg?cache=0"
                     }
                     alt="User"
