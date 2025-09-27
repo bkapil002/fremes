@@ -76,9 +76,9 @@ const ReadVideo = ({
 
   const isMeetingExpired = (() => {
   try {
+    if (!meetingTime) return false; 
     const meetingDateObj = new Date(meetingDate);
-
-
+    
     const [startTime, endTime] = meetingTime.split("-").map(t => t.trim());
 
     const parseTime = (timeStr) => {
