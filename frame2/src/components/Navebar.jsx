@@ -59,18 +59,18 @@ export default function Navebar() {
       .catch((err) => console.error("Error:", err));
   }, [user?.email]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        setShowPopup(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (popupRef.current && !popupRef.current.contains(event.target)) {
+  //       setShowPopup(false);
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   return (
     <nav className=" bg-[#ededed] shadow-sm py-[16px]">
@@ -198,7 +198,7 @@ export default function Navebar() {
                     }
                     alt="User"
                     className="w-[27px] h-[27px] rounded-full object-cover"
-                    onClick={() => setShowPopup((prev) => !prev)}
+                    onClick={() => setShowPopup(true)}
                   />
                   {showPopup && (
                     <div className="absolute shadow-xl -right-5 -mt-[43px] w-[250px] h-[167px] bg-white rounded-lg z-50 hidden md:block">
@@ -260,8 +260,8 @@ export default function Navebar() {
             </div>
 
             {/* Menu Items */}
-            <ul className=" px-7 space-y-3  text-[#828282] font-medium text-[15px]">
-              <li className="flex items-center gap-4 cursor-pointer">
+              <ul className=" px-7 space-y-3  text-[#828282] font-medium text-[15px]">
+              <a href="https://community.samzara.in/search" onClick={() => setShowPopup(false)}   className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -269,8 +269,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Search
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/pages" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -278,8 +278,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Page
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/my-products" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -287,8 +287,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 My Products
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a  href="https://community.samzara.in/products" onClick={() => setShowPopup(false)}  className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -296,8 +296,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Market
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/blogs" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -305,8 +305,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Blog
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/my-blogs" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -314,8 +314,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 My articles
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/movies/" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -323,9 +323,9 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Movies
-              </li>
+              </a>
 
-              <li className="flex items-center gap-4 cursor-pointer">
+              <a href="https://community.samzara.in/events/" onClick={() => setShowPopup(false)}  className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -333,8 +333,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Events
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/groups" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -342,8 +342,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 My Groups
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/forum" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -351,8 +351,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Forum
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/albums" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -360,8 +360,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Albums
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/saved-posts" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -369,8 +369,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Saved Posts
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/poke" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -378,8 +378,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Pokes
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/search?query=" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -387,8 +387,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Explore
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/most_liked" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -396,9 +396,9 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Popular Posts
-              </li>
+              </a>
 
-              <li className="flex items-center gap-4 cursor-pointer">
+              <a href="https://community.samzara.in/new-game" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -406,8 +406,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Games
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/friends-nearby/" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -415,8 +415,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Find friends
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/jobs" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -424,8 +424,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Jobs
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/events/" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -433,8 +433,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Common Things
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/funding" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -442,9 +442,9 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Fundings
-              </li>
+              </a>
 
-              <li className="flex items-center gap-4 cursor-pointer">
+              <a href="https://community.samzara.in/memories" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -452,8 +452,8 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Memories
-              </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              </a>
+              <a href="https://community.samzara.in/offers" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -461,11 +461,11 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Offers
-              </li>
+              </a>
               <li>
                 <div className=" border-b-[1px] -mx-6 mt-6 mb-6 border-gray-200  "></div>
               </li>
-              <li className="flex items-center gap-4 cursor-pointer">
+              <a href="https://community.samzara.in/setting" onClick={() => setShowPopup(false)} className="flex items-center gap-4 cursor-pointer">
                 <svg viewBox="0 0 24 24" width="18" height="18" color="#666">
                   <path
                     fill="currentColor"
@@ -473,7 +473,7 @@ export default function Navebar() {
                   ></path>
                 </svg>{" "}
                 Settings
-              </li>
+              </a>
               <li className="flex items-center gap-4 cursor-pointer">
                 Night mode
               </li>
