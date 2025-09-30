@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Z from "./LOGO.png";
-import { Link, useNavigate } from "react-router-dom";
+import {  Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Search } from "lucide-react";
 import toast from "react-hot-toast";
@@ -16,7 +16,7 @@ export default function Navebar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("https://samzraa.onrender.com/api/users/logOut", {
+      const response = await fetch("http://localhost:5000/api/users/logOut", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,6 +71,23 @@ export default function Navebar() {
   //     document.removeEventListener("mousedown", handleClickOutside);
   //   };
   // }, []);
+  useEffect(() => {
+      function handleClickOutside(event) {
+        if (popupRef.current && !popupRef.current.contains(event.target)) {
+          setShowPopup(false);
+        }
+      }
+  
+      if (showPopup) {
+        document.addEventListener("mousedown", handleClickOutside);
+      } else {
+        document.removeEventListener("mousedown", handleClickOutside);
+      }
+  
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [showPopup]);
 
   return (
     <nav className=" bg-[#ededed] shadow-sm py-[16px]">
@@ -203,7 +220,7 @@ export default function Navebar() {
                   {showPopup && (
                     <div className="absolute shadow-xl -right-5 -mt-[43px] w-[250px] h-[167px] bg-white rounded-lg z-50 hidden md:block">
                       <div className="px-2 py-4 border-b border-gray-200 text-black text-[14px] font-semibold">
-                        <div className="flex px-3 -mt-2 py-2 mb-1 items-center place-content-between bg-[#f5f5f5] hover:bg-[#272974] hover:text-white cursor-pointer rounded-[10px]">
+                        <Link to={`https://community.samzara.in/${user.name}`} className="flex px-3 -mt-2 py-2 mb-1 items-center place-content-between bg-[#f5f5f5] hover:bg-[#272974] hover:text-white cursor-pointer rounded-[10px]">
                           {user?.name || "User"}
                           <img
                             src={
@@ -213,7 +230,7 @@ export default function Navebar() {
                             alt="User"
                             className="w-[27px] h-[27px] rounded-full object-cover"
                           />
-                        </div>
+                        </Link>
                       </div>
                       <ul>
                         <li
