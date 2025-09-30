@@ -93,13 +93,13 @@ export default function Navebar() {
     <nav className=" bg-[#ededed] shadow-sm py-[16px]">
       <div className=" flex pl-6 pr-6 justify-center">
         <div className="flex w-[1120px] items-center  justify-between">
-          <div className="flex items-center ">
+          <Link to={'https://community.samzara.in'} className="flex items-center ">
             <img
               src={Z}
               alt="Logo"
-              className=" w-30  md:w-[180px]  object-cover"
+              className=" w-30  md:w-[180px] cursor-pointer  object-cover"
             />
-          </div>
+          </Link>
 
           {/* Center - Navigation Icons (Desktop only) */}
           <div className=" hidden md:flex justify-center items-center  ">
