@@ -14,24 +14,13 @@ const auth = async (req, res, next) => {
 
     req.user = user;
     req.token = token;
+    req.jwtInfo = { iat: decoded.iat, exp: decoded.exp };
     next();
   } catch (error) {
     res.status(401).json({ error: 'Please authenticate' });
   }
 };
 
-const adminAuth = async (req, res, next) => {
-  try {
-    await auth(req, res, () => {
-      if (req.user.isAdmin) {
-        next();
-      } else {
-        res.status(403).json({ error: 'Admin access required' });
-      }
-    });
-  } catch (error) {
-    res.status(401).json({ error: 'Please authenticate' });
-  }
-};
 
-module.exports = { auth, adminAuth };
+
+module.exports = { auth };

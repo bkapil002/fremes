@@ -61,36 +61,36 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
 });
 
 
-router.post('/login', async(req,res)=>{
-    try{
-       const {email }= req.body;
-       const user = await User.findOne({email});
+// router.post('/login', async(req,res)=>{
+//     try{
+//        const {email }= req.body;
+//        const user = await User.findOne({email});
 
-       if(!user){
-         return res.status(400).json({message: 'Invalid credential'});
-       }
+//        if(!user){
+//          return res.status(400).json({message: 'Invalid credential'});
+//        }
 
-       const token = generateToken(user._id);
+//        const token = generateToken(user._id);
 
-       res.cookie('token',token)
-       .json({
-        token,
-        user:{
-          _id:user._id,
-          name:user.name,
-          email:user.email,
-          imageUrls:user.imageUrls
-        }
-       })
-    }catch(error){
-      res.status(500).json({error: error.message});
-    }
-})
+//        res.cookie('token',token)
+//        .json({
+//         token,
+//         user:{
+//           _id:user._id,
+//           name:user.name,
+//           email:user.email,
+//           imageUrls:user.imageUrls
+//         }
+//        })
+//     }catch(error){
+//       res.status(500).json({error: error.message});
+//     }
+// })
 
 
 router.get('/auth/:decodedEmail', async(req,res)=>{
     try{
-       const { decodedEmail } = req.params; // use the same name as route
+       const { decodedEmail } = req.params; 
        const user = await User.findOne({ email: decodedEmail });
 
        if(!user){
@@ -99,7 +99,12 @@ router.get('/auth/:decodedEmail', async(req,res)=>{
 
        const token = generateToken(user._id);
 
-       res.cookie('token',token)
+        res.cookie("token", token, {
+       httpOnly: true,
+        secure: process.env.NODE_ENV === "production", 
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
+        maxAge: 5 * 60 * 1000, 
+       })
        .json({
         token,
         user:{
