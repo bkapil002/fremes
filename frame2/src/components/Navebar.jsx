@@ -42,7 +42,7 @@ export default function Navebar() {
 
   useEffect(() => {
     if (!user?.email) return;
-    fetch("https://samzraa.onrender.com/getUserByEmail.php", {
+    fetch("https://community.samzara.in/getUserByEmail.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -67,7 +67,7 @@ export default function Navebar() {
   }
 
   if (user?.token) {
-    fetch("https://community.samzara.in/api/tokenEXP", {
+    fetch("https://samzraa.onrender.com/api/tokenEXP", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${user.token}`,
