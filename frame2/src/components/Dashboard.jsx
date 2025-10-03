@@ -41,7 +41,7 @@ export default function Dashboard() {
           {
             method: "GET",
             credentials: "include",
-          }
+          },{ withCredentials: true }
         );
 
         const data = await res.json();

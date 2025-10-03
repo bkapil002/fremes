@@ -42,7 +42,7 @@ export default function AttendanceNavigate() {
           {
             method: "GET",
             credentials: "include",
-          }
+          },{ withCredentials: true }
         );
 
         const data = await res.json();

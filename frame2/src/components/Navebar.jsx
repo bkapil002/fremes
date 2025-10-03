@@ -42,7 +42,7 @@ export default function Navebar() {
 
   useEffect(() => {
     if (!user?.email) return;
-    fetch("https://community.samzara.in/getUserByEmail.php", {
+    fetch("https://samzraa.onrender.com/getUserByEmail.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
