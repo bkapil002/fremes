@@ -13,6 +13,7 @@ export default function Navebar() {
   const [query, setQuery] = useState("");
   const popupRef = useRef(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
+   const logoutTimerRef = useRef(null);
 
   const handleLogout = async () => {
     try {
@@ -58,6 +59,56 @@ export default function Navebar() {
       })
       .catch((err) => console.error("Error:", err));
   }, [user?.email]);
+
+
+  useEffect(() => {
+  if (logoutTimerRef.current) {
+    clearTimeout(logoutTimerRef.current);
+  }
+
+  if (user?.token) {
+    fetch("https://community.samzara.in/api/tokenEXP", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+      credentials: "include",
+    })
+      .then(async (res) => {
+        if (res.status === 401) {
+          toast.error("Unauthorized. Logging out...");
+          handleLogout();
+          return;
+        }
+        const data = await res.json();
+        if (data.exp) {
+          const expMs = data.exp * 1000; 
+          const nowMs = Date.now();
+          const timeLeft = expMs - nowMs;
+
+ 
+          const autoLogoutMs = timeLeft - 2 * 60 * 1000;
+
+          if (autoLogoutMs > 0) {
+            logoutTimerRef.current = setTimeout(() => {
+              toast("Session expired, logging out...");
+              handleLogout();
+            }, autoLogoutMs);
+          } else {
+            handleLogout();
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching token exp:", err);
+      });
+  }
+  return () => {
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+    }
+  };
+}, [user?.token]);
 
   // useEffect(() => {
   //   const handleClickOutside = (event) => {
