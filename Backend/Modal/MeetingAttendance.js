@@ -41,7 +41,7 @@ const meetingAttendanceSchema = new mongoose.Schema({
   leaveTime: {
     type: Date,
   }
-});
+},{ timestamps: true });
 
 const MeetingAttendance = mongoose.model('meetingAttendance', meetingAttendanceSchema);
 module.exports = MeetingAttendance;

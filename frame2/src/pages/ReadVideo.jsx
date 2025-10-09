@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Video, VideoOff, X } from "lucide-react";
-
+import toast from "react-hot-toast";
 const ReadVideo = ({
   handleRemovePromotedUser,
   handleResetOwnRequest,
@@ -73,45 +73,44 @@ const ReadVideo = ({
     }
   };
 
-
   const isMeetingExpired = (() => {
-  try {
-    if (!meetingTime) return false; 
-    const meetingDateObj = new Date(meetingDate);
-    
-    const [startTime, endTime] = meetingTime.split("-").map(t => t.trim());
+    try {
+      if (!meetingTime) return false;
+      const meetingDateObj = new Date(meetingDate);
 
-    const parseTime = (timeStr) => {
-      const [time, modifier] = timeStr.split(" ");
-      let [hours, minutes] = time.split(":").map(Number);
+      const [startTime, endTime] = meetingTime.split("-").map((t) => t.trim());
 
-      if (modifier === "PM" && hours !== 12) hours += 12;
-      if (modifier === "AM" && hours === 12) hours = 0;
+      const parseTime = (timeStr) => {
+        const [time, modifier] = timeStr.split(" ");
+        let [hours, minutes] = time.split(":").map(Number);
 
-      const dateObj = new Date(meetingDateObj);
-      dateObj.setHours(hours);
-      dateObj.setMinutes(minutes || 0);
-      dateObj.setSeconds(0);
-      return dateObj;
-    };
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
 
-    const startDateTime = parseTime(startTime);
-    const endDateTime = parseTime(endTime);
+        const dateObj = new Date(meetingDateObj);
+        dateObj.setHours(hours);
+        dateObj.setMinutes(minutes || 0);
+        dateObj.setSeconds(0);
+        return dateObj;
+      };
 
-    const earlyJoinTime = new Date(startDateTime.getTime() - 6 * 60 * 1000);
+      const startDateTime = parseTime(startTime);
+      const endDateTime = parseTime(endTime);
 
-    const now = new Date();
-    if (now < earlyJoinTime) return true;
+      const earlyJoinTime = new Date(startDateTime.getTime() - 6 * 60 * 1000);
 
-    if (now > endDateTime) return true;
+      const now = new Date();
+      if (now < earlyJoinTime) return true;
 
-    // Otherwise → enabled
-    return false;
-  } catch (err) {
-    console.error("Error parsing date/time:", err);
-    return false;
-  }
-})();
+      if (now > endDateTime) return true;
+
+      // Otherwise → enabled
+      return false;
+    } catch (err) {
+      console.error("Error parsing date/time:", err);
+      return false;
+    }
+  })();
 
   return (
     <div className=" h-screen  mt-10">
@@ -176,48 +175,66 @@ const ReadVideo = ({
             </p>
 
             {/* Join Button */}
-            <button
-              onClick={async () => {
-                setIsLoading(true);
-                try {
-                  await handleRemovePromotedUser();
-                  await handleResetOwnRequest();
-                  setCalling(true);
-                } finally {
-                  setIsLoading(false);
-                }
-              }}
-              disabled={isLoading || isMeetingExpired}
-              className={` relative bg-[#178a43] hover:bg-[#000080]  disabled:hover:bg-[#178a43]   transition-all duration-300 text-white px-8 py-3  rounded-xl font-semibold w-full md:w-4/5  hadow-lg hover:shadow-xl   disabled:opacity-70 disabled:cursor-not-allowed`}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8z"
-                    ></path>
-                  </svg>
-                  <span className="font-medium">Joining...</span>
-                </div>
-              ) : (
-                "Join Now"
-              )}
-            </button>
+             <div className="w-full md:w-4/5">
+              <button
+                onClick={async () => {
+                  if (isMeetingExpired) {
+                    toast.error(
+                      `This meeting is scheduled for ${new Date(
+                        meetingDate
+                      ).toLocaleDateString()} at ${
+                        meetingTime.split("-")[0]
+                      }. Please join 5 minutes before the scheduled time.`,
+                      { duration: 5000 }
+                    );
+                    return;
+                  }
+
+                  // ✅ Actual join logic
+                  setIsLoading(true);
+                  try {
+                    await handleRemovePromotedUser();
+                    await handleResetOwnRequest();
+                    setCalling(true);
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                className={`relative transition-all duration-300 text-white px-8 py-3 rounded-xl font-semibold w-full shadow-lg hover:shadow-xl ${
+                  isMeetingExpired
+                    ? "bg-[#178a43]/50 cursor-not-allowed"
+                    : "bg-[#178a43] hover:bg-[#000080]"
+                }`}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      ></path>
+                    </svg>
+                    <span className="font-medium">Joining...</span>
+                  </div>
+                ) : (
+                  "Join Now"
+                )}
+              </button>
+            </div>
 
             {/* Small note */}
             <p className="mt-5 text-sm text-gray-500">

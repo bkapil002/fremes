@@ -759,9 +759,14 @@ const CreateMeeting = () => {
                           onClick={() => {
                             setStartDate(day.toDate());
                             setSelectedSlot(slot);
-                          }}
-                          title=""
-                        >
+                             const contentDiv = document.querySelector('.overflow-y-auto');
+                             if (contentDiv) {
+                            contentDiv.scrollTo({
+                             top: 0,
+                             behavior: 'smooth',
+                              });
+                              }
+                            }} >
                           {meeting && (
                             <div className="absolute inset-0 overflow-hidden">
                               <div className="bg-[#178a43] hover:bg-[#000080] flex flex-col text-white w-full h-full  p-1 truncate">

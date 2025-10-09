@@ -5,11 +5,10 @@ const User = require('../Modal/User');
 const {generateToken} = require('../ultils/tokenUtils')
 const cookiConfig =require('../ultils/cookieConfig')
 const {auth} = require('../middleware/auth')
-const multer = require('multer');
-const cloudinary = require('../config/cloudinary');
-const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/signUp',upload.array('images'), async (req, res) => {
+
+
+router.post('/signUp', async (req, res) => {
   console.log(req.body); 
     try {
         const { email, name } = req.body;
@@ -19,28 +18,13 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
             return res.status(400).json({ message: 'Email, password, and name are required' });
         }
 
-       
-
-
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'Email already registered' });
         }
             
 
-
-
-        const imageUrls = [];
-        if (req.files && req.files.length > 0) {
-        for (const file of req.files) {
-            const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-            const result = await cloudinary.uploader.upload(base64Image, { folder: 'products' });
-            imageUrls.push(result.secure_url);
-        }
-      }
-
-        const user = await User.create({ email, name , imageUrls});
-
+        const user = await User.create({ email, name });
         const token = generateToken(user._id);
         res.cookie('token',token,cookiConfig)
 
@@ -50,7 +34,6 @@ router.post('/signUp',upload.array('images'), async (req, res) => {
                 _id: user._id,
                 email: user.email,
                 name: user.name,
-                imageUrls:user.imageUrls
             }
         });
 

@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
     interval: { type: Number, default: 1 },
     batchSize: { type: Number, default: 5 }
   }
-})
+},{ timestamps: true })
 
 const Agoraa =  mongoose.model("agoraa" , userSchema)
 module.exports = Agoraa;
