@@ -179,7 +179,6 @@ router.post('/create-room', auth, async (req, res) => {
           const html = createMettingTemplate(
         req.user.name,
         meetingType,
-         meetingRepeat,
         `https://samzra.onrender.com/room/${meetingsToCreate[0].linkId}` // meeting link
         );
       await emailServer.sendEmail(req.user.email, subject, html);

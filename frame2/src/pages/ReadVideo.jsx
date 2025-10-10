@@ -9,6 +9,7 @@ const ReadVideo = ({
   meetingtopic,
   meetingTime,
   meetingDate,
+  loading,
 }) => {
   const videoRef = useRef(null);
   const [micOn, setMicOn] = useState(true);
@@ -175,65 +176,91 @@ const ReadVideo = ({
             </p>
 
             {/* Join Button */}
-             <div className="w-full md:w-4/5">
-              <button
-                onClick={async () => {
-                  if (isMeetingExpired) {
-                    toast.error(
-                      `This meeting is scheduled for ${new Date(
-                        meetingDate
-                      ).toLocaleDateString()} at ${
-                        meetingTime.split("-")[0]
-                      }. Please join 5 minutes before the scheduled time.`,
-                      { duration: 5000 }
-                    );
-                    return;
-                  }
+            <div className="w-full md:w-4/5 flex items-center justify-center">
+              {loading ? (
+                // 🔹 Show spinner while backend data is loading
+                <div className="flex items-center justify-center h-12">
+                  <svg
+                    className="animate-spin h-6 w-6 text-[#178a43]"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                </div>
+              ) : (
+                // 🔹 Show Join Now button once data is ready
+                <button
+                  onClick={async () => {
+                    if (isMeetingExpired) {
+                      toast.error(
+                        `This meeting is scheduled for ${new Date(
+                          meetingDate
+                        ).toLocaleDateString()} at ${
+                          meetingTime.split("-")[0]
+                        }. Please join 5 minutes before the scheduled time.`,
+                        { duration: 5000 }
+                      );
+                      return;
+                    }
 
-                  // ✅ Actual join logic
-                  setIsLoading(true);
-                  try {
-                    await handleRemovePromotedUser();
-                    await handleResetOwnRequest();
-                    setCalling(true);
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-                className={`relative transition-all duration-300 text-white px-8 py-3 rounded-xl font-semibold w-full shadow-lg hover:shadow-xl ${
-                  isMeetingExpired
-                    ? "bg-[#178a43]/50 cursor-not-allowed"
-                    : "bg-[#178a43] hover:bg-[#000080]"
-                }`}
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8z"
-                      ></path>
-                    </svg>
-                    <span className="font-medium">Joining...</span>
-                  </div>
-                ) : (
-                  "Join Now"
-                )}
-              </button>
+                    setIsLoading(true);
+                    try {
+                      await handleRemovePromotedUser();
+                      await handleResetOwnRequest();
+                      setCalling(true);
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  className={`relative transition-all duration-300 text-white px-8 py-3 rounded-xl font-semibold w-full shadow-lg hover:shadow-xl ${
+                    isMeetingExpired
+                      ? "bg-[#178a43]/50 cursor-not-allowed"
+                      : "bg-[#178a43] hover:bg-[#000080]"
+                  }`}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        ></path>
+                      </svg>
+                      <span className="font-medium">Joining...</span>
+                    </div>
+                  ) : (
+                    "Join Now"
+                  )}
+                </button>
+              )}
             </div>
 
             {/* Small note */}

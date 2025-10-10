@@ -61,6 +61,7 @@ const Basics = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [loading , setloading]= useState(false)
   const [removeUser, setRemoveUser] = useState([]);
   
   const remoteUsers = useRemoteUsers();
@@ -323,6 +324,7 @@ useEffect(() => {
   useEffect(() => {
     if (!user || !linkId) return;
     const fetchRoomDetails = async () => {
+      setloading(true)
       try {
         const response = await axios.put(
           `https://samzraa.onrender.com/api/agora/join-room/${linkId}`,
@@ -346,6 +348,8 @@ useEffect(() => {
         setAdminName(data.agora.user.name);
       } catch (error) {
         console.error("Error fetching room details:", error);
+      }finally {
+      setloading(false); 
       }
     };
     fetchRoomDetails();
@@ -513,6 +517,7 @@ useEffect(() => {
               meetingtopic={meetingtopic}
                meetingTime={meetingTime}
               meetingDate={meetingDate}
+              loading = {loading}
             />
           </div>
         ) : (
