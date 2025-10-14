@@ -329,9 +329,6 @@ useEffect(() => {
                 </svg>{" "}
                 Settings
               </a>
-              <li className="flex items-center gap-4 cursor-pointer">
-                Night mode
-              </li>
               <li
                 onClick={handleLogout}
                 className="flex items-center mb-3  cursor-pointer "
