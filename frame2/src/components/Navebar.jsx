@@ -253,7 +253,7 @@ useEffect(() => {
                     }}
                   />
                   {showPopup && (
-                    <div ref={popupRef} className="absolute shadow-xl -right-5 -mt-[43px] w-[250px] h-[167px] bg-white rounded-lg z-50 hidden md:block">
+                    <div ref={popupRef} className="absolute shadow-xl -right-5 -mt-[43px] w-[250px] h-[120px] bg-white rounded-lg z-50 hidden md:block">
                       <div className="px-2 py-4 border-b border-gray-200 text-black text-[14px] font-semibold">
                         <Link to={`https://community.samzara.in/${user.name}`} className="flex px-3 -mt-2 py-2 mb-1 items-center place-content-between bg-[#f5f5f5] hover:bg-[#272974] hover:text-white cursor-pointer rounded-[10px]">
                           {user?.name || "User"}
@@ -287,7 +287,7 @@ useEffect(() => {
         {showPopup2 && (
           <div
           ref={popupRef2}
-           className="fixed top-13.5 sm:right-3  bottom-22  sm:bottom-40  overflow-y-auto w-full sm:w-62  bg-white z-50 block md:hidden animate-slide-in rounded-[4px]">
+           className="fixed top-13.5 sm:right-3   overflow-y-auto w-full sm:w-62  bg-white z-50 block md:hidden animate-slide-in rounded-[4px]">
             {/* Close Button */}
             <div className="flex justify-between items-center p-4 px-2">
               <div className="w-full   border-gray-200 text-black text-[14px] ">
