@@ -13,6 +13,7 @@ const Upcomming = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [deleteType, setDeleteType] = useState("this");
   const [isLoading, setIsLoading] = useState(false);
+  const URL = import.meta.env.VITE_API_URL
 
   useEffect(() => {
     if (!user) return;
@@ -21,7 +22,7 @@ const Upcomming = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          "https://samzraa.onrender.com/api/agora/Upcomeing-rooms",
+          `${URL}/api/agora/Upcomeing-rooms`,
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
@@ -43,12 +44,12 @@ const Upcomming = () => {
     try {
       if (deleteType === "this") {
         await axios.delete(
-          `https://samzraa.onrender.com/api/agora/delete-room/${selectedRoom.linkId}`,
+          `${URL}/api/agora/delete-room/${selectedRoom.linkId}`,
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       } else if (deleteType === "all") {
         await axios.delete(
-          `https://samzraa.onrender.com/api/agora/delete-upcoming/${selectedRoom.linkId}`,
+          `${URL}/api/agora/delete-upcoming/${selectedRoom.linkId}`,
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       }

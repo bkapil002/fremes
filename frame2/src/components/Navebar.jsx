@@ -16,10 +16,11 @@ export default function Navebar() {
   const popupRef2 =useRef(null)
   const [avatarUrl, setAvatarUrl] = useState(null);
    const logoutTimerRef = useRef(null);
+   const URL = import.meta.env.VITE_API_URL
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("https://samzraa.onrender.com/api/users/logOut", {
+      const response = await fetch(`${URL}/api/users/logOut`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +70,7 @@ export default function Navebar() {
   }
 
   if (user?.token) {
-    fetch("https://samzraa.onrender.com/api/tokenEXP", {
+    fetch(`${URL}/api/tokenEXP`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${user.token}`,

@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 const MeetingList = () => {
   const { user } = useAuth();
   const [rooms, setRooms] = useState([]);
+  const URL = import.meta.env.VITE_API_URL
 
   const getWeekDays = () => {
     const today = new Date();
@@ -93,7 +94,7 @@ const MeetingList = () => {
 
   const fetchRooms = async () => {
     try {
-      const res = await axios.get("https://samzraa.onrender.com/api/agora/all-rooms", {
+      const res = await axios.get(`${URL}/api/agora/all-rooms`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setRooms(res.data);

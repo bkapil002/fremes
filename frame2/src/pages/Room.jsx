@@ -19,13 +19,14 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
+
 const Room = () => {
   const { linkId } = useParams();
   const { user } = useAuth();
   const [calling, setCalling] = useState(false);
   const isConnected = useIsConnected();
   const [showSidebar, setShowSidebar] = useState(false);
-
+  const URL = import.meta.env.VITE_API_URL
   const [appId, setAppId] = useState("");
   const [channel, setChannel] = useState("");
   const [token, setToken] = useState("");
@@ -52,7 +53,7 @@ const Room = () => {
     const fetchRoomDetails = async () => {
       try {
         const response = await axios.put(
-          `https://samzraa.onrender.com/api/agora/join-room/${linkId}`,
+          `${URL}/api/agora/join-room/${linkId}`,
           {},
           {
             headers: {
@@ -101,7 +102,7 @@ const Room = () => {
         const nameMap = {};
         for (const uid of uids) {
           try {
-            const response = await axios.put(`https://samzraa.onrender.com/api/users/name/${uid}`);
+            const response = await axios.put(`${URL}/api/users/name/${uid}`);
             nameMap[uid] = response.data.name; // assuming API returns { name: ... }
           } catch (error) {
             nameMap[uid] = "Unknown";

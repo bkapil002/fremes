@@ -10,7 +10,7 @@ const JoinRoom = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [roomInfo, setRoomInfo] = useState(null); 
-
+ const URL = import.meta.env.VITE_API_URL
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ const JoinRoom = () => {
       }
 
       const response = await axios.post(
-        'https://samzraa.onrender.com/api/agora/create-room',
+        `${URL}/api/agora/create-room`,
         {},
         {
           headers: {

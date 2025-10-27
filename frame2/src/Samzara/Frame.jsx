@@ -65,14 +65,15 @@ const Basics = () => {
   const [removeUser, setRemoveUser] = useState([]);
   
   const remoteUsers = useRemoteUsers();
-
+  
+  const URL = import.meta.env.VITE_API_URL
   useEffect(() => {
   if (!user || !linkId) return;
 
   const fetchRemoveattendance = async () => {
     try {
       await axios.delete(
-        `https://samzraa.onrender.com/api/removeduser/delete-attendance/${linkId}`,
+        `${URL}/api/removeduser/delete-attendance/${linkId}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -122,7 +123,7 @@ const Basics = () => {
       const logJoin = async () => {
         try {
           await axios.post(
-            `https://samzraa.onrender.com/api/attendance/meeting/join/${linkId}`,
+            `${URL}/api/attendance/meeting/join/${linkId}`,
             {},
             {
               headers: { Authorization: `Bearer ${user.token}` },
@@ -152,7 +153,7 @@ const Basics = () => {
 
       try {
         await axios.put(
-          `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+          `${URL}/api/attendance/meeting/leave/${linkId}`,
           {},
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
@@ -178,7 +179,7 @@ const Basics = () => {
   useEffect(() => {
   const handleUnload = () => {
     if (isConnected) {
-      fetch(`https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`, {
+      fetch(`${URL}/api/attendance/meeting/leave/${linkId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -214,7 +215,7 @@ useEffect(() => {
         try {
           const leaveTime = dayjs().tz("Asia/Kolkata").format();
           await axios.put(
-            `https://samzraa.onrender.com/api/attendance/meeting/leave/${linkId}`,
+            `${URL}/api/attendance/meeting/leave/${linkId}`,
             { leaveTime },
             { headers: { Authorization: `Bearer ${user.token}` } }
           );
@@ -240,7 +241,7 @@ useEffect(() => {
     const fetchRemoveUserDetails = async () => {
       try {
         const response = await axios.get(
-          `https://samzraa.onrender.com/api/removeduser/user-removed/${linkId}`,
+          `${URL}/api/removeduser/user-removed/${linkId}`,
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
@@ -266,7 +267,7 @@ useEffect(() => {
     setRemoving(true);
     try {
       await axios.post(
-        "https://samzraa.onrender.com/api/removeduser/remove-user",
+        `${URL}/api/removeduser/remove-user`,
         {
           uid: selectedUser.uid,
           meetingType: meetingtopic,
@@ -298,7 +299,7 @@ useEffect(() => {
         for (const uid of uids) {
           try {
             const response = await axios.put(
-              `https://samzraa.onrender.com/api/users/name/${uid}`
+              `${URL}/api/users/name/${uid}`
             );
             nameMap[uid] = response.data.name;
           } catch (error) {
@@ -327,7 +328,7 @@ useEffect(() => {
       setloading(true)
       try {
         const response = await axios.put(
-          `https://samzraa.onrender.com/api/agora/join-room/${linkId}`,
+          `${URL}/api/agora/join-room/${linkId}`,
           {},
           {
             headers: {
@@ -364,7 +365,7 @@ useEffect(() => {
     const fetchPushedUids = async () => {
       try {
         const res = await axios.get(
-          "https://samzraa.onrender.com/api/agora/pushed-uids",
+          `${URL}/api/agora/pushed-uids`,
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
@@ -382,7 +383,7 @@ useEffect(() => {
     const fetchPromotedUid = async () => {
       try {
         const res = await axios.get(
-          `https://samzraa.onrender.com/api/agora/promote-uid/${linkId}`,
+          `${URL}/api/agora/promote-uid/${linkId}`,
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }
@@ -401,7 +402,7 @@ useEffect(() => {
     setPushLoading(true);
     try {
       await axios.post(
-        "https://samzraa.onrender.com/api/agora/push-uid",
+        `${URL}/api/agora/push-uid`,
         { email: user.email },
         {
           headers: { Authorization: `Bearer ${user.token}` },
@@ -415,7 +416,7 @@ useEffect(() => {
     setResetLoading(true);
     try {
       await axios.delete(
-        `https://samzraa.onrender.com/api/agora/unpush-uid/${
+        `${URL}/api/agora/unpush-uid/${
           uidToRemove || email
         }`,
         {
@@ -437,7 +438,7 @@ useEffect(() => {
       }
 
       await axios.post(
-        `https://samzraa.onrender.com/api/agora/promote-uid/${linkId}`,
+        `${URL}/api/agora/promote-uid/${linkId}`,
         { uid },
         {
           headers: { Authorization: `Bearer ${user.token}` },
@@ -455,7 +456,7 @@ useEffect(() => {
     setPromoteLoading(true);
     try {
       await axios.delete(
-        `https://samzraa.onrender.com/api/agora/promote-uid/${linkId}`,
+        `${URL}/api/agora/promote-uid/${linkId}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }

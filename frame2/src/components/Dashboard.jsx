@@ -9,6 +9,8 @@ export default function Dashboard() {
  const [error, setError] = useState(null);
  const navigate = useNavigate();
   const {  login } = useAuth(); 
+  const URL = import.meta.env.VITE_API_URL
+  
  useEffect(() => {
     if (!encodedEmail) {
       setError("No email provided in URL");
@@ -37,7 +39,7 @@ export default function Dashboard() {
     const doLogin = async () => {
       try {
         const res = await fetch(
-          `https://samzraa.onrender.com/api/users/auth/${encodeURIComponent(decodedEmail)}`,
+          `${URL}/api/users/auth/${encodeURIComponent(decodedEmail)}`,
           {
             method: "GET",
             credentials: "include",

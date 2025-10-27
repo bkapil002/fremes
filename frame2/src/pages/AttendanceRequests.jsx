@@ -12,7 +12,8 @@ const AttendanceRequests = () => {
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
-
+  const URL = import.meta.env.VITE_API_URL
+  
   const getCurrentTimeCustom = () => {
     const now = new Date();
     const hours = now.getHours();
@@ -272,7 +273,7 @@ const AttendanceRequests = () => {
       if (!user) return;
       try {
         const response = await axios.get(
-          "https://samzraa.onrender.com/api/attendance/attendance/my",
+          `${URL}/api/attendance/attendance/my`,
           {
             headers: { Authorization: `Bearer ${user.token}` },
           }

@@ -182,6 +182,7 @@ const CreateMeeting = () => {
    const [showModal, setShowModal] = useState(false);
    const [selectedRoom, setSelectedRoom] = useState(null);
     const [deleteType, setDeleteType] = useState("this");
+    const URL = import.meta.env.VITE_API_URL
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -201,7 +202,7 @@ const CreateMeeting = () => {
   const fetchUpcomingMeetings = async () => {
     if (!user) return;
     try {
-      const response = await axios.get("https://samzraa.onrender.com/api/agora/Upcomeing-rooms", { headers: { Authorization: `Bearer ${user.token}` } });
+      const response = await axios.get(`${URL}/api/agora/Upcomeing-rooms`, { headers: { Authorization: `Bearer ${user.token}` } });
       setUpcomingMeetings(response.data);
     } catch (error) {
       console.error("Error fetching upcoming meetings:", error);
@@ -275,7 +276,7 @@ const CreateMeeting = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "https://samzraa.onrender.com/api/agora/create-room",
+        `${URL}/api/agora/create-room`,
         {
           meetingType: title,
           meetingDate: istDate,
@@ -340,12 +341,12 @@ const CreateMeeting = () => {
       
       if (deleteType === "this") {
         await axios.delete(
-          `https://samzraa.onrender.com/api/agora/delete-room/${selectedRoom.linkId}`,
+          `${URL}/api/agora/delete-room/${selectedRoom.linkId}`,
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       } else if (deleteType === "all") {
         await axios.delete(
-          `https://samzraa.onrender.com/api/agora/delete-upcoming/${selectedRoom.linkId}`,
+          `${URL}/api/agora/delete-upcoming/${selectedRoom.linkId}`,
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
       }
